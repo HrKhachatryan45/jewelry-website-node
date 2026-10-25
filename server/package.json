@@ -1,0 +1,46 @@
+{
+  "name": "luxe-jewelry-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "REST API for the Luxe Jewelry store (Django migration)",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "setup": "npm run prisma:push && npm run db:seed && npm run uploads",
+    "uploads": "node scripts/sync-uploads.js",
+    "postinstall": "node scripts/sync-uploads.js",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push",
+    "db:seed": "node prisma/seed.js",
+    "db:reset": "prisma db push --force-reset && node prisma/seed.js",
+    "tryon:assets": "node scripts/generate-tryon-assets.js"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
+  "dependencies": {
+    "@google/genai": "^2.31.0",
+    "@imgly/background-removal-node": "^1.4.5",
+    "@prisma/client": "^5.22.0",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-async-errors": "^3.1.1",
+    "express-rate-limit": "^7.5.0",
+    "express-validator": "^7.2.1",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "multer": "^2.4.0",
+    "nodemailer": "^10.1.1",
+    "p-limit": "^7.3.3",
+    "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "prisma": "^5.22.0"
+  }
+}

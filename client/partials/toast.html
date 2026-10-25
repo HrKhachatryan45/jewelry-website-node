@@ -1,0 +1,20 @@
+<!-- Global Cart Success Toast -->
+<div id="global-cart-toast" class="fixed top-6 right-6 z-[9999] bg-white border border-luxe-gold/20 p-6 flex flex-col gap-4 shadow-2xl transition-all duration-700 translate-x-[150%] opacity-0 pointer-events-none min-w-[320px]">
+    <button type="button" onclick="closeToast()" class="absolute top-3 left-3 text-luxe-black/20 hover:text-luxe-gold transition-colors" aria-label="Close">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+    <div class="flex items-center gap-4 mt-2">
+        <div class="w-16 h-16 bg-section-alt overflow-hidden shrink-0">
+            <img id="global-toast-product-image" src="" alt="" class="w-full h-full object-cover">
+        </div>
+        <div>
+            <p class="text-[8px] text-luxe-gold uppercase tracking-[0.3em] font-bold mb-0.5" data-i18n="toast.added">Ավելացվեց զամբյուղ</p>
+            <h4 id="global-toast-product-name" class="text-[11px] font-heading uppercase tracking-widest text-luxe-black leading-tight line-clamp-1" data-i18n="toast.item">Ապրանք</h4>
+        </div>
+    </div>
+    <div class="grid grid-cols-2 gap-2 mt-2">
+        <a href="/cart" class="bg-luxe-black text-white text-center py-2.5 text-[8px] font-bold uppercase tracking-widest hover:bg-luxe-gold transition-colors" data-i18n="nav.cart">Զամբյուղ</a>
+        <button type="button" onclick="closeToast()" class="border border-luxe-black/10 text-luxe-black text-center py-2.5 text-[8px] font-bold uppercase tracking-widest hover:border-luxe-gold hover:text-luxe-gold transition-colors" data-i18n="toast.continue">Շարունակել</button>
+    </div>
+    <div id="global-toast-progress" class="absolute bottom-0 left-0 h-[2px] bg-luxe-gold w-full transform-origin-left"></div>
+</div>

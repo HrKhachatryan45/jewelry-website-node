@@ -1,0 +1,52 @@
+/* Switches for checkboxes in Django Admin */
+.vCheckboxInput {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    width: 36px !important;
+    height: 20px !important;
+    background-color: #ddd !important;
+    border-radius: 10px !important;
+    position: relative !important;
+    cursor: pointer !important;
+    transition: background-color 0.2s !important;
+    outline: none !important;
+    vertical-align: middle !important;
+    border: none !important;
+    display: inline-block !important;
+}
+
+.vCheckboxInput:checked {
+    background-color: #79aec8 !important; /* Django primary blue */
+}
+
+.vCheckboxInput:checked:hover {
+    background-color: #417690 !important;
+}
+
+.vCheckboxInput::after {
+    content: '' !important;
+    position: absolute !important;
+    width: 16px !important;
+    height: 16px !important;
+    background-color: white !important;
+    border-radius: 50% !important;
+    top: 2px !important;
+    left: 2px !important;
+    transition: left 0.2s !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2) !important;
+}
+
+.vCheckboxInput:checked::after {
+    left: 18px !important;
+}
+
+/* Styling for the change list table checkboxes to keep them standard if needed, 
+   but user asked for "all switches", so we apply to vCheckboxInput which covers both. */
+
+/* Polish for the help text alignment */
+.checkbox-row .help {
+    margin-left: 10px !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+}

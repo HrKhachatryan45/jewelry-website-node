@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxe Jewelry — Կապ</title>
+    <meta name="description" content="Luxe Jewelry - հայկական ոսկերչական տուն">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/assets/js/tailwind-config.js"></script>
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <script type="module" src="/js/api.js"></script>
+    <script src="/js/i18n.js" defer></script>
+    <script src="/js/layout.js" defer></script>
+    <script type="module" src="/js/pages/contact.js" defer></script>
+</head>
+<body data-page="contact">
+    <div id="header-slot"></div>
+    <main>
+        <!-- Hero -->
+        <section class="relative pt-32 pb-24 md:pt-48 md:pb-40 overflow-hidden bg-luxe-black">
+            <div class="absolute inset-0 opacity-10">
+                <div class="absolute inset-0" style="background-image: radial-gradient(circle at 50% 50%, #D4AF37, transparent 70%);"></div>
+            </div>
+            <div class="container mx-auto px-6 relative text-center">
+                <span class="section-label text-luxe-gold/60 mb-6">Կապ Հաստատել</span>
+                <h1 class="text-3xl md:text-8xl font-body font-light text-white uppercase tracking-tight">
+                    Խոսեք <span class="text-gradient-gold">Մեզ Հետ</span>
+                </h1>
+                <p class="text-white/40 text-lg mt-8 max-w-2xl mx-auto font-light leading-relaxed">
+                    Ունե՞ք հարցեր կամ ցանկանում եք պատվիրել անհատական զարդ։ Մենք սիրով կպատասխանենք ձեզ։
+                </p>
+            </div>
+        </section>
+
+        <section class="section-padding bg-white">
+            <div class="container mx-auto px-6 py-16">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 xl:gap-24">
+
+                    <!-- Contact Info -->
+                    <div class="lg:col-span-4 space-y-16">
+                        <div>
+                            <h2 class="text-xs uppercase tracking-[0.3em] text-luxe-black mb-10">Կապի Տվյալներ</h2>
+                            <div class="space-y-12">
+                                <div class="flex gap-6">
+                                    <div class="w-12 h-12 bg-section-alt flex items-center justify-center text-luxe-gold shrink-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-[9px] uppercase tracking-widest text-luxe-black/40 mb-2">Հեռախոս</p>
+                                        <p class="text-sm font-medium text-luxe-black" id="contact-phone">+374 10 123 456</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex gap-6">
+                                    <div class="w-12 h-12 bg-section-alt flex items-center justify-center text-luxe-gold shrink-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-[9px] uppercase tracking-widest text-luxe-black/40 mb-2">Հասցե</p>
+                                        <p class="text-sm font-medium text-luxe-black" id="contact-address">Մաշտոցի պողոտա, Երևան</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex gap-6">
+                                    <div class="w-12 h-12 bg-section-alt flex items-center justify-center text-luxe-gold shrink-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-[9px] uppercase tracking-widest text-luxe-black/40 mb-2">Աշխատանքային Ժամեր</p>
+                                        <p class="text-sm font-medium text-luxe-black">Երկ–Շաբ: 10:00–20:00</p>
+                                        <p class="text-sm font-medium text-luxe-black">Կիր: 11:00–18:00</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Form -->
+                    <div class="lg:col-span-8">
+                        <div class="bg-section-alt p-10 md:p-16">
+                            <h2 class="text-2xl font-heading font-normal text-luxe-black uppercase tracking-widest mb-10">Ուղարկել Հաղորդագրություն</h2>
+
+                            <div id="msg" class="hidden mb-8 p-4 bg-luxe-black text-luxe-gold text-[10px] uppercase tracking-widest"></div>
+
+                            <form id="contact-form" class="space-y-8">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div class="space-y-2">
+                                        <label class="text-[9px] uppercase tracking-widest text-luxe-black/40">Անուն Ազգանուն</label>
+                                        <input type="text"
+                                               name="full_name"
+                                               placeholder="Մուտքագրեք ձեր անունը"
+                                               required
+                                               class="w-full bg-transparent border-b border-border/20 py-3 text-xs focus:border-luxe-gold outline-none transition-colors duration-300 placeholder:text-luxe-black/20">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[9px] uppercase tracking-widest text-luxe-black/40">Էլ. փոստ</label>
+                                        <input type="email"
+                                               name="email"
+                                               placeholder="example@mail.com"
+                                               required
+                                               class="w-full bg-transparent border-b border-border/20 py-3 text-xs focus:border-luxe-gold outline-none transition-colors duration-300 placeholder:text-luxe-black/20">
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="text-[9px] uppercase tracking-widest text-luxe-black/40">Թեմա</label>
+                                    <input type="text"
+                                           name="subject"
+                                           placeholder="Ինչի՞ մասին է ձեր հարցումը"
+                                           class="w-full bg-transparent border-b border-border/20 py-3 text-xs focus:border-luxe-gold outline-none transition-colors duration-300 placeholder:text-luxe-black/20">
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="text-[9px] uppercase tracking-widest text-luxe-black/40">Հաղորդագրություն</label>
+                                    <textarea name="message"
+                                              rows="5"
+                                              placeholder="Գրեք ձեր հաղորդագրությունն այստեղ..."
+                                              required
+                                              class="w-full bg-transparent border-b border-border/20 py-3 text-xs focus:border-luxe-gold outline-none resize-none transition-colors duration-300 placeholder:text-luxe-black/20"></textarea>
+                                </div>
+
+                                <button type="submit" class="w-full btn-luxe btn-luxe-primary h-16 uppercase tracking-[0.3em] text-[10px] transition-all duration-300 hover:tracking-[0.4em]">
+                                    Ուղարկել Հաղորդագրությունը
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <div id="footer-slot"></div>
+    <div id="toast-slot"></div>
+</body>
+</html>

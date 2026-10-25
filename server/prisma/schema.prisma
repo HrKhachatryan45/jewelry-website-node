@@ -1,0 +1,252 @@
+// Luxe Jewelry — Prisma schema.
+// Table names keep parity with the Django `bakery_app_*` tables so data can be
+// imported from `prisma/seed-data.json` (exported from Django's cake_db).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Users (replaces django.contrib.auth.User) ─────────────────────────
+model User {
+  id        Int       @id @default(autoincrement())
+  username  String    @unique
+  email     String    @unique
+  password  String // bcrypt hash
+  // Django: is_staff / is_superuser -> role ∈ customer | admin
+  role      String    @default("customer")
+  firstName String    @default("") @map("first_name")
+  lastName  String    @default("") @map("last_name")
+  isActive  Boolean   @default(true) @map("is_active")
+  lastLogin DateTime? @map("last_login")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  orders        Order[]
+  wishlist      WishlistItem[]
+
+  @@map("users")
+}
+
+// ── Categories (Django modelled this as CATEGORY_CHOICES on MenuItem) ──
+model Category {
+  id       Int    @id @default(autoincrement())
+  slug     String @unique
+  nameHy   String @map("name_hy")
+  nameRu   String @map("name_ru")
+  nameEn   String @map("name_en")
+  sortOrder Int   @default(0) @map("sort_order")
+  image    String?
+
+  @@map("categories")
+}
+
+// ── Product (Django: MenuItem) ────────────────────────────────────────
+model MenuItem {
+  id                 Int      @id @default(autoincrement())
+  name               String
+  slug               String
+  description        String   @default("")
+  price              Decimal  @db.Decimal(10, 0)
+  category           String // rings|necklaces|earrings|bracelets|bespoke|collections
+  isPopular          Boolean  @default(false) @map("is_popular")
+  isNew              Boolean  @default(false) @map("is_new")
+  isActive           Boolean  @default(true) @map("is_active")
+  image              String?
+  materialKarat      String?  @map("material_karat") // "metal"
+  gemstone           String? // "gem"
+  dimensions         String?
+  availableMaterials Json     @default("[]") @map("available_materials")
+  allowsCustomText   Boolean  @default(true) @map("allows_custom_text")
+  preparationDays    Int      @default(7) @map("preparation_days")
+  priceType          String   @default("fixed") @map("price_type") // fixed|per_gram
+  tryOnAsset         String?  @map("try_on_asset") // transparent PNG for the AR try-on overlay
+  model3d            String?  @map("model_3d") // GLB rendered against live hand tracking
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  images   MenuItemImage[]
+  variants MenuItemVariant[]
+  orderItems OrderItem[]
+
+  @@index([slug])
+  @@index([category])
+  @@map("bakery_app_menuitem")
+}
+
+model MenuItemVariant {
+  id         Int     @id @default(autoincrement())
+  menuItemId Int     @map("menu_item_id")
+  size       String?
+  weight     Decimal @db.Decimal(6, 2)
+  stock      Int     @default(0)
+  price      Decimal @db.Decimal(10, 0)
+  isAvailable Boolean @default(true) @map("is_available")
+
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  @@map("bakery_app_menuitemvariant")
+}
+
+model MenuItemImage {
+  id         Int     @id @default(autoincrement())
+  menuItemId Int     @map("menu_item_id")
+  image      String
+  order      Int     @default(0)
+
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  @@map("bakery_app_menuitemimage")
+}
+
+// ── Reviews ───────────────────────────────────────────────────────────
+model Review {
+  id         Int      @id @default(autoincrement())
+  name       String
+  badge      String   @default("")
+  text       String
+  rating     Int
+  time       String   @default("")
+  isApproved Boolean  @default(false) @map("is_approved")
+  showOnMain Boolean  @default(false) @map("show_on_main")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("bakery_app_review")
+}
+
+// ── Contact messages ──────────────────────────────────────────────────
+model ContactMessage {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  phone     String   @default("")
+  message   String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("bakery_app_contactmessage")
+}
+
+// ── Orders ────────────────────────────────────────────────────────────
+model Order {
+  id                  Int      @id @default(autoincrement())
+  fullName            String   @map("full_name")
+  email               String
+  phone               String
+  deliveryType        String   @default("pickup") @map("delivery_type")
+  paymentMethod       String   @default("cash") @map("payment_method")
+  city                String?
+  address             String   @default("")
+  lat                 String?
+  lng                 String?
+  deliveryPrice       Decimal  @default(0) @db.Decimal(10, 2) @map("delivery_price")
+  deliveryTime        String?  @map("delivery_time")
+  orderNote           String   @default("") @map("order_note")
+  status              String   @default("new")
+  total               Decimal  @db.Decimal(10, 2)
+  totalAmountAmd      Decimal? @db.Decimal(10, 2) @map("total_amount_amd")
+  isPaid              Boolean  @default(false) @map("is_paid")
+  onlinePaymentStatus String   @default("pending") @map("online_payment_status")
+  idramTransactionId  String?  @map("idram_transaction_id")
+  arcaOrderId         String?  @map("arca_order_id")
+  arcaFormUrl         String?  @map("arca_form_url")
+  emailSent           Boolean  @default(false) @map("email_sent")
+  userId              Int?     @map("user_id")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  items OrderItem[]
+  user  User?     @relation(fields: [userId], references: [id])
+
+  @@map("bakery_app_order")
+}
+
+model OrderItem {
+  id         Int      @id @default(autoincrement())
+  orderId    Int      @map("order_id")
+  menuItemId Int?     @map("menu_item_id")
+  name       String
+  price      Decimal  @db.Decimal(10, 2)
+  quantity   Int
+  weight     Decimal? @db.Decimal(5, 1)
+  material   String?
+  customText String?  @map("custom_text")
+  size       String?
+  note       String   @default("")
+
+  order    Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItem MenuItem? @relation(fields: [menuItemId], references: [id], onDelete: SetNull)
+
+  @@map("bakery_app_orderitem")
+}
+
+// ── Hero ──────────────────────────────────────────────────────────────
+model HeroSlide {
+  id        Int     @id @default(autoincrement())
+  image     String
+  title     String  @default("")
+  order     Int     @default(0)
+  isActive  Boolean @default(true) @map("is_active")
+
+  @@map("bakery_app_heroslide")
+}
+
+model HeroSettings {
+  id            Int    @id @default(1)
+  titleLine1    String @default("Բացառիկ զարդեր,") @map("title_line1")
+  titleHighlight String @default("Սիրով պատրաստված") @map("title_highlight")
+  description   String @default("Յուրահատուկ ձեռագործ զարդեր՝ պատրաստված բարձրորակ մետաղներից և քարերից Երևանի սրտում։")
+
+  @@map("bakery_app_herosettings")
+}
+
+// ── Bespoke commissions ───────────────────────────────────────────────
+model BespokeOrder {
+  id            Int      @id @default(autoincrement())
+  fullName      String   @map("full_name")
+  email         String
+  phone         String
+  jewelryType   String   @map("jewelry_type")
+  gemstonePreferences String @default("") @map("gemstone_preferences")
+  budgetRange   String   @map("budget_range")
+  deadline      DateTime? @db.Date
+  sketch        String?
+  sketch2       String?
+  sketch3       String?
+  description   String
+  status        String   @default("new")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@map("bakery_app_bespokeorder")
+}
+
+// ── Session replacement: guest carts (Django: request.session['cart']) ─
+model Cart {
+  id        Int      @id @default(autoincrement())
+  cartId    String   @unique @map("cart_id")
+  userId    Int?     @map("user_id")
+  items     Json     @default("{}")
+  buyNow    Json     @default("{}") @map("buy_now")
+  lang      String   @default("hy")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("carts")
+}
+
+// ── Wishlist (new feature) ────────────────────────────────────────────
+model WishlistItem {
+  id         Int      @id @default(autoincrement())
+  userId     Int?
+  cartId     String?  @map("cart_id")
+  menuItemId Int      @map("menu_item_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, menuItemId])
+  @@map("wishlist_items")
+}

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxe Jewelry — Մեր Մասին</title>
+    <meta name="description" content="Luxe Jewelry - հայկական ոսկերչական տուն">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/assets/js/tailwind-config.js"></script>
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <script type="module" src="/js/api.js"></script>
+    <script src="/js/i18n.js" defer></script>
+    <script src="/js/layout.js" defer></script>
+    <script type="module" src="/js/pages/about.js" defer></script>
+</head>
+<body data-page="about">
+    <div id="header-slot"></div>
+    <main>
+        <!-- Hero Section -->
+        <section class="relative pt-32 pb-24 md:pt-48 md:pb-40 overflow-hidden bg-luxe-black">
+            <div class="absolute inset-0 opacity-10">
+                <div class="absolute inset-0" style="background-image: radial-gradient(circle at 50% 50%, #D4AF37, transparent 70%);"></div>
+            </div>
+            <div class="container mx-auto px-6 md:px-12 lg:px-24 relative text-center">
+                <span class="section-label text-luxe-gold/60 mb-6 block">Մեր Պատմությունը</span>
+                <h1 class="text-3xl md:text-7xl lg:text-8xl font-body font-light text-white uppercase tracking-tight mb-8">
+                    Արվեստ և <span class="text-gradient-gold">Ավանդույթ</span>
+                </h1>
+                <p class="text-white/40 text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed">
+                    Luxe Jewelry-ն ավելին է, քան պարզապես զարդեր։ Այն հույզերի, հիշողությունների և անհատականության արտացոլումն է՝ կերտված թանկարժեք մետաղների ու քարերի մեջ։
+                </p>
+            </div>
+        </section>
+
+        <!-- Our Philosophy -->
+        <section class="py-32 md:py-48 lg:py-56 bg-white overflow-hidden mt-10">
+            <div class="container mx-auto px-6 md:px-12 lg:px-24">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-24 lg:gap-32 items-center">
+                    <div class="relative group scroll-fade">
+                        <div class="aspect-[4/5] overflow-hidden">
+                            <img src="/assets/images/about_crafting.png" alt="Jewelry Crafting" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                        </div>
+                        <div class="absolute -bottom-8 -right-8 w-48 h-48 bg-luxe-gold/10 backdrop-blur-xl border border-luxe-gold/20 flex items-center justify-center text-center p-6 hidden md:flex">
+                            <p class="text-[10px] font-bold text-luxe-black uppercase tracking-[0.3em] leading-relaxed text-white">Հիմնադրվել է 1998 թվականին</p>
+                        </div>
+                    </div>
+
+                    <div class="scroll-fade">
+                        <span class="section-label mb-8 block">Մեր Փիլիսոփայությունը</span>
+                        <h2 class="text-3xl md:text-4xl lg:text-5xl font-body font-light text-luxe-black uppercase tracking-tight mb-10">
+                            Կատարելություն ամեն <span class="text-gradient-gold">մանրուքի</span> մեջ
+                        </h2>
+                        <div class="space-y-8">
+                            <p class="text-foreground/70 leading-relaxed text-base md:text-lg font-light">
+                                Մեր ճանապարհորդությունը սկսվեց մի պարզ երազանքից՝ ստեղծել զարդեր, որոնք կփոխանցվեն սերնդեսերունդ։ Մենք հավատում ենք, որ յուրաքանչյուր քար ունի իր ձայնը, իսկ յուրաքանչյուր մետաղ՝ իր հոգին։
+                            </p>
+                            <p class="text-foreground/70 leading-relaxed text-base md:text-lg font-light">
+                                Մեր վարպետները համատեղում են դարավոր հայկական ոսկերչական ավանդույթները ժամանակակից դիզայներական լուծումների հետ, ստեղծելով եզակի նմուշներ, որոնք չեն հնանում ժամանակի ընթացքում։
+                            </p>
+
+                            <div class="grid grid-cols-2 gap-8 pt-6">
+                                <div>
+                                    <p class="text-3xl md:text-4xl font-heading font-normal text-luxe-gold mb-2">25+</p>
+                                    <p class="text-[10px] font-bold uppercase tracking-widest text-luxe-black/40">Տարվա Փորձ</p>
+                                </div>
+                                <div>
+                                    <p class="text-3xl md:text-4xl font-heading font-normal text-luxe-gold mb-2">10k+</p>
+                                    <p class="text-[10px] font-bold uppercase tracking-widest text-luxe-black/40">Գոհ Հաճախորդներ</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Values Grid -->
+        <section class="py-32 md:py-48 lg:py-56 bg-section-alt">
+            <div class="container mx-auto px-6 md:px-12 lg:px-24">
+                <div class="text-center mb-24 md:mb-32 scroll-fade max-w-3xl mx-auto">
+                    <span class="section-label block mb-6">Ինչու՞ Ընտրել Մեզ</span>
+                    <h2 class="text-3xl md:text-4xl lg:text-5xl font-body font-light text-luxe-black uppercase tracking-tight">
+                        Մեր <span class="text-gradient-gold">Արժեքները</span>
+                    </h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+                    <div class="scroll-fade p-10 md:p-12 bg-white border border-border/40 hover:shadow-2xl transition-all duration-700 text-center">
+                        <div class="w-20 h-20 bg-luxe-black text-luxe-gold flex items-center justify-center mx-auto mb-10">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg>
+                        </div>
+                        <h3 class="text-xl font-heading font-normal text-luxe-black uppercase tracking-widest mb-6">Բացառիկ Որակ</h3>
+                        <p class="text-foreground/60 leading-relaxed font-light">Մենք օգտագործում ենք միայն ամենաբարձր հարգի մետաղներ և խիստ ընտրված թանկարժեք քարեր։</p>
+                    </div>
+
+                    <div class="scroll-fade p-10 md:p-12 bg-white border border-border/40 hover:shadow-2xl transition-all duration-700 text-center">
+                        <div class="w-20 h-20 bg-luxe-black text-luxe-gold flex items-center justify-center mx-auto mb-10">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        </div>
+                        <h3 class="text-xl font-heading font-normal text-luxe-black uppercase tracking-widest mb-6">Երաշխավորված</h3>
+                        <p class="text-foreground/60 leading-relaxed font-light">Յուրաքանչյուր զարդ ուղեկցվում է որակի հավաստագրով և ցմահ սպասարկման երաշխիքով։</p>
+                    </div>
+
+                    <div class="scroll-fade p-10 md:p-12 bg-white border border-border/40 hover:shadow-2xl transition-all duration-700 text-center">
+                        <div class="w-20 h-20 bg-luxe-black text-luxe-gold flex items-center justify-center mx-auto mb-10">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        </div>
+                        <h3 class="text-xl font-heading font-normal text-luxe-black uppercase tracking-widest mb-6">Անհատական Մոտեցում</h3>
+                        <p class="text-foreground/60 leading-relaxed font-light">Մենք պատրաստ ենք իրականություն դարձնել ձեր ամենահամարձակ դիզայներական գաղափարները։</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Showroom / Location -->
+        <section class="py-32 md:py-48 lg:py-56 bg-white">
+            <div class="container mx-auto px-6 md:px-12 lg:px-24">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-24 lg:gap-32 items-center">
+                    <div class="scroll-fade">
+                        <span class="section-label mb-8 block">Այցելեք Մեզ</span>
+                        <h2 class="text-3xl md:text-4xl lg:text-5xl font-body font-light text-luxe-black uppercase tracking-tight mb-12">
+                            Մեր <span class="text-gradient-gold">Ցուցասրահը</span>
+                        </h2>
+                        <div class="space-y-12">
+                            <div>
+                                <h4 class="text-[10px] font-bold text-luxe-black uppercase tracking-[0.3em] mb-4">Հասցե</h4>
+                                <p class="text-base md:text-lg text-foreground/70 font-light" id="about-address">Մաշտոցի պողոտա 15/2, Երևան, Հայաստան</p>
+                            </div>
+                            <div>
+                                <h4 class="text-[10px] font-bold text-luxe-black uppercase tracking-[0.3em] mb-4">Աշխատանքային Ժամեր</h4>
+                                <div class="grid grid-cols-2 gap-x-8 gap-y-4 text-foreground/70 font-light">
+                                    <p>Երկուշաբթի — Շաբաթ</p>
+                                    <p class="text-luxe-black font-medium">10:00 – 20:00</p>
+                                    <p>Կիրակի</p>
+                                    <p class="text-luxe-black font-medium">11:00 – 18:00</p>
+                                </div>
+                            </div>
+                            <div class="pt-6">
+                                <a id="about-map-link" href="https://maps.google.com/?q=Mashtots+Avenue+15,+Yerevan,+Armenia" target="_blank"
+                                   class="inline-flex items-center gap-3 bg-luxe-gold text-luxe-black px-10 py-4 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] shadow-lg shadow-luxe-gold/20 hover:shadow-luxe-gold/40 hover:scale-105 hover:bg-yellow-500 transition-all duration-500 group">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:animate-bounce"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                                    Դիտել Քարտեզի Վրա
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="aspect-square bg-section-alt relative overflow-hidden scroll-fade">
+                        <img src="/assets/images/about_showroom.png" alt="Showroom" class="w-full h-full object-cover">
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <div id="footer-slot"></div>
+    <div id="toast-slot"></div>
+</body>
+</html>

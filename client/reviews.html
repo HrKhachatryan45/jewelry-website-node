@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxe Jewelry — Կարծիքներ</title>
+    <meta name="description" content="Luxe Jewelry - հայկական ոսկերչական տուն">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/assets/js/tailwind-config.js"></script>
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <script type="module" src="/js/api.js"></script>
+    <script src="/js/i18n.js" defer></script>
+    <script src="/js/layout.js" defer></script>
+    <script type="module" src="/js/pages/reviews.js" defer></script>
+</head>
+<body data-page="reviews">
+    <div id="header-slot"></div>
+    <main>
+        <!-- Hero & Form Section -->
+        <section class="pt-32 pb-20 md:pt-40 md:pb-28 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="flex flex-col lg:flex-row gap-16 lg:gap-24 items-start">
+                    <!-- Left Side: Headline & Summary -->
+                    <div class="lg:w-1/2 space-y-10 sm:space-y-12">
+                        <div class="space-y-6">
+                            <span class="text-[10px] uppercase tracking-[0.5em] text-luxe-gold mb-4 block">Հաճախորդների Փորձառություն</span>
+                            <h1 class="text-3xl sm:text-7xl md:text-8xl font-body font-light text-luxe-black leading-tight uppercase tracking-tight">
+                                Մեր <br class="hidden md:block">
+                                <span class="text-gradient-gold">Արվեստի</span> Ձայնը
+                            </h1>
+                            <p class="text-luxe-black/40 text-lg max-w-lg leading-relaxed font-light">
+                                Luxe Jewelry-ում յուրաքանչյուր զարդ ունի իր պատմությունը: Ձեր կարծիքները օգնում են մեզ կատարելագործել մեր արհեստը և ստեղծել անմոռանալի պահեր:
+                            </p>
+                        </div>
+
+                        <!-- Stats Card & Breakdown -->
+                        <div class="flex flex-col sm:flex-row items-center gap-12">
+                            <!-- Rating Card -->
+                            <div class="bg-section-alt p-10 rounded-none text-center w-full sm:w-56 border border-luxe-gold/10">
+                                <p class="text-6xl font-heading text-luxe-black mb-2" id="avg-rating">5.0</p>
+                                <div class="flex justify-center gap-1 mb-4 text-luxe-gold" id="avg-stars"></div>
+                                <p class="text-luxe-black/30 text-[10px] uppercase tracking-widest font-bold"><span id="total-reviews">0</span> Կարծիք</p>
+                            </div>
+
+                            <!-- Breakdown Bars -->
+                            <div class="flex-1 w-full space-y-4" id="breakdown"></div>
+                        </div>
+                    </div>
+
+                    <!-- Right Side: Submission Form -->
+                    <div class="lg:w-1/2 w-full">
+                        <div class="bg-luxe-black p-8 sm:p-12 md:p-16 rounded-none relative border border-luxe-gold/20 shadow-2xl">
+                            <!-- Decorative Icon -->
+                            <div class="hidden sm:block absolute top-10 right-12 opacity-10">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none"
+                                    stroke="#D4AF37" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 20h9" />
+                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                                </svg>
+                            </div>
+
+                            <h2 class="text-3xl font-heading font-normal text-white uppercase tracking-widest mb-10">Գրեք Ձեր Կարծիքը</h2>
+
+                            <div id="msg" class="hidden mb-8 p-4 bg-luxe-gold/10 border border-luxe-gold/20 text-luxe-gold text-center text-[10px] uppercase tracking-widest font-bold"></div>
+
+                            <form id="review-form" class="space-y-8">
+                                <div class="flex flex-col sm:flex-row gap-8">
+                                    <!-- Name -->
+                                    <div class="flex-1">
+                                        <label for="name" class="block text-[9px] font-bold text-luxe-gold uppercase tracking-[0.3em] mb-3 ml-1">Ձեր Անունը</label>
+                                        <input type="text" id="name" name="name" required
+                                            class="w-full px-0 py-4 bg-transparent border-b border-white/10 focus:border-luxe-gold transition-all text-white outline-none placeholder:text-white/50 text-sm font-light"
+                                            placeholder="Օրինակ՝ Արմեն">
+                                    </div>
+
+                                    <!-- Rating -->
+                                    <div class="sm:w-1/3">
+                                        <label class="block text-[9px] font-bold text-luxe-gold uppercase tracking-[0.3em] mb-3 ml-1">Գնահատական</label>
+                                        <div class="flex gap-2 py-4 justify-start border-b border-white/10" id="star-rating-selector">
+                                            <button type="button" data-rating="1" class="star-btn transition-all hover:scale-110 text-white/20">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1">
+                                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                                </svg>
+                                            </button>
+                                            <button type="button" data-rating="2" class="star-btn transition-all hover:scale-110 text-white/20">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1">
+                                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                                </svg>
+                                            </button>
+                                            <button type="button" data-rating="3" class="star-btn transition-all hover:scale-110 text-white/20">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1">
+                                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                                </svg>
+                                            </button>
+                                            <button type="button" data-rating="4" class="star-btn transition-all hover:scale-110 text-white/20">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1">
+                                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                                </svg>
+                                            </button>
+                                            <button type="button" data-rating="5" class="star-btn transition-all hover:scale-110 text-white/20">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1">
+                                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                                </svg>
+                                            </button>
+                                            <input type="hidden" name="rating" id="rating-input" value="5">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Thought -->
+                                <div>
+                                    <label for="text" class="block text-[9px] font-bold text-luxe-gold uppercase tracking-[0.3em] mb-3 ml-1">Ձեր Կարծիքը</label>
+                                    <textarea id="text" name="text" rows="4" required
+                                        class="w-full px-0 py-4 bg-transparent border-b border-white/10 focus:border-luxe-gold transition-all text-white outline-none resize-none placeholder:text-white/50/50 text-sm font-light"
+                                        placeholder="Ի՞նչը Ձեզ ամենից շատ դուր եկավ..."></textarea>
+                                </div>
+
+                                <button type="submit"
+                                    class="w-full py-5 bg-luxe-gold text-luxe-black font-bold text-[10px] uppercase tracking-[0.3em] hover:bg-white transition-all duration-500 shadow-xl mt-6">
+                                    Ուղարկել Կարծիքը
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- All Reviews Section -->
+        <section class="section-padding pt-16 pb-32 bg-section-alt">
+            <div class="container mx-auto px-6">
+                <!-- Section Header & Filters -->
+                <div class="flex flex-col md:flex-row items-center justify-between gap-8 mb-20 border-b border-luxe-black/5 pb-12">
+                    <div class="relative">
+                        <h3 class="text-2xl sm:text-4xl font-heading font-normal text-luxe-black uppercase tracking-widest">Հյուրերի Փորձառությունները</h3>
+                    </div>
+
+                    <div class="flex gap-8">
+                        <a href="?sort=recent" id="sort-recent"
+                            class="text-[10px] font-bold uppercase tracking-[0.2em] transition-all duration-300 text-luxe-gold">
+                            Վերջինները
+                        </a>
+                        <a href="?sort=all" id="sort-all"
+                            class="text-[10px] font-bold uppercase tracking-[0.2em] transition-all duration-300 text-luxe-black/30 hover:text-luxe-gold">
+                            Լավագույնները
+                        </a>
+                    </div>
+                </div>
+
+                <div id="reviews-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+
+                <!-- Load More Button -->
+                <div class="hidden flex justify-center mt-20" id="load-more-container">
+                    <button id="load-more-btn"
+                        class="px-12 py-5 rounded-none text-[10px] font-bold border border-luxe-black/10 text-luxe-black hover:border-luxe-gold hover:text-luxe-gold transition-all duration-500 flex items-center gap-4 uppercase tracking-[0.2em]">
+                        <span>Տեսնել Ավելին</span>
+                        <svg id="load-more-spinner" class="hidden animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                            fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+    <div id="footer-slot"></div>
+    <div id="toast-slot"></div>
+</body>
+</html>

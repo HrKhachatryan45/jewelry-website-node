@@ -1,0 +1,1075 @@
+{
+  "bakery_app_menuitem": [
+    {
+      "id": 12,
+      "name": "Diamond Ring 203-008",
+      "description": "Exquisite piece crafted with premium materials.",
+      "price": "102000",
+      "category": "rings",
+      "is_popular": true,
+      "image": "menu/203-008-186-GS_1_19d01456-a3be-4dd5-900b-9c997449e9e6.jpg.webp",
+      "created_at": "2026-05-16T14:03:56.032325+04:00",
+      "updated_at": "2026-05-16T14:03:56.032505+04:00",
+      "is_new": true,
+      "slug": "diamond-ring-203-008",
+      "is_active": true,
+      "allows_custom_text": true,
+      "available_materials": [
+        "gold_yellow",
+        "gold_white"
+      ],
+      "preparation_days": 7,
+      "price_type": "fixed",
+      "dimensions": null,
+      "gemstone": "Diamond",
+      "material_karat": "Gold 585"
+    },
+    {
+      "id": 13,
+      "name": "Elegant Ring 219",
+      "description": "Exquisite piece crafted with premium materials.",
+      "price": "331000",
+      "category": "rings",
+      "is_popular": true,
+      "image": "menu/219-016-GS_1_ee43a7ac-28bc-4f8f-9184-804e900487f0.jpg.webp",
+      "created_at": "2026-05-16T14:03:56.038022+04:00",
+      "updated_at": "2026-05-16T14:03:56.038026+04:00",
+      "is_new": false,
+      "slug": "elegant-ring-219",
+      "is_active": true,
+      "allows_custom_text": true,
+      "available_materials": [
+        "gold_yellow",
+        "gold_white"
+      ],
+      "preparation_days": 7,
+      "price_type": "fixed",
+      "dimensions": null,
+      "gemstone": "Diamond",
+      "material_karat": "Gold 585"
+    },
+    {
+      "id": 14,
+      "name": "Rose Gold Ring 264",
+      "description": "Exquisite piece crafted with premium materials.",
+      "price": "277000",
+      "category": "rings",
+      "is_popular": true,
+      "image": "menu/264-106-23-G_1_2d19f485-9e0b-4299-80c6-c6d038fe5014.jpg.webp",
+      "created_at": "2026-05-16T14:03:56.040172+04:00",
+      "updated_at": "2026-05-16T14:03:56.040175+04:00",
+      "is_new": false,
+      "slug": "rose-gold-ring-264",
+      "is_active": true,
+      "allows_custom_text": true,
+      "available_materials": [
+        "gold_yellow",
+        "gold_white"
+      ],
+      "preparation_days": 7,
+      "price_type": "fixed",
+      "dimensions": null,
+      "gemstone": "Diamond",
+      "material_karat": "Gold 585"
+    },
+    {
+      "id": 15,
+      "name": "Classic Ring 6000",
+      "description": "Exquisite piece crafted with premium materials.",
+      "price": "230000",
+      "category": "rings",
+      "is_popular": true,
+      "image": "menu/60003728_RG_MAIN1X1.webp",
+      "created_at": "2026-05-16T14:03:56.043167+04:00",
+      "updated_at": "2026-05-16T14:03:56.043171+04:00",
+      "is_new": true,
+      "slug": "classic-ring-6000",
+      "is_active": true,
+      "allows_custom_text": true,
+      "available_materials": [
+        "gold_yellow",
+        "gold_white"
+      ],
+      "preparation_days": 7,
+      "price_type": "fixed",
+      "dimensions": null,
+      "gemstone": "Diamond",
+      "material_karat": "Gold 585"
+    },
+    {
+      "id": 16,
+      "name": "Diamond Bracelet 6001",
+      "description": "Exquisite piece crafted with premium materials.",
+      "price": "261000",
+      "category": "bracelets",
+      "is_popular": true,
+      "image": "menu/60010760_BLT_MAIN1X1.webp",
+      "created_at": "2026-05-16T14:03:56.045101+04:00",
+      "updated_at": "2026-05-16T14:03:56.045104+04:00",
+      "is_new": false,
+      "slug": "diamond-bracelet-6001",
+      "is_active": true,
+      "allows_custom_text": true,
+      "available_materials": [
+        "gold_yellow",
+        "gold_white"
+      ],
+      "preparation_days": 7,
+      "price_type": "fixed",
+      "dimensions": null,
+      "gemstone": "Diamond",
+      "material_karat": "Gold 585"
+    },
+    {
+      "id": 17,
+      "name": "Luxury Ring 6009",
+      "description": "Exquisite piece crafted with premium materials.",
+      "price": "213000",
+      "category": "rings",
+      "is_popular": true,
+      "image": "menu/60099358_RG_MAIN1X1.webp",
+      "created_at": "2026-05-16T14:03:56.046313+04:00",
+      "updated_at": "2026-05-16T14:03:56.046316+04:00",
+      "is_new": false,
+      "slug": "luxury-ring-6009",
+      "is_active": true,
+      "allows_custom_text": true,
+      "available_materials": [
+        "gold_yellow",
+        "gold_white"
+      ],
+      "preparation_days": 7,
+      "price_type": "fixed",
+      "dimensions": null,
+      "gemstone": "Diamond",
+      "material_karat": "Gold 585"
+    },
+    {
+      "id": 18,
+      "name": "Gold Bracelet 6015",
+      "description": "Exquisite piece crafted with premium materials.",
+      "price": "411000",
+      "category": "bracelets",
+      "is_popular": true,
+      "image": "menu/60153076_BLT_MAIN1X1.webp",
+      "created_at": "2026-05-16T14:03:56.048042+04:00",
+      "updated_at": "2026-05-16T14:03:56.048045+04:00",
+      "is_new": false,
+      "slug": "gold-bracelet-6015",
+      "is_active": true,
+      "allows_custom_text": true,
+      "available_materials": [
+        "gold_yellow",
+        "gold_white"
+      ],
+      "preparation_days": 7,
+      "price_type": "fixed",
+      "dimensions": null,
+      "gemstone": "Diamond",
+      "material_karat": "Gold 585"
+    },
+    {
+      "id": 19,
+      "name": "Sapphire Ring 6865",
+      "description": "Exquisite piece crafted with premium materials.",
+      "price": "353000",
+      "category": "rings",
+      "is_popular": true,
+      "image": "menu/68650836_RG_MAIN1X1.webp",
+      "created_at": "2026-05-16T14:03:56.050671+04:00",
+      "updated_at": "2026-05-16T14:03:56.050674+04:00",
+      "is_new": false,
+      "slug": "sapphire-ring-6865",
+      "is_active": true,
+      "allows_custom_text": true,
+      "available_materials": [
+        "gold_yellow",
+        "gold_white"
+      ],
+      "preparation_days": 7,
+      "price_type": "fixed",
+      "dimensions": null,
+      "gemstone": "Diamond",
+      "material_karat": "Gold 585"
+    },
+    {
+      "id": 20,
+      "name": "Silver Pendant 7495",
+      "description": "Exquisite piece crafted with premium materials.",
+      "price": "341000",
+      "category": "necklaces",
+      "is_popular": true,
+      "image": "menu/74957013_PDT_ALT3X2.webp",
+      "created_at": "2026-05-16T14:03:56.053237+04:00",
+      "updated_at": "2026-05-16T14:03:56.053241+04:00",
+      "is_new": true,
+      "slug": "silver-pendant-7495",
+      "is_active": true,
+      "allows_custom_text": true,
+      "available_materials": [
+        "gold_yellow",
+        "gold_white"
+      ],
+      "preparation_days": 7,
+      "price_type": "fixed",
+      "dimensions": null,
+      "gemstone": "Diamond",
+      "material_karat": "Gold 585"
+    },
+    {
+      "id": 21,
+      "name": "Gold Pendant 7495",
+      "description": "Exquisite piece crafted with premium materials.",
+      "price": "462000",
+      "category": "necklaces",
+      "is_popular": true,
+      "image": "menu/74957250_PDT_MAIN1X1.webp",
+      "created_at": "2026-05-16T14:03:56.055227+04:00",
+      "updated_at": "2026-05-16T14:03:56.055230+04:00",
+      "is_new": true,
+      "slug": "gold-pendant-7495",
+      "is_active": true,
+      "allows_custom_text": true,
+      "available_materials": [
+        "gold_yellow",
+        "gold_white"
+      ],
+      "preparation_days": 7,
+      "price_type": "fixed",
+      "dimensions": null,
+      "gemstone": "Diamond",
+      "material_karat": "Gold 585"
+    },
+    {
+      "id": 22,
+      "name": "Diamond Earrings 7512",
+      "description": "Exquisite piece crafted with premium materials.",
+      "price": "427000",
+      "category": "earrings",
+      "is_popular": true,
+      "image": "menu/75123620_ER_MAIN1X1.webp",
+      "created_at": "2026-05-16T14:03:56.057384+04:00",
+      "updated_at": "2026-05-16T14:03:56.057388+04:00",
+      "is_new": false,
+      "slug": "diamond-earrings-7512",
+      "is_active": true,
+      "allows_custom_text": true,
+      "available_materials": [
+        "gold_yellow",
+        "gold_white"
+      ],
+      "preparation_days": 7,
+      "price_type": "fixed",
+      "dimensions": null,
+      "gemstone": "Diamond",
+      "material_karat": "Gold 585"
+    },
+    {
+      "id": 23,
+      "name": "Pearl Earrings 7553",
+      "description": "Exquisite piece crafted with premium materials.",
+      "price": "231000",
+      "category": "earrings",
+      "is_popular": true,
+      "image": "menu/75533403_ER_MAIN1X1.webp",
+      "created_at": "2026-05-16T14:03:56.059614+04:00",
+      "updated_at": "2026-05-16T14:03:56.059618+04:00",
+      "is_new": false,
+      "slug": "pearl-earrings-7553",
+      "is_active": true,
+      "allows_custom_text": true,
+      "available_materials": [
+        "gold_yellow",
+        "gold_white"
+      ],
+      "preparation_days": 7,
+      "price_type": "fixed",
+      "dimensions": null,
+      "gemstone": "Diamond",
+      "material_karat": "Gold 585"
+    },
+    {
+      "id": 24,
+      "name": "Emerald Ring 209",
+      "description": "Exquisite piece crafted with premium materials.",
+      "price": "95000",
+      "category": "rings",
+      "is_popular": true,
+      "image": "menu/COR24_PRO_209-001-GS_01.jpg.webp",
+      "created_at": "2026-05-16T14:03:56.061572+04:00",
+      "updated_at": "2026-05-16T14:03:56.061575+04:00",
+      "is_new": true,
+      "slug": "emerald-ring-209",
+      "is_active": true,
+      "allows_custom_text": true,
+      "available_materials": [
+        "gold_yellow",
+        "gold_white"
+      ],
+      "preparation_days": 7,
+      "price_type": "fixed",
+      "dimensions": null,
+      "gemstone": "Diamond",
+      "material_karat": "Gold 585"
+    },
+    {
+      "id": 25,
+      "name": "Vintage Ring 193",
+      "description": "Exquisite piece crafted with premium materials.",
+      "price": "471000",
+      "category": "rings",
+      "is_popular": true,
+      "image": "menu/RE-193-014-162-GS_01.jpg.webp",
+      "created_at": "2026-05-16T14:03:56.063594+04:00",
+      "updated_at": "2026-05-16T14:03:56.063597+04:00",
+      "is_new": false,
+      "slug": "vintage-ring-193",
+      "is_active": true,
+      "allows_custom_text": true,
+      "available_materials": [
+        "gold_yellow",
+        "gold_white"
+      ],
+      "preparation_days": 7,
+      "price_type": "fixed",
+      "dimensions": null,
+      "gemstone": "Diamond",
+      "material_karat": "Gold 585"
+    },
+    {
+      "id": 26,
+      "name": "AR Demo Halo Ring",
+      "description": "Virtual try-on sample. Product photo by gomi_design on Unsplash: https://unsplash.com/photos/a-metal-ring-on-a-white-background-panCRuKgrQE",
+      "price": "145000",
+      "category": "rings",
+      "is_popular": false,
+      "image": "menu/ar-demo-halo-ring.jpg",
+      "created_at": "2026-10-21T19:20:00.000Z",
+      "updated_at": "2026-10-21T19:20:00.000Z",
+      "is_new": true,
+      "slug": "ar-demo-halo-ring",
+      "is_active": true,
+      "allows_custom_text": false,
+      "available_materials": ["gold_rose"],
+      "preparation_days": 7,
+      "price_type": "fixed",
+      "dimensions": null,
+      "gemstone": "Diamond",
+      "material_karat": "Gold 585",
+      "try_on_asset": "tryon/26.png",
+      "model_3d": "models/ADRG001.glb"
+    }
+  ],
+  "bakery_app_menuitemimage": [
+    {
+      "id": 1,
+      "image": "menu/gallery/203-008-186-G_3_53c71abe-3806-42d9-bc4f-bdcbbfdb0500.jpg.webp",
+      "order": 0,
+      "menu_item_id": 12
+    },
+    {
+      "id": 2,
+      "image": "menu/gallery/COR24_PRO_219-016-GS_02.jpg.webp",
+      "order": 0,
+      "menu_item_id": 13
+    },
+    {
+      "id": 3,
+      "image": "menu/gallery/264-106-23-G_2_023f6540-c793-4018-90c6-3211b8bd8d75.jpg.webp",
+      "order": 0,
+      "menu_item_id": 14
+    },
+    {
+      "id": 4,
+      "image": "menu/gallery/264-106-23-G_3_f3d6655f-4177-4057-aa8d-3fee34efd25f.jpg.webp",
+      "order": 1,
+      "menu_item_id": 14
+    },
+    {
+      "id": 5,
+      "image": "menu/gallery/60003728_RG_SIO2X1.webp",
+      "order": 0,
+      "menu_item_id": 15
+    },
+    {
+      "id": 6,
+      "image": "menu/gallery/60010760_BLT_SIO2X1.webp",
+      "order": 0,
+      "menu_item_id": 16
+    },
+    {
+      "id": 7,
+      "image": "menu/gallery/60099358_RG_SIO2X1.webp",
+      "order": 0,
+      "menu_item_id": 17
+    },
+    {
+      "id": 8,
+      "image": "menu/gallery/60099358_RG_SIO2X2.webp",
+      "order": 1,
+      "menu_item_id": 17
+    },
+    {
+      "id": 9,
+      "image": "menu/gallery/60153076_BLT_SIO2X1.webp",
+      "order": 0,
+      "menu_item_id": 18
+    },
+    {
+      "id": 10,
+      "image": "menu/gallery/68650836_RG_ALT3X1.webp",
+      "order": 0,
+      "menu_item_id": 19
+    },
+    {
+      "id": 11,
+      "image": "menu/gallery/68650836_RG_SIO2X1.webp",
+      "order": 1,
+      "menu_item_id": 19
+    },
+    {
+      "id": 12,
+      "image": "menu/gallery/74957013_PDT_ALT3X1.webp",
+      "order": 0,
+      "menu_item_id": 20
+    },
+    {
+      "id": 13,
+      "image": "menu/gallery/74957013_PDT_ALT3X3.webp",
+      "order": 1,
+      "menu_item_id": 20
+    },
+    {
+      "id": 14,
+      "image": "menu/gallery/74957250_PDT_SIO2X1.webp",
+      "order": 0,
+      "menu_item_id": 21
+    },
+    {
+      "id": 15,
+      "image": "menu/gallery/74957250_PDT_SIO2X2.webp",
+      "order": 1,
+      "menu_item_id": 21
+    },
+    {
+      "id": 16,
+      "image": "menu/gallery/75123620_ER_SIO2X1.webp",
+      "order": 0,
+      "menu_item_id": 22
+    },
+    {
+      "id": 17,
+      "image": "menu/gallery/75533403_ER_SIO2X1.webp",
+      "order": 0,
+      "menu_item_id": 23
+    },
+    {
+      "id": 18,
+      "image": "menu/gallery/209-001-G_3.jpg.webp",
+      "order": 0,
+      "menu_item_id": 24
+    },
+    {
+      "id": 19,
+      "image": "menu/gallery/COR24_PRO_209-001-GS_02.jpg.webp",
+      "order": 1,
+      "menu_item_id": 24
+    }
+  ],
+  "bakery_app_menuitemvariant": [
+    {
+      "id": 23,
+      "weight": "3.94",
+      "stock": 10,
+      "price": "102000",
+      "is_available": true,
+      "menu_item_id": 12,
+      "size": "16"
+    },
+    {
+      "id": 24,
+      "weight": "3.98",
+      "stock": 5,
+      "price": "112000",
+      "is_available": true,
+      "menu_item_id": 12,
+      "size": "17"
+    },
+    {
+      "id": 25,
+      "weight": "3.81",
+      "stock": 10,
+      "price": "331000",
+      "is_available": true,
+      "menu_item_id": 13,
+      "size": "16"
+    },
+    {
+      "id": 26,
+      "weight": "3.49",
+      "stock": 5,
+      "price": "341000",
+      "is_available": true,
+      "menu_item_id": 13,
+      "size": "17"
+    },
+    {
+      "id": 27,
+      "weight": "3.98",
+      "stock": 10,
+      "price": "277000",
+      "is_available": true,
+      "menu_item_id": 14,
+      "size": "16"
+    },
+    {
+      "id": 28,
+      "weight": "3.68",
+      "stock": 5,
+      "price": "287000",
+      "is_available": true,
+      "menu_item_id": 14,
+      "size": "17"
+    },
+    {
+      "id": 29,
+      "weight": "3.60",
+      "stock": 10,
+      "price": "230000",
+      "is_available": true,
+      "menu_item_id": 15,
+      "size": "16"
+    },
+    {
+      "id": 30,
+      "weight": "3.86",
+      "stock": 5,
+      "price": "240000",
+      "is_available": true,
+      "menu_item_id": 15,
+      "size": "17"
+    },
+    {
+      "id": 31,
+      "weight": "4.63",
+      "stock": 10,
+      "price": "261000",
+      "is_available": true,
+      "menu_item_id": 16,
+      "size": "16"
+    },
+    {
+      "id": 32,
+      "weight": "2.93",
+      "stock": 5,
+      "price": "271000",
+      "is_available": true,
+      "menu_item_id": 16,
+      "size": "17"
+    },
+    {
+      "id": 33,
+      "weight": "4.12",
+      "stock": 10,
+      "price": "213000",
+      "is_available": true,
+      "menu_item_id": 17,
+      "size": "16"
+    },
+    {
+      "id": 34,
+      "weight": "2.41",
+      "stock": 5,
+      "price": "223000",
+      "is_available": true,
+      "menu_item_id": 17,
+      "size": "17"
+    },
+    {
+      "id": 35,
+      "weight": "4.29",
+      "stock": 10,
+      "price": "411000",
+      "is_available": true,
+      "menu_item_id": 18,
+      "size": "16"
+    },
+    {
+      "id": 36,
+      "weight": "3.88",
+      "stock": 5,
+      "price": "421000",
+      "is_available": true,
+      "menu_item_id": 18,
+      "size": "17"
+    },
+    {
+      "id": 37,
+      "weight": "3.27",
+      "stock": 10,
+      "price": "353000",
+      "is_available": true,
+      "menu_item_id": 19,
+      "size": "16"
+    },
+    {
+      "id": 38,
+      "weight": "3.61",
+      "stock": 5,
+      "price": "363000",
+      "is_available": true,
+      "menu_item_id": 19,
+      "size": "17"
+    },
+    {
+      "id": 39,
+      "weight": "4.46",
+      "stock": 10,
+      "price": "341000",
+      "is_available": true,
+      "menu_item_id": 20,
+      "size": "16"
+    },
+    {
+      "id": 40,
+      "weight": "4.11",
+      "stock": 5,
+      "price": "351000",
+      "is_available": true,
+      "menu_item_id": 20,
+      "size": "17"
+    },
+    {
+      "id": 41,
+      "weight": "4.11",
+      "stock": 10,
+      "price": "462000",
+      "is_available": true,
+      "menu_item_id": 21,
+      "size": "16"
+    },
+    {
+      "id": 42,
+      "weight": "2.49",
+      "stock": 5,
+      "price": "472000",
+      "is_available": true,
+      "menu_item_id": 21,
+      "size": "17"
+    },
+    {
+      "id": 43,
+      "weight": "2.03",
+      "stock": 10,
+      "price": "427000",
+      "is_available": true,
+      "menu_item_id": 22,
+      "size": "16"
+    },
+    {
+      "id": 44,
+      "weight": "3.04",
+      "stock": 5,
+      "price": "437000",
+      "is_available": true,
+      "menu_item_id": 22,
+      "size": "17"
+    },
+    {
+      "id": 45,
+      "weight": "4.83",
+      "stock": 10,
+      "price": "231000",
+      "is_available": true,
+      "menu_item_id": 23,
+      "size": "16"
+    },
+    {
+      "id": 46,
+      "weight": "2.46",
+      "stock": 5,
+      "price": "241000",
+      "is_available": true,
+      "menu_item_id": 23,
+      "size": "17"
+    },
+    {
+      "id": 47,
+      "weight": "4.22",
+      "stock": 10,
+      "price": "95000",
+      "is_available": true,
+      "menu_item_id": 24,
+      "size": "16"
+    },
+    {
+      "id": 48,
+      "weight": "3.68",
+      "stock": 5,
+      "price": "105000",
+      "is_available": true,
+      "menu_item_id": 24,
+      "size": "17"
+    },
+    {
+      "id": 49,
+      "weight": "4.71",
+      "stock": 10,
+      "price": "471000",
+      "is_available": true,
+      "menu_item_id": 25,
+      "size": "16"
+    },
+    {
+      "id": 50,
+      "weight": "4.68",
+      "stock": 5,
+      "price": "481000",
+      "is_available": true,
+      "menu_item_id": 25,
+      "size": "17"
+    },
+    {
+      "id": 51,
+      "weight": "3.9",
+      "stock": 10,
+      "price": "145000",
+      "is_available": true,
+      "menu_item_id": 26,
+      "size": "16"
+    },
+    {
+      "id": 52,
+      "weight": "4.0",
+      "stock": 10,
+      "price": "145000",
+      "is_available": true,
+      "menu_item_id": 26,
+      "size": "17"
+    }
+  ],
+  "bakery_app_review": [
+    {
+      "id": 1,
+      "name": "Customer 1",
+      "badge": "Verified Buyer",
+      "text": "Amazing quality and beautiful design! Highly recommended.",
+      "rating": 5,
+      "time": "1 week ago",
+      "created_at": "2026-05-16T13:58:03.446003+04:00",
+      "updated_at": "2026-05-16T13:58:03.446006+04:00",
+      "is_approved": true,
+      "show_on_main": true
+    },
+    {
+      "id": 2,
+      "name": "Customer 2",
+      "badge": "Verified Buyer",
+      "text": "Amazing quality and beautiful design! Highly recommended.",
+      "rating": 5,
+      "time": "1 week ago",
+      "created_at": "2026-05-16T13:58:03.446940+04:00",
+      "updated_at": "2026-05-16T13:58:03.446944+04:00",
+      "is_approved": true,
+      "show_on_main": true
+    },
+    {
+      "id": 3,
+      "name": "Customer 3",
+      "badge": "Verified Buyer",
+      "text": "Amazing quality and beautiful design! Highly recommended.",
+      "rating": 5,
+      "time": "1 week ago",
+      "created_at": "2026-05-16T13:58:03.447332+04:00",
+      "updated_at": "2026-05-16T13:58:03.447335+04:00",
+      "is_approved": true,
+      "show_on_main": true
+    },
+    {
+      "id": 4,
+      "name": "Customer 4",
+      "badge": "Verified Buyer",
+      "text": "Amazing quality and beautiful design! Highly recommended.",
+      "rating": 5,
+      "time": "1 week ago",
+      "created_at": "2026-05-16T13:58:03.447790+04:00",
+      "updated_at": "2026-05-16T13:58:03.447793+04:00",
+      "is_approved": true,
+      "show_on_main": true
+    },
+    {
+      "id": 5,
+      "name": "Customer 5",
+      "badge": "Verified Buyer",
+      "text": "Amazing quality and beautiful design! Highly recommended.",
+      "rating": 5,
+      "time": "1 week ago",
+      "created_at": "2026-05-16T13:58:03.448167+04:00",
+      "updated_at": "2026-05-16T13:58:03.448169+04:00",
+      "is_approved": true,
+      "show_on_main": true
+    },
+    {
+      "id": 6,
+      "name": "Աննա",
+      "badge": "Հավատարիմ հաճախորդ",
+      "text": "Շատ գեղեցիկ զարդեր են, որակը գերազանց է։ Արագ առաքում։",
+      "rating": 5,
+      "time": "2 շաբաթ առաջ",
+      "created_at": "2026-05-16T14:05:26.131116+04:00",
+      "updated_at": "2026-05-16T14:05:26.131251+04:00",
+      "is_approved": true,
+      "show_on_main": true
+    },
+    {
+      "id": 7,
+      "name": "Արամ",
+      "badge": "Նոր հաճախորդ",
+      "text": "Անհատական մոտեցում և բարձր որակ։ Շնորհակալ եմ։",
+      "rating": 5,
+      "time": "1 ամիս առաջ",
+      "created_at": "2026-05-16T14:05:26.132348+04:00",
+      "updated_at": "2026-05-16T14:05:26.132351+04:00",
+      "is_approved": true,
+      "show_on_main": true
+    },
+    {
+      "id": 8,
+      "name": "Մարիամ",
+      "badge": "Հավատարիմ հաճախորդ",
+      "text": "Իմ ամենասիրելի խանութը։ Միշտ գտնում եմ այն, ինչ փնտրում եմ։",
+      "rating": 5,
+      "time": "2 ամիս առաջ",
+      "created_at": "2026-05-16T14:05:26.132689+04:00",
+      "updated_at": "2026-05-16T14:05:26.132692+04:00",
+      "is_approved": true,
+      "show_on_main": true
+    },
+    {
+      "id": 9,
+      "name": "Նարեկ",
+      "badge": "Գնորդ",
+      "text": "Նվեր էի փնտրում կնոջս համար, ընտրեցինք մատանի և վզնոց, շատ հավանեց։",
+      "rating": 4,
+      "time": "3 ամիս առաջ",
+      "created_at": "2026-05-16T14:05:26.133009+04:00",
+      "updated_at": "2026-05-16T14:05:26.133014+04:00",
+      "is_approved": true,
+      "show_on_main": true
+    },
+    {
+      "id": 10,
+      "name": "Լիլիթ",
+      "badge": "Հավատարիմ հաճախորդ",
+      "text": "Փաթեթավորումը շատ գեղեցիկ էր, իսկ զարդը՝ ուղղակի հրաշք։",
+      "rating": 5,
+      "time": "4 ամիս առաջ",
+      "created_at": "2026-05-16T14:05:26.133255+04:00",
+      "updated_at": "2026-05-16T14:05:26.133258+04:00",
+      "is_approved": true,
+      "show_on_main": true
+    },
+    {
+      "id": 11,
+      "name": "Հայկ",
+      "badge": "Նոր հաճախորդ",
+      "text": "Որակն ավելին էր, քան սպասում էի։ Խորհուրդ եմ տալիս բոլորին։",
+      "rating": 5,
+      "time": "5 ամիս առաջ",
+      "created_at": "2026-05-16T14:05:26.133494+04:00",
+      "updated_at": "2026-05-16T14:05:26.133497+04:00",
+      "is_approved": true,
+      "show_on_main": true
+    },
+    {
+      "id": 12,
+      "name": "Սոնա",
+      "badge": "Գնորդ",
+      "text": "Շատ լավ սպասարկում, սիրով պատասխանեցին իմ բոլոր հարցերին։",
+      "rating": 5,
+      "time": "6 ամիս առաջ",
+      "created_at": "2026-05-16T14:05:26.133715+04:00",
+      "updated_at": "2026-05-16T14:05:26.133717+04:00",
+      "is_approved": true,
+      "show_on_main": true
+    },
+    {
+      "id": 13,
+      "name": "Դավիթ",
+      "badge": "Հավատարիմ հաճախորդ",
+      "text": "Արդեն երրորդ անգամ եմ գնումներ կատարում, միշտ գոհ եմ մնում։",
+      "rating": 5,
+      "time": "7 ամիս առաջ",
+      "created_at": "2026-05-16T14:05:26.133931+04:00",
+      "updated_at": "2026-05-16T14:05:26.133934+04:00",
+      "is_approved": true,
+      "show_on_main": true
+    }
+  ],
+  "bakery_app_contactmessage": [],
+  "bakery_app_order": [
+    {
+      "id": 1,
+      "full_name": "John Doe 1",
+      "phone": "099123456",
+      "delivery_type": "pickup",
+      "address": "",
+      "order_note": "",
+      "status": "new",
+      "total": "134000.00",
+      "created_at": "2026-05-16T13:58:03.449976+04:00",
+      "email": "john0@example.com",
+      "payment_method": "cash",
+      "city": null,
+      "delivery_price": "0.00",
+      "delivery_time": null,
+      "lat": null,
+      "lng": null,
+      "is_paid": false,
+      "arca_form_url": null,
+      "arca_order_id": null,
+      "email_sent": false,
+      "idram_transaction_id": null,
+      "online_payment_status": "pending",
+      "total_amount_amd": "0.00"
+    },
+    {
+      "id": 2,
+      "full_name": "John Doe 2",
+      "phone": "099123456",
+      "delivery_type": "pickup",
+      "address": "",
+      "order_note": "",
+      "status": "new",
+      "total": "271000.00",
+      "created_at": "2026-05-16T13:58:03.456167+04:00",
+      "email": "john1@example.com",
+      "payment_method": "cash",
+      "city": null,
+      "delivery_price": "0.00",
+      "delivery_time": null,
+      "lat": null,
+      "lng": null,
+      "is_paid": false,
+      "arca_form_url": null,
+      "arca_order_id": null,
+      "email_sent": false,
+      "idram_transaction_id": null,
+      "online_payment_status": "pending",
+      "total_amount_amd": "0.00"
+    },
+    {
+      "id": 3,
+      "full_name": "John Doe 3",
+      "phone": "099123456",
+      "delivery_type": "pickup",
+      "address": "",
+      "order_note": "",
+      "status": "new",
+      "total": "134000.00",
+      "created_at": "2026-05-16T13:58:03.457646+04:00",
+      "email": "john2@example.com",
+      "payment_method": "cash",
+      "city": null,
+      "delivery_price": "0.00",
+      "delivery_time": null,
+      "lat": null,
+      "lng": null,
+      "is_paid": false,
+      "arca_form_url": null,
+      "arca_order_id": null,
+      "email_sent": false,
+      "idram_transaction_id": null,
+      "online_payment_status": "pending",
+      "total_amount_amd": "0.00"
+    }
+  ],
+  "bakery_app_orderitem": [
+    {
+      "id": 1,
+      "name": "Premium Jewelry 3",
+      "price": "134000.00",
+      "quantity": 1,
+      "note": "",
+      "menu_item_id": null,
+      "order_id": 1,
+      "custom_text": null,
+      "weight": null,
+      "material": null,
+      "size": null
+    },
+    {
+      "id": 2,
+      "name": "Premium Jewelry 4",
+      "price": "271000.00",
+      "quantity": 1,
+      "note": "",
+      "menu_item_id": null,
+      "order_id": 2,
+      "custom_text": null,
+      "weight": null,
+      "material": null,
+      "size": null
+    },
+    {
+      "id": 3,
+      "name": "Premium Jewelry 3",
+      "price": "134000.00",
+      "quantity": 1,
+      "note": "",
+      "menu_item_id": null,
+      "order_id": 3,
+      "custom_text": null,
+      "weight": null,
+      "material": null,
+      "size": null
+    }
+  ],
+  "bakery_app_heroslide": [
+    {
+      "id": 4,
+      "title": "Slide 1",
+      "image": "hero/hero1-2.webp",
+      "order": 0,
+      "is_active": true
+    },
+    {
+      "id": 5,
+      "title": "Slide 2",
+      "image": "hero/wmremove-transformed.webp",
+      "order": 1,
+      "is_active": true
+    },
+    {
+      "id": 6,
+      "title": "Slide 3",
+      "image": "hero/wmremove-transformed1.webp",
+      "order": 2,
+      "is_active": true
+    }
+  ],
+  "bakery_app_herosettings": [
+    {
+      "id": 1,
+      "title_line1": "Բացառիկ զարդեր,",
+      "title_highlight": "Սիրով պատրաստված",
+      "description": "Յուրահատուկ ձեռագործ զարդեր՝ պատրաստված բարձրորակ մետաղներից և քարերից Երևանի սրտում։"
+    }
+  ],
+  "bakery_app_bespokeorder": [],
+  "auth_user": [
+    {
+      "id": 1,
+      "password": "pbkdf2_sha256$600000$GeJiGeYERaeFnoqCuJu8D9$TD+rsLMvvXxhaHJ9OwtQ1oKA6bqqLSn1TCea7ac+cXM=",
+      "last_login": null,
+      "is_superuser": true,
+      "username": "admin",
+      "first_name": "",
+      "last_name": "",
+      "email": "admin@example.com",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2026-05-16T13:58:18.660511+04:00"
+    }
+  ]
+}

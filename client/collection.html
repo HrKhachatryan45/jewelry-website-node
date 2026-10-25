@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxe Jewelry — Հավաքածու</title>
+    <meta name="description" content="Luxe Jewelry - հայկական ոսկերչական տուն">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/assets/js/tailwind-config.js"></script>
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <style>
+        /* ── Category Tabs ── */
+        .cat-tabs {
+            display: flex;
+            gap: 1rem;
+            padding: 10px 0;
+            overflow-x: auto;
+            padding-bottom: 1.5rem;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .cat-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .cat-tabs {
+                flex-wrap: wrap;
+                justify-content: center;
+                overflow-x: visible;
+            }
+        }
+
+        .cat-tab {
+            display: inline-flex;
+            flex-shrink: 0;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.8rem 2rem;
+            border-radius: 0px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            border: 1px solid rgba(17, 24, 39, 0.1);
+            background: white;
+            color: rgba(17, 24, 39, 0.6);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            text-decoration: none;
+        }
+
+        .cat-tab:hover {
+            border-color: #D4AF37;
+            color: #D4AF37;
+            transform: translateY(-2px);
+        }
+
+        .cat-tab.active {
+            background: #111827;
+            color: #D4AF37;
+            border-color: #111827;
+        }
+
+        .cat-tab .tab-count {
+            font-size: 0.65rem;
+            opacity: 0.5;
+        }
+
+        /* ── Search Input ── */
+        .filter-search {
+            width: 100%;
+            padding: 1.2rem 1.5rem 1.2rem 3.5rem;
+            border: 1px solid rgba(17, 24, 39, 0.1);
+            background: white;
+            color: #111827;
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .filter-search:focus {
+            border-color: #D4AF37;
+        }
+
+        .search-wrapper {
+            position: relative;
+        }
+
+        .search-wrapper svg {
+            position: absolute;
+            left: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(17, 24, 39, 0.4);
+        }
+
+        /* ── Pagination ── */
+        .pagination-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 5rem;
+        }
+
+        .page-btn {
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            border: 1px solid rgba(17, 24, 39, 0.1);
+            background: white;
+            color: #111827;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .page-btn:hover:not(.disabled):not(.active) {
+            border-color: #D4AF37;
+            color: #D4AF37;
+        }
+
+        .page-btn.active {
+            background: #111827;
+            color: #D4AF37;
+            border-color: #111827;
+        }
+
+        .page-btn.disabled {
+            opacity: 0.2;
+            pointer-events: none;
+        }
+
+        .page-btn.nav-btn {
+            width: auto;
+            padding: 0 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+    </style>
+    <script type="module" src="/js/api.js"></script>
+    <script src="/js/i18n.js" defer></script>
+    <script src="/js/layout.js" defer></script>
+    <script type="module" src="/js/pages/collection.js" defer></script>
+</head>
+<body data-page="collection">
+    <div id="header-slot"></div>
+    <main>
+        <!-- Hero -->
+        <section class="relative pt-32 pb-24 md:pt-48 md:pb-40 overflow-hidden bg-luxe-black">
+            <div class="absolute inset-0 opacity-10">
+                <div class="absolute inset-0" style="background-image: radial-gradient(circle at 50% 50%, #D4AF37, transparent 70%);"></div>
+            </div>
+            <div class="container mx-auto px-6 relative text-center">
+                <span class="section-label text-luxe-gold/60 mb-6">Հավաքածու</span>
+                <h1 class="text-3xl md:text-8xl font-body font-light text-white uppercase tracking-tight">
+                    Բացահայտեք <span class="text-gradient-gold">Շքեղությունը</span>
+                </h1>
+                <p class="text-white/40 text-lg mt-8 max-w-2xl mx-auto font-light leading-relaxed">
+                    Յուրաքանչյուր զարդ ունի իր պատմությունը: Գտեք այն մեկը, որը կդառնա ձեր պատմության մի մասը:
+                </p>
+            </div>
+        </section>
+
+        <!-- Menu Section -->
+        <section class="section-padding bg-section-alt">
+            <div class="container mx-auto px-6 py-12">
+
+                <!-- Search Bar -->
+                <form id="search-form" class="">
+                    <input type="hidden" id="category-hidden" name="category" value="">
+                    <div class="flex items-center gap-4">
+                        <div class="relative flex-1 group">
+                            <div class="search-wrapper">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                                </svg>
+                                <input type="text" id="search-input" name="search" class="filter-search" placeholder="Փնտրել զարդեր, հավաքածուներ..." value="">
+                            </div>
+                        </div>
+                        <button type="submit" class="hidden md:inline-block btn-luxe btn-luxe-primary py-4 px-10 text-[10px]">
+                            Փնտրել
+                        </button>
+                    </div>
+                    <div class="mt-6 text-sm text-luxe-black/60">
+                        Արդյունքներ: <span id="result-count">0</span>
+                    </div>
+                </form>
+
+                <!-- Category Tabs -->
+                <div class="cat-tabs" id="cat-tabs"></div>
+
+                <!-- Product Grid -->
+                <div id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8"></div>
+
+                <!-- Pagination -->
+                <div id="pagination" class="pagination-wrapper"></div>
+            </div>
+        </section>
+    </main>
+    <div id="footer-slot"></div>
+    <div id="toast-slot"></div>
+</body>
+</html>

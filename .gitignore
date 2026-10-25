@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Env (secrets) — root .gitignore also covers these
+.env
+
+# Uploads are synced from ../media at setup time (see server/scripts/sync-uploads.js)
+# so the binary assets are not duplicated in git.
+server/uploads/
+
+# Logs
+*.log

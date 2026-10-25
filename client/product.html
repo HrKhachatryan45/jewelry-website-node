@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxe Jewelry — Ապրանք</title>
+    <meta name="description" content="Luxe Jewelry - հայկական ոսկերչական տուն">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/assets/js/tailwind-config.js"></script>
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <style>
+        .gallery-thumb {
+            position: relative;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid transparent;
+        }
+        .gallery-thumb:hover {
+            border-color: #D4AF37;
+        }
+        .gallery-thumb.active {
+            border-color: #D4AF37;
+        }
+
+        .spec-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 1.2rem 0;
+            border-bottom: 1px solid rgba(17, 24, 39, 0.05);
+        }
+        .spec-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: rgba(17, 24, 39, 0.4);
+        }
+        .spec-value {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #111827;
+        }
+
+        .size-btn {
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            border: 1px solid rgba(17, 24, 39, 0.1);
+            transition: all 0.3s ease;
+        }
+        .size-btn:hover {
+            border-color: #D4AF37;
+            color: #D4AF37;
+        }
+        input:checked + .size-btn {
+            background: #111827;
+            color: #D4AF37;
+            border-color: #111827;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Variant buttons */
+        .variant-btn {
+            background: transparent;
+        }
+        .variant-radio:checked + .variant-btn {
+            background: #111827;
+            border-color: #111827 !important;
+        }
+        .variant-radio:checked + .variant-btn span:first-child {
+            color: #D4AF37;
+        }
+        .variant-radio:checked + .variant-btn span:last-child {
+            color: rgba(255,255,255,0.5);
+        }
+        .variant-btn:hover {
+            border-color: #D4AF37 !important;
+        }
+
+        /* Swipeable Gallery Styles */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+    <script type="module" src="/js/api.js"></script>
+    <script src="/js/i18n.js" defer></script>
+    <script src="/js/layout.js" defer></script>
+    <script type="module" src="/js/pages/product.js" defer></script>
+</head>
+<body data-page="product">
+    <div id="header-slot"></div>
+    <main>
+        <!-- Breadcrumb -->
+        <nav class="bg-luxe-black border-b border-border/10 pt-24 md:pt-32">
+            <div class="container mx-auto px-6 py-4">
+                <ol class="flex items-center gap-3 text-[10px] uppercase tracking-[0.2em] text-white/40">
+                    <li><a href="/" class="hover:text-luxe-gold transition-colors">Գլխավոր</a></li>
+                    <li>/</li>
+                    <li><a href="/collection" class="hover:text-luxe-gold transition-colors">Հավաքածու</a></li>
+                    <li>/</li>
+                    <li class="text-luxe-gold" id="crumb-name"></li>
+                </ol>
+            </div>
+        </nav>
+
+        <!-- Main Product Section -->
+        <section class="bg-white py-12 md:py-24">
+            <div class="container mx-auto px-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 xl:gap-24 items-start">
+
+                    <!-- Image Column -->
+                    <div class="space-y-6">
+                        <div class="relative group/gallery">
+                            <div id="product-gallery" class="relative aspect-[4/5] bg-section-alt flex overflow-x-auto overflow-y-hidden md:overflow-hidden snap-x snap-mandatory scrollbar-hide scroll-smooth" style="touch-action: pan-y;"></div>
+
+                            <button id="gal-prev" onclick="scrollGallery(-1)" class="hidden absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/10 hover:bg-white text-white hover:text-luxe-black backdrop-blur-md flex items-center justify-center transition-all opacity-0 group-hover/gallery:opacity-100 z-20">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m15 18-6-6 6-6"/></svg>
+                            </button>
+                            <button id="gal-next" onclick="scrollGallery(1)" class="hidden absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/10 hover:bg-white text-white hover:text-luxe-black backdrop-blur-md flex items-center justify-center transition-all opacity-0 group-hover/gallery:opacity-100 z-20">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m9 18 6-6-6-6"/></svg>
+                            </button>
+
+                            <span id="new-badge" class="hidden absolute top-8 left-8 bg-luxe-black text-luxe-gold text-[8px] uppercase tracking-[0.3em] px-4 py-2 z-10 pointer-events-none">New Arrival</span>
+                        </div>
+
+                        <!-- Thumbnail Gallery -->
+                        <div id="thumbs-row" class="hidden grid grid-cols-4 gap-4"></div>
+                    </div>
+
+                    <!-- Info Column -->
+                    <div class="flex flex-col">
+                        <span class="text-[9px] text-luxe-gold uppercase tracking-[0.5em] mb-4 font-medium" id="cat-label"></span>
+                        <h1 class="text-4xl md:text-6xl font-heading font-normal text-luxe-black uppercase tracking-tight mb-8" id="item-name"></h1>
+                        <div class="text-2xl font-light text-luxe-black mb-10" id="price-block"></div>
+
+                        <div class="prose prose-sm text-foreground/40 mb-12 font-light leading-relaxed" id="description"></div>
+
+                        <!-- Order Form -->
+                        <form id="order-form" class="space-y-12">
+
+                            <!-- Specifications -->
+                            <div class="border-t border-b border-border/10 py-4" id="specs"></div>
+
+                            <!-- Options -->
+                            <div class="space-y-8">
+                                <div id="variant-block" class="hidden"></div>
+
+                                <!-- Engraving -->
+                                <div class="space-y-4">
+                                    <label for="custom_text" class="spec-label">Փորագրություն (ըստ ցանկության)</label>
+                                    <input type="text" name="custom_text" id="custom_text" maxlength="20" placeholder="Օրինակ՝ Անուն կամ Ամսաթիվ"
+                                        class="w-full bg-transparent border-b border-border/20 py-4 text-sm font-light focus:border-luxe-gold outline-none transition-all">
+                                </div>
+                            </div>
+
+                            <!-- Live Price Display -->
+                            <div id="live-price-container" class="hidden text-xl font-medium text-luxe-gold border-t border-border/10 pt-4">
+                                Ընդհանուր՝ <span id="live-price-value">0</span> <span class="text-[10px] uppercase tracking-widest text-luxe-black/30 ml-2">AMD</span>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="flex flex-col gap-4 pt-8">
+                                <button type="button" id="tryon-btn" class="hidden w-full btn-luxe bg-transparent border border-luxe-gold text-luxe-gold hover:bg-luxe-gold hover:text-white h-16 uppercase tracking-[0.2em] text-[10px] transition-colors">
+                                    <span class="inline-flex items-center gap-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        Փորձել Հիմա — Վիրտուալ Դուք
+                                    </span>
+                                </button>
+                                <div class="flex items-center gap-6">
+                                    <div class="flex items-center border border-border/10 h-16">
+                                        <button type="button" onclick="changeQty(-1)" class="w-12 h-full flex items-center justify-center hover:text-luxe-gold transition-colors">-</button>
+                                        <input type="number" name="quantity" id="qty-input" value="1" min="1" class="w-12 bg-transparent text-center font-medium focus:outline-none">
+                                        <button type="button" onclick="changeQty(1)" class="w-12 h-full flex items-center justify-center hover:text-luxe-gold transition-colors">+</button>
+                                    </div>
+                                    <button type="submit" id="add-to-cart-btn" class="flex-1 btn-luxe btn-luxe-primary h-16 uppercase tracking-[0.2em] text-[10px]">
+                                        <span class="btn-text">Ավելացնել Զամբյուղ</span>
+                                    </button>
+                                </div>
+                                <button type="button" onclick="buyNow()" class="w-full btn-luxe bg-luxe-gold text-white border-luxe-gold hover:bg-luxe-black hover:border-luxe-black h-16 uppercase tracking-[0.2em] text-[10px]">
+                                    Գնել Հիմա
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Related Section -->
+        <section class="py-24 bg-section-alt hidden" id="related-section">
+            <div class="container mx-auto px-6">
+                <h2 class="text-xs uppercase tracking-[0.5em] text-luxe-gold text-center mb-16">Կարող է ձեզ դուր գալ</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8" id="related-grid"></div>
+            </div>
+        </section>
+    </main>
+    <div id="footer-slot"></div>
+    <div id="toast-slot"></div>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Luxe Jewelry — Ադմին Պանել</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@100..900&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary: '#D4AF37', 'luxe-gold': '#D4AF37', 'luxe-black': '#111827', 'luxe-charcoal': '#1F2937' },
+          fontFamily: { heading: ['Cormorant Garamond', 'serif'], sans: ['Inter', 'sans-serif'] },
+        },
+      },
+    };
+  </script>
+  <link rel="stylesheet" href="/assets/css/admin-custom.css" />
+  <style>
+    body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; background-color: #F9FAFB; }
+    .font-heading { font-family: 'Cormorant Garamond', serif; }
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.2); border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(212, 175, 55, 0.4); }
+    @supports (padding: env(safe-area-inset-bottom)) {
+      .safe-area-bottom {
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+    }
+    .lbl { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .15em; color: #9ca3af; margin-bottom: .5rem; }
+    .inp { width: 100%; padding: .75rem 1rem; background: #fff; border: 1px solid #f3f4f6; outline: none; font-size: .875rem; }
+    .inp:focus { border-color: #D4AF37; }
+    .cbx { display: flex; align-items: center; gap: .5rem; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: #6b7280; }
+    .tab { padding: .6rem 1.2rem; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; background: #fff; border: 1px solid #f3f4f6; color: #6b7280; transition: all .15s; }
+    .tab:hover { border-color: #D4AF37; color: #D4AF37; }
+    .tab.on { background: #111827; color: #D4AF37; border-color: #111827; }
+    .fld { width: 100%; border: 1px solid #f3f4f6; border-radius: 0; padding: .75rem 1rem; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; background: #fff; outline: none; }
+    .fld:focus { outline: none; box-shadow: 0 0 0 1px #D4AF37; border-color: #D4AF37; }
+    .btn-gold { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; padding: .75rem 2rem; background: #111827; color: #D4AF37; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .3em; transition: all .2s; box-shadow: 0 10px 15px -3px rgb(0 0 0 / .1); }
+    .btn-gold:hover { background: #D4AF37; color: #111827; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+  <div id="app"></div>
+  <script type="module" src="/js/admin/app.js"></script>
+</body>
+</html>

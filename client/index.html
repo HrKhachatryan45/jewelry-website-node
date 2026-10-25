@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxe Jewelry - Դասական էլեգանտություն, ժամանակակից նրբագեղություն</title>
+    <meta name="description" content="Luxe Jewelry - հայկական ոսկերչական տուն">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/assets/js/tailwind-config.js"></script>
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <!-- Swiper.js CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <style>
+        /* Premium Carousel Polish (mirrors templates/bakery/index.html) */
+        #featured-carousel {
+            position: relative;
+            width: 100%;
+        }
+
+        /* Mobile: full-width slide with a peek of the next one, room for dots */
+        .featured-swiper {
+            padding-top: 1rem !important;
+            padding-bottom: 2.5rem !important;
+            overflow: visible !important;
+        }
+
+        /* Desktop / tablet: bleed into the gutters, centred slides, room for arrows */
+        @media (min-width: 768px) {
+            .featured-swiper {
+                margin-left: -1rem !important;
+                margin-right: -1rem !important;
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+                padding-bottom: 4rem !important;
+            }
+        }
+
+        .swiper-slide {
+            height: auto !important;
+            display: flex;
+            justify-content: center;
+        }
+
+        .hero-slide-bg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 900ms ease;
+        }
+
+        .hero-slide-bg.is-active { opacity: 1; }
+
+        #hero-slide-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .hero-slide-indicator {
+            width: 1.5rem;
+            height: 0.25rem;
+            border: 0;
+            padding: 0;
+            background: rgba(255, 255, 255, 0.45);
+            transition: background-color 250ms ease, width 250ms ease;
+            cursor: pointer;
+        }
+
+        .hero-slide-indicator.is-active {
+            width: 2.5rem;
+            background: #D4AF37;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .hero-slide-bg, .hero-slide-indicator { transition: none; }
+        }
+
+        .featured-pagination {
+            position: absolute !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: auto !important;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            z-index: 5;
+        }
+
+        .featured-pagination .swiper-pagination-bullet {
+            width: 5px;
+            height: 5px;
+            margin: 0 !important;
+            border-radius: 9999px;
+            background-color: #111827;
+            opacity: 0.22;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .featured-pagination .swiper-pagination-bullet-active {
+            width: 20px;
+            background-color: #D4AF37;
+            opacity: 1;
+        }
+
+        @media (min-width: 768px) {
+            .featured-pagination { display: none !important; }
+        }
+
+        .featured-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-100%);
+            z-index: 10;
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 0px;
+            background-color: #111827;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #D4AF37;
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            border: none;
+        }
+
+        .featured-carousel-wrapper:hover .featured-nav-btn {
+            opacity: 1;
+        }
+
+        .featured-nav-btn:hover {
+            background-color: #D4AF37;
+            color: #111827;
+            transform: translateY(-100%) scale(1.05);
+        }
+
+        .featured-nav-prev { left: -1.5rem; }
+        .featured-nav-next { right: -1.5rem; }
+
+        @media (max-width: 767px) {
+            .featured-nav-btn { display: none !important; }
+        }
+    </style>
+    <script type="module" src="/js/api.js"></script>
+    <script src="/js/i18n.js" defer></script>
+    <script src="/js/layout.js" defer></script>
+    <!-- Swiper.js JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script type="module" src="/js/pages/home.js" defer></script>
+</head>
+<body data-page="home">
+    <div id="header-slot"></div>
+    <main>
+        <section id="hero" class="relative h-screen flex items-center justify-center overflow-hidden">
+            <div id="hero-bg" class="absolute inset-0 bg-black"></div>
+            <div class="absolute inset-0 bg-hero-gradient z-10"></div>
+            <div class="container mx-auto px-6 relative z-20 text-center">
+                <h1 id="hero-title" class="font-heading text-5xl md:text-7xl lg:text-8xl text-primary-foreground mb-6 leading-tight tracking-tight"></h1>
+                <p id="hero-subtitle" class="text-lg md:text-xl text-primary-foreground/70 mb-10 max-w-3xl mx-auto font-light"></p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="/collection" class="btn-luxe btn-luxe-primary" data-i18n="home.view_collection">Դիտել հավաքածուն</a>
+                    <a href="/bespoke" class="btn-luxe btn-luxe-outline" data-i18n="nav.bespoke">Անհատական պատվեր</a>
+                </div>
+            </div>
+            <div id="hero-slide-controls" class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20" role="group" aria-label="Hero slides"></div>
+        </section>
+        <section class="section-padding bg-section-alt">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16 scroll-fade">
+                    <span class="section-label" data-i18n="home.categories">Կատեգորիաներ</span>
+                    <h2 class="section-title" data-i18n="home.discover_categories">Բացահայտեք մեր կատեգորիաները</h2>
+                </div>
+                <div id="categories-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6"></div>
+            </div>
+        </section>
+        <section class="section-padding bg-section-alt relative overflow-hidden">
+            <div class="container mx-auto px-6 relative">
+                <div class="text-center mb-16 scroll-fade pt-10">
+                    <span class="text-luxe-gold font-bold text-sm md:text-base uppercase tracking-[0.3em] mb-4 block" data-i18n="home.featured">Ընտրյալ Նմուշներ</span>
+                    <h2 class="text-2xl md:text-5xl lg:text-6xl font-heading font-normal text-luxe-black leading-[1.1] mb-6">
+                        <span class="text-gradient-gold italic">Luxe</span> Հավաքածու
+                    </h2>
+                </div>
+
+                <div id="featured-carousel" class="featured-carousel-wrapper">
+                    <button class="featured-nav-btn featured-nav-prev hidden md:flex">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <button class="featured-nav-btn featured-nav-next hidden md:flex">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+
+                    <div class="swiper featured-swiper">
+                        <div class="swiper-wrapper" id="featured-wrapper"></div>
+                    </div>
+                    <div class="swiper-pagination featured-pagination"></div>
+                </div>
+            </div>
+        </section>
+        <section class="section-padding bg-luxe-black text-primary-foreground">
+            <div class="container mx-auto px-6 grid grid-cols-2 md:grid-cols-3 gap-8 text-center">
+                <div class="scroll-fade">
+                    <p class="font-heading text-4xl md:text-5xl text-luxe-gold"><span id="stat-products">0</span></p>
+                    <p class="text-[10px] uppercase tracking-[0.3em] mt-3 text-primary-foreground/60" data-i18n="home.products">Ապրանք</p>
+                </div>
+                <div class="scroll-fade">
+                    <p class="font-heading text-4xl md:text-5xl text-luxe-gold"><span id="stat-reviews">0</span></p>
+                    <p class="text-[10px] uppercase tracking-[0.3em] mt-3 text-primary-foreground/60" data-i18n="home.reviews">Կարծիք</p>
+                </div>
+                <div class="scroll-fade">
+                    <p class="font-heading text-4xl md:text-5xl text-luxe-gold"><span id="stat-rating">0</span>★</p>
+                    <p class="text-[10px] uppercase tracking-[0.3em] mt-3 text-primary-foreground/60" data-i18n="home.rating">Գնահատական</p>
+                </div>
+            </div>
+        </section>
+    </main>
+    <div id="footer-slot"></div>
+    <div id="toast-slot"></div>
+</body>
+</html>

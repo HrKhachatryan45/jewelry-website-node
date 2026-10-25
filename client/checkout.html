@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxe Jewelry — Ձևակերպում</title>
+    <meta name="description" content="Luxe Jewelry - հայկական ոսկերչական տուն">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/assets/js/tailwind-config.js"></script>
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <script type="module" src="/js/api.js"></script>
+    <script src="/js/i18n.js" defer></script>
+    <script src="/js/layout.js" defer></script>
+    <script type="module" src="/js/pages/checkout.js" defer></script>
+</head>
+<body data-page="checkout">
+    <div id="header-slot"></div>
+    <main>
+        <!-- Breadcrumb -->
+        <nav class="bg-luxe-black border-b border-border/10 pt-24 md:pt-32">
+            <div class="container mx-auto px-6 py-4">
+                <ol class="flex items-center gap-3 text-[10px] uppercase tracking-[0.2em] text-white/40">
+                    <li><a href="/" class="hover:text-luxe-gold transition-colors">Գլխավոր</a></li>
+                    <li>/</li>
+                    <li><a href="/cart" class="hover:text-luxe-gold transition-colors">Զամբյուղ</a></li>
+                    <li>/</li>
+                    <li class="text-luxe-gold">Ձևակերպում</li>
+                </ol>
+            </div>
+        </nav>
+
+        <section class="bg-white py-12 md:py-24">
+            <div class="container mx-auto max-w-6xl px-6">
+                <div class="mb-3">
+                    <span class="text-[10px] uppercase tracking-[0.5em] text-luxe-gold mb-4 block">Վերջին Քայլը</span>
+                    <h1 class="text-3xl md:text-6xl font-heading font-normal text-luxe-black uppercase tracking-tight">Պատվերի ձևակերպում</h1>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 xl:gap-24">
+
+                    <!-- Checkout Form -->
+                    <div class="lg:col-span-7">
+                        <form id="checkoutForm" class="space-y-6">
+                            <div class="space-y-2 ">
+                                <label class="text-[8px] uppercase tracking-widest text-luxe-black/40 block">Ստացման Եղանակ</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="delivery_type" value="pickup" class="peer sr-only">
+                                        <div class="border border-border/20 py-3 flex flex-col items-center justify-center gap-2 peer-checked:border-luxe-gold peer-checked:text-luxe-gold transition-colors hover:border-luxe-gold/50 text-luxe-black/60">
+                                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7v2H2V7z"/><path d="M2 12h20v5a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-5z"/><path d="M7 12v-3"/><path d="M12 12v-3"/><path d="M17 12v-3"/></svg>
+                                            <span class="text-[9px] uppercase tracking-widest">Սրահից</span>
+                                        </div>
+                                    </label>
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="delivery_type" value="delivery" class="peer sr-only" checked>
+                                        <div class="border border-border/20 py-3 flex flex-col items-center justify-center gap-2 peer-checked:border-luxe-gold peer-checked:text-luxe-gold transition-colors hover:border-luxe-gold/50 text-luxe-black/60">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                                            <span class="text-[9px] uppercase tracking-widest">Առաքում</span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="space-y-1">
+                                    <label class="text-[8px] uppercase tracking-widest text-luxe-black/40">Անուն Ազգանուն</label>
+                                    <input type="text" name="full_name" required class="w-full bg-transparent border-b border-border/20 py-3 text-xs focus:border-luxe-gold outline-none">
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-[8px] uppercase tracking-widest text-luxe-black/40">Հեռախոս</label>
+                                    <input type="tel" name="phone" required class="w-full bg-transparent border-b border-border/20 py-3 text-xs focus:border-luxe-gold outline-none">
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-[8px] uppercase tracking-widest text-luxe-black/40">Էլ. փոստ</label>
+                                    <input type="email" name="email" required class="w-full bg-transparent border-b border-border/20 py-3 text-xs focus:border-luxe-gold outline-none">
+                                </div>
+
+                                <input type="hidden" id="lat" name="lat">
+                                <input type="hidden" id="lng" name="lng">
+                                <input type="hidden" id="delivery_price" name="delivery_price" value="0">
+                                <input type="hidden" id="city" name="city" value="">
+
+                                <div id="addressSection" class="space-y-4">
+                                    <div class="space-y-1">
+                                        <label for="address" class="text-[8px] uppercase tracking-widest text-luxe-black/40">Հասցե *</label>
+                                        <div class="ac-wrap relative">
+                                            <textarea id="address" name="address" rows="2" required class="w-full bg-transparent border-b border-border/20 py-3 text-xs focus:border-luxe-gold outline-none resize-none" placeholder="Սկսեք մուտքագրել հասցեն..." autocomplete="off"></textarea>
+                                            <div class="ac-dropdown absolute w-full bg-white border border-border/10 shadow-lg z-50 top-full left-0 hidden" id="cityDropdown"></div>
+                                        </div>
+                                        <p class="error-message text-[10px] text-red-500 mt-1" id="address-error" role="alert" aria-live="polite"></p>
+                                    </div>
+                                </div>
+
+                                <div id="pickupSection" class="hidden space-y-4 p-6 bg-luxe-black/[0.02] border border-border/10">
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-10 h-10 bg-luxe-gold/10 text-luxe-gold flex items-center justify-center shrink-0">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-[10px] uppercase tracking-widest text-luxe-black font-bold mb-1">Մեր Սրահը</h4>
+                                            <p class="text-[11px] text-luxe-black/60 leading-relaxed">
+                                                <span id="pickup-address">Մաշտոցի պողոտա, Երևան</span><br>
+                                                Աշխատանքային ժամերը: 10:00 - 20:00
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="deliveryTag" class="hidden items-center gap-2 mt-2 text-[10px] uppercase tracking-widest text-luxe-black/60">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                    <span id="deliveryTagText"></span>
+                                    <button type="button" id="deliveryClearBtn" class="flex items-center justify-center w-5 h-5 rounded-full border border-border/20 hover:border-luxe-gold hover:text-luxe-gold transition-colors">
+                                        <svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7"/></svg>
+                                    </button>
+                                </div>
+
+                                <div class="space-y-1 mt-4">
+                                    <label for="notes" class="text-[8px] uppercase tracking-widest text-luxe-black/40">Լրացուցիչ նշումներ (ոչ պարտադիր)</label>
+                                    <textarea id="notes" name="notes" rows="2" class="w-full bg-transparent border-b border-border/20 py-3 text-xs focus:border-luxe-gold outline-none resize-none" placeholder="Որևէ հատուկ ցանկություն" autocomplete="off"></textarea>
+                                </div>
+
+                                <div class="space-y-1 mt-4">
+                                    <label class="text-[8px] uppercase tracking-widest text-luxe-black/40">Առաքման նախընտրելի ժամը (ոչ պարտադիր)</label>
+                                    <input type="hidden" id="delivery_time" name="delivery_time">
+                                    <div id="timePicker" class="relative flex items-center justify-center max-w-[240px] h-[120px] overflow-hidden border border-border/20 mt-2 select-none" style="-webkit-mask-image: -webkit-radial-gradient(white, black); transform: translateZ(0);">
+                                        <div class="absolute top-1/2 left-0 right-0 h-10 -translate-y-1/2 border-t border-b border-border/20 pointer-events-none z-0"></div>
+                                        <div class="absolute top-0 left-0 right-0 h-10 pointer-events-none z-10" style="background: linear-gradient(to bottom, white, transparent);"></div>
+                                        <div class="absolute bottom-0 left-0 right-0 h-10 pointer-events-none z-10" style="background: linear-gradient(to top, white, transparent);"></div>
+                                        <div class="drum flex-1 h-full overflow-hidden relative z-0 cursor-grab" id="drumHour" data-type="hour"></div>
+                                        <div class="text-xl font-light text-luxe-gold z-20 px-2 pointer-events-none">:</div>
+                                        <div class="drum flex-1 h-full overflow-hidden relative z-0 cursor-grab" id="drumMinute" data-type="minute"></div>
+                                    </div>
+                                    <p class="error-message text-[10px] text-red-500 mt-1" id="delivery_time-error" role="alert" aria-live="polite"></p>
+                                </div>
+
+                                <div class="space-y-2 pt-4 border-t border-border/10 mt-4">
+                                    <label class="text-[8px] uppercase tracking-widest text-luxe-black/40 block">Վճարման Եղանակ</label>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="payment_method" value="cash" class="peer sr-only" checked>
+                                            <div class="border border-border/20 py-3 flex flex-col items-center justify-center gap-2 peer-checked:border-luxe-gold peer-checked:text-luxe-gold transition-colors hover:border-luxe-gold/50 text-luxe-black/60">
+                                            <svg class="w-5 h-5 text-muted-foreground flex-shrink-0" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><g id="Layer_7"> <g> <path d="M34.3,20.1h0a6.7,6.7,0,0,1-4.1-1.3,2,2,0,0,0-2.8.6,1.8,1.8,0,0,0,.3,2.6A10.9,10.9,0,0,0,32,23.8V26a2,2,0,0,0,4,0V23.8a6.3,6.3,0,0,0,3-1.3,4.9,4.9,0,0,0,2-4h0c0-3.7-3.4-4.9-6.3-5.5s-3.5-1.3-3.5-1.8.2-.6.5-.9a3.4,3.4,0,0,1,1.8-.4,6.3,6.3,0,0,1,3.3.9,1.8,1.8,0,0,0,2.7-.5,1.9,1.9,0,0,0-.4-2.8A9.1,9.1,0,0,0,36,6.3V4a2,2,0,0,0-4,0V6.2c-3,.5-5,2.5-5,5.2s3.3,4.9,6.5,5.5,3.3,1.3,3.3,1.8S35.7,20.1,34.3,20.1Z"></path> <path d="M42.2,31.7a5.2,5.2,0,0,0-4-1.1l-9.9,1.8a4.5,4.5,0,0,0-1.4-3.3L19.8,22H5a2,2,0,0,0-2,2v9a2,2,0,0,0,2,2H8.3l11.2,9.1,20.4-3.7a5,5,0,0,0,2.3-8.7Zm-3,4.8L20.5,39.9,10,31.2V26h8.2l5.9,5.9a.8.8,0,0,1-1.2,1.2l-3.5-3.5a2,2,0,0,0-2.8,2.8l3.5,3.5a4.5,4.5,0,0,0,3.4,1.4,5.7,5.7,0,0,0,1.8-.3h0l13.6-2.4a1.1,1.1,0,0,1,.8.2.9.9,0,0,1,.3.7A1,1,0,0,1,39.2,36.5Z"></path> </g> </g></svg>
+                                                <span class="text-[9px] uppercase tracking-widest">Կանխիկ</span>
+                                            </div>
+                                        </label>
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="payment_method" value="card" class="peer sr-only">
+                                            <div class="border border-border/20 py-3 flex flex-col items-center justify-center gap-2 peer-checked:border-luxe-gold peer-checked:text-luxe-gold transition-colors hover:border-luxe-gold/50 text-luxe-black/60">
+                                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"></path></svg>
+                                                <span class="text-[9px] uppercase tracking-widest">Քարտ</span>
+                                            </div>
+                                        </label>
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="payment_method" value="idram" class="peer sr-only">
+                                            <div class="border border-border/20 py-3 flex flex-col items-center justify-center gap-2 peer-checked:border-luxe-gold peer-checked:text-luxe-gold transition-colors hover:border-luxe-gold/50 text-luxe-black/60">
+                                                <svg class="w-5 h-5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 290 290" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M178.864 37.0211C175.884 42.189 169.263 43.9655 164.095 40.9705L151.366 33.615C123.868 17.7297 92.3905 17.7151 64.8921 33.5857C37.3937 49.4564 21.6405 76.7052 21.6405 108.461V123.201C21.6405 129.177 16.7956 134.007 10.8349 134.007C4.85958 134.007 0.029355 129.162 0.029355 123.201V108.461C0.0440365 68.7772 19.7319 34.7015 54.1012 14.8668C88.4852 -4.96785 127.832 -4.95314 162.201 14.8962L174.93 22.2516C180.083 25.2466 181.845 31.8533 178.864 37.0211ZM157.224 214.74C154.244 209.572 147.637 207.796 142.454 210.776L129.696 218.146C115.954 226.074 100.201 226.074 86.4592 218.132C72.7173 210.189 64.848 196.55 64.848 180.679L64.8627 108.476C64.8627 92.6052 72.7467 78.9661 86.4885 71.0381C100.23 63.1101 115.984 63.1101 129.725 71.0528L192.239 107.169C205.996 115.112 213.85 128.751 213.85 144.622C213.85 160.492 205.966 174.131 192.224 182.059L179.466 189.429C174.298 192.41 172.522 199.016 175.502 204.199C178.483 209.367 185.089 211.143 190.272 208.163L203.03 200.808C223.658 188.901 235.461 168.464 235.476 144.651C235.476 120.838 223.687 100.386 203.059 88.4797L140.546 52.3633C119.918 40.4566 96.3104 40.4419 75.683 52.3486C55.0555 64.2553 43.2516 84.6919 43.2369 108.505L43.2223 180.709C43.2076 204.522 55.0115 224.973 75.6243 236.88C96.2371 248.787 119.845 248.801 140.487 236.895L153.245 229.525C158.428 226.515 160.204 219.908 157.224 214.74ZM162.098 274.318C127.729 294.152 88.3825 294.138 54.0131 274.288C19.6438 254.439 -0.0146733 220.349 8.21749e-06 180.665V165.939C8.21749e-06 159.964 4.84487 155.134 10.8055 155.134C16.7809 155.134 21.6111 159.978 21.6111 165.939V180.665C21.5965 212.421 37.335 239.684 64.8334 255.57C92.3318 271.455 123.794 271.455 151.307 255.599C172.155 243.575 193.003 231.521 213.85 219.512C241.363 203.656 257.102 176.392 257.102 144.636C257.102 112.88 241.378 85.6169 213.88 69.7462L201.151 62.3908C195.983 59.4104 194.206 52.7891 197.202 47.6212C200.182 42.4533 206.803 40.6769 211.971 43.6719L224.7 51.0273C259.069 70.8767 278.742 104.967 278.728 144.651C278.713 184.35 259.04 218.411 224.656 238.245C203.793 250.255 182.946 262.294 162.098 274.318ZM86.4885 123.216C86.4885 129.191 91.3187 134.022 97.2941 134.036C103.269 134.036 108.1 129.206 108.1 123.231V113.012C108.1 112.058 108.569 111.236 109.406 110.752C110.228 110.267 111.183 110.267 112.005 110.752L139.356 126.549L166.708 142.346C167.53 142.83 168.015 143.653 168.015 144.607C168.015 145.561 167.545 146.383 166.708 146.868L139.342 162.651L111.976 178.433C111.153 178.918 110.199 178.903 109.377 178.433C108.555 177.949 108.07 177.126 108.07 176.172V165.954C108.07 159.978 103.225 155.148 97.2647 155.134C91.2894 155.134 86.4592 159.964 86.4592 165.939V180.665C86.4592 188.593 90.4085 195.42 97.2647 199.384C104.121 203.348 112.005 203.362 118.891 199.384L181.434 163.296C188.305 159.332 192.239 152.52 192.254 144.578C192.254 136.635 188.319 129.823 181.448 125.859L118.935 89.7424C112.064 85.7637 104.194 85.7637 97.3088 89.7424C90.4379 93.7064 86.5032 100.519 86.4885 108.461V123.216Z"></path></svg>
+                                                <span class="text-[9px] uppercase tracking-widest">Idram</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Summary Sidebar -->
+                    <div class="lg:col-span-5">
+                        <div class="bg-section-alt p-10 space-y-10 sticky top-32">
+                            <div>
+                                <h2 class="text-xs uppercase tracking-[0.3em] text-luxe-black mb-8">Ամփոփում</h2>
+                                <div class="space-y-4 pb-8 border-b border-border/10" id="summary-items"></div>
+                                <div class="flex justify-between items-center pt-8">
+                                    <span class="text-xs uppercase tracking-[0.3em] text-luxe-black font-medium">Ընդամենը</span>
+                                    <span class="text-2xl font-light text-luxe-black" id="grand-total"></span>
+                                </div>
+                            </div>
+
+                            <button type="button" id="submitOrder" class="w-full btn-luxe btn-luxe-primary h-16 uppercase tracking-[0.3em] text-[10px]">
+                                Հաստատել Պատվերը
+                            </button>
+
+                            <p class="text-[9px] text-luxe-black/30 text-center leading-relaxed">
+                                Պատվերը հաստատելուց հետո մենք կկապնվենք Ձեզ հետ՝ մանրամասները ճշտելու համար։
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <div id="footer-slot"></div>
+    <div id="toast-slot"></div>
+</body>
+</html>

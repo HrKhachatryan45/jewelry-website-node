@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>ar-test</title></head>
+<body>
+<video id="v" playsinline muted></video>
+<canvas id="c"></canvas>
+<pre id="out">starting…</pre>
+<script type="module">
+  const out = document.getElementById('out');
+  const log = [];
+  const say = (s) => { log.push(s); out.textContent = log.join('\n'); };
+  window.onerror = (m) => say('WINDOW ERROR: ' + m);
+  window.onunhandledrejection = (e) => say('REJECTION: ' + (e.reason && e.reason.message || e.reason));
+
+  const { ArTryOnEngine } = await import('/js/ar/engine.js');
+  say('engine imported');
+
+  const engine = new ArTryOnEngine({
+    video: document.getElementById('v'),
+    canvas: document.getElementById('c'),
+    productCategory: 'necklaces',
+    productImageUrl: '/uploads/tryon/20.png',
+    onStatus: (s) => say('STATUS: ' + s),
+  });
+
+  try {
+    await engine.start();
+    say('start() resolved, status=' + engine._status);
+  } catch (err) {
+    say('start() threw: ' + (err && err.message));
+  }
+
+  setTimeout(() => {
+    say('--- after 6s ---');
+    say('status=' + engine._status);
+    say('gotResults=' + engine._gotResults);
+    say('solverKeys=' + [...engine._solverKeys].join(','));
+    say('face=' + (engine._lm.face ? 'yes' : 'no'));
+    say('video=' + engine.video.videoWidth + 'x' + engine.video.videoHeight);
+    say('canvas=' + engine.canvas.width + 'x' + engine.canvas.height);
+    say('placements=' + (engine._lastPlacements ? engine._lastPlacements.length : 0));
+    document.title = 'DONE ' + engine._status;
+  }, 6000);
+</script>
+</body>
+</html>

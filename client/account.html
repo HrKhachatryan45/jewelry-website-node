@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxe Jewelry — Իմ Հաշիվը</title>
+    <meta name="description" content="Luxe Jewelry - իմ հաշիվը և պատվերները">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/assets/js/tailwind-config.js"></script>
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <script type="module" src="/js/api.js"></script>
+    <script src="/js/i18n.js" defer></script>
+    <script src="/js/layout.js" defer></script>
+    <script type="module" src="/js/pages/account.js" defer></script>
+</head>
+<body data-page="account">
+    <div id="header-slot"></div>
+    <main>
+        <nav class="bg-luxe-black border-b border-border/10 pt-24 md:pt-32">
+            <div class="container mx-auto px-6 py-4">
+                <ol class="flex items-center gap-3 text-[10px] uppercase tracking-[0.2em] text-white/40">
+                    <li><a href="/" class="hover:text-luxe-gold transition-colors">Գլխավոր</a></li>
+                    <li>/</li>
+                    <li class="text-luxe-gold">Իմ Հաշիվը</li>
+                </ol>
+            </div>
+        </nav>
+
+        <!-- Signed-out prompt -->
+        <section id="account-signed-out" class="bg-white py-20 md:py-32 hidden">
+            <div class="container mx-auto px-6 text-center max-w-md mx-auto">
+                <span class="text-[10px] uppercase tracking-[0.5em] text-luxe-gold mb-4 block">Luxe Հաշիվ</span>
+                <h1 class="text-3xl md:text-5xl font-heading font-normal text-luxe-black uppercase tracking-tight mb-6">Մուտք Գործեք</h1>
+                <p class="text-sm text-foreground/40 font-light leading-relaxed mb-10">
+                    Մուտք գործեք՝ պատվերները տեսնելու և ավելի արագ գնումներ կատարելու համար։
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="/login" class="btn-luxe btn-luxe-primary px-12 py-4 text-[10px] uppercase tracking-[0.2em]">Մուտք Գործել</a>
+                    <a href="/login?tab=register" class="btn-luxe border border-luxe-gold text-luxe-gold hover:bg-luxe-gold hover:text-white px-12 py-4 text-[10px] uppercase tracking-[0.2em] transition-colors">Գրանցվել</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Signed-in account -->
+        <section id="account-signed-in" class="bg-white py-12 md:py-20 hidden">
+            <div class="container mx-auto px-6">
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+                    <div>
+                        <span class="text-[10px] uppercase tracking-[0.5em] text-luxe-gold mb-4 block">Իմ Հաշիվը</span>
+                        <h1 class="text-3xl md:text-5xl font-heading font-normal text-luxe-black uppercase tracking-tight" id="account-name"></h1>
+                        <p class="text-sm text-foreground/40 font-light mt-3" id="account-meta"></p>
+                    </div>
+                    <button type="button" id="logout-btn" class="self-start md:self-auto text-[10px] uppercase tracking-widest text-luxe-black/40 hover:text-red-500 transition-colors flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                        Ելք
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+    <div id="footer-slot"></div>
+    <div id="toast-slot"></div>
+</body>
+</html>

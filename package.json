@@ -1,0 +1,13 @@
+{
+  "name": "luxe-jewelry",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Luxe Jewelry — vanilla client + Node/Express REST API (Django migration)",
+  "scripts": {
+    "setup": "npm --prefix server install && npm --prefix server run setup",
+    "dev": "npm --prefix server run dev",
+    "start": "npm --prefix server run start",
+    "db:reset": "npm --prefix server run db:reset"
+  }
+}

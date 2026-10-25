@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxe Jewelry — Մուտք գործել</title>
+    <meta name="description" content="Luxe Jewelry - հաշվի մուտք և գրանցում">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/assets/js/tailwind-config.js"></script>
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <script type="module" src="/js/api.js"></script>
+    <script src="/js/i18n.js" defer></script>
+    <script src="/js/layout.js" defer></script>
+    <script type="module" src="/js/pages/login.js" defer></script>
+    <style>
+        .auth-tab { transition: all .4s ease; border-bottom: 1px solid transparent; }
+        .auth-tab.active { color: #D4AF37; border-bottom-color: #D4AF37; }
+        .auth-input { width:100%; background:transparent; border-bottom:1px solid rgba(17,24,39,.15); padding:1rem 0; font-size:.85rem; font-weight:300; outline:none; transition:border-color .3s; }
+        .auth-input:focus { border-color:#D4AF37; }
+        .auth-input.error { border-color:#ef4444; }
+        .field-error { color:#ef4444; font-size:.65rem; margin-top:.35rem; display:none; letter-spacing:.05em; }
+        .field-error.show { display:block; }
+    </style>
+</head>
+<body data-page="login">
+    <div id="header-slot"></div>
+    <main>
+        <nav class="bg-luxe-black border-b border-border/10 pt-24 md:pt-32">
+            <div class="container mx-auto px-6 py-4">
+                <ol class="flex items-center gap-3 text-[10px] uppercase tracking-[0.2em] text-white/40">
+                    <li><a href="/" class="hover:text-luxe-gold transition-colors">Գլխավոր</a></li>
+                    <li>/</li>
+                    <li class="text-luxe-gold">Մուտք</li>
+                </ol>
+            </div>
+        </nav>
+
+        <section class="bg-white py-16 md:py-28">
+            <div class="container mx-auto px-6">
+                <div class="max-w-md mx-auto">
+                    <div class="text-center mb-12">
+                        <span class="text-[10px] uppercase tracking-[0.5em] text-luxe-gold mb-4 block">Luxe Հաշիվ</span>
+                        <h1 class="text-3xl md:text-5xl font-heading font-normal text-luxe-black uppercase tracking-tight">Բարի Գալուստ</h1>
+                        <p class="text-sm text-foreground/40 font-light mt-4 leading-relaxed">
+                            Մուտք գործեք՝ վիրտուալ փորձարկման համար լուսանկար պահելու, պատվերները կառավարելու և ընտրությունը պահպանելու համար։
+                        </p>
+                    </div>
+
+                    <div class="flex justify-center gap-10 mb-12">
+                        <button type="button" id="tab-login" class="auth-tab active text-[10px] uppercase tracking-[0.3em] text-foreground/50 pb-2">Մուտք</button>
+                        <button type="button" id="tab-register" class="auth-tab text-[10px] uppercase tracking-[0.3em] text-foreground/50 pb-2">Գրանցում</button>
+                    </div>
+
+                    <div id="form-alert" class="hidden mb-8 border border-red-200 bg-red-50 text-red-600 text-xs p-4 text-center"></div>
+
+                    <!-- Login form -->
+                    <form id="login-form" class="space-y-8">
+                        <div>
+                            <label for="login-username" class="spec-label text-[9px] uppercase tracking-[0.2em] text-foreground/40">Մուտքանուն կամ Էլ. փոստ</label>
+                            <input type="text" id="login-username" autocomplete="username" class="auth-input" placeholder="Օրինակ՝ ani կամ ani@mail.com">
+                            <p class="field-error" data-for="username"></p>
+                        </div>
+                        <div>
+                            <label for="login-password" class="spec-label text-[9px] uppercase tracking-[0.2em] text-foreground/40">Գաղտնաբառ</label>
+                            <input type="password" id="login-password" autocomplete="current-password" class="auth-input" placeholder="••••••••">
+                            <p class="field-error" data-for="password"></p>
+                        </div>
+                        <button type="submit" id="login-submit" class="w-full btn-luxe btn-luxe-primary h-16 uppercase tracking-[0.2em] text-[10px] mt-4">
+                            <span class="btn-text">Մուտք Գործել</span>
+                        </button>
+                    </form>
+
+                    <!-- Register form -->
+                    <form id="register-form" class="space-y-8 hidden">
+                        <div class="grid grid-cols-2 gap-6">
+                            <div>
+                                <label for="reg-firstname" class="text-[9px] uppercase tracking-[0.2em] text-foreground/40">Անուն</label>
+                                <input type="text" id="reg-firstname" autocomplete="given-name" class="auth-input" placeholder="Անի">
+                            </div>
+                            <div>
+                                <label for="reg-lastname" class="text-[9px] uppercase tracking-[0.2em] text-foreground/40">Ազգանուն</label>
+                                <input type="text" id="reg-lastname" autocomplete="family-name" class="auth-input" placeholder="Հովհաննիսյան">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="reg-username" class="text-[9px] uppercase tracking-[0.2em] text-foreground/40">Մուտքանուն</label>
+                            <input type="text" id="reg-username" autocomplete="username" class="auth-input" placeholder="ani2026">
+                            <p class="field-error" data-for="username"></p>
+                        </div>
+                        <div>
+                            <label for="reg-email" class="text-[9px] uppercase tracking-[0.2em] text-foreground/40">Էլ. փոստ</label>
+                            <input type="email" id="reg-email" autocomplete="email" class="auth-input" placeholder="ani@mail.com">
+                            <p class="field-error" data-for="email"></p>
+                        </div>
+                        <div>
+                            <label for="reg-password" class="text-[9px] uppercase tracking-[0.2em] text-foreground/40">Գաղտնաբառ</label>
+                            <input type="password" id="reg-password" autocomplete="new-password" class="auth-input" placeholder="Առնվազն 6 նիշ">
+                            <p class="field-error" data-for="password"></p>
+                        </div>
+                        <button type="submit" id="register-submit" class="w-full btn-luxe btn-luxe-primary h-16 uppercase tracking-[0.2em] text-[10px] mt-4">
+                            <span class="btn-text">Գրանցվել</span>
+                        </button>
+                        <p class="text-[10px] text-foreground/30 text-center leading-relaxed">Գրանցվելով՝ դուք ընդունում եք մեր
+                            <a href="/terms-conditions" class="underline hover:text-luxe-gold">պայմանները</a> և
+                            <a href="/privacy-policy" class="underline hover:text-luxe-gold">գաղտնիության քաղաքականությունը</a>։
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+    <div id="footer-slot"></div>
+    <div id="toast-slot"></div>
+</body>
+</html>

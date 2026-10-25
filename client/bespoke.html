@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxe Jewelry — Անհատական Պատվեր</title>
+    <meta name="description" content="Luxe Jewelry - հայկական ոսկերչական տուն">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/assets/js/tailwind-config.js"></script>
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <script type="module" src="/js/api.js"></script>
+    <script src="/js/i18n.js" defer></script>
+    <script src="/js/layout.js" defer></script>
+    <script type="module" src="/js/pages/bespoke.js" defer></script>
+</head>
+<body data-page="bespoke">
+    <div id="header-slot"></div>
+    <main>
+        <!-- Hero Section -->
+        <section class="relative pt-32 pb-20 md:pt-48 md:pb-32 bg-luxe-black overflow-hidden">
+            <div class="container mx-auto px-6 relative z-10 text-center">
+                <span class="text-[10px] uppercase tracking-[0.5em] text-luxe-gold mb-6 block animate-fade-in">Exclusivity</span>
+                <h1 class="text-3xl md:text-8xl font-body font-light text-white uppercase tracking-tight mb-8 animate-fade-in">
+                    Անհատական <span class="text-gradient-gold">Պատվեր</span>
+                </h1>
+                <p class="text-white/40 text-sm md:text-lg max-w-2xl mx-auto font-light leading-relaxed animate-fade-in" style="animation-delay: 0.2s;">
+                    Ստեղծեք ձեր երազանքների զարդը մեր վարպետների հետ։ Մենք կյանքի կկոչենք ձեր ամենահամարձակ գաղափարները՝ օգտագործելով լավագույն նյութերն ու քարերը։
+                </p>
+            </div>
+        </section>
+
+        <!-- Form Section -->
+        <section class="py-24 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="max-w-5xl mx-auto">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-20 items-start">
+
+                        <!-- Info Column -->
+                        <div class="lg:col-span-4 space-y-12">
+                            <div>
+                                <h2 class="text-xs uppercase tracking-[0.3em] text-luxe-black mb-8">Գործընթացը</h2>
+                                <ul class="space-y-8">
+                                    <li class="flex gap-6">
+                                        <span class="text-luxe-gold font-heading text-2xl">01</span>
+                                        <div>
+                                            <h3 class="text-sm font-medium text-luxe-black mb-2 uppercase tracking-wider">Խորհրդատվություն</h3>
+                                            <p class="text-[11px] text-luxe-black/50 leading-relaxed">Մենք քննարկում ենք ձեր գաղափարը, նախընտրությունները և բյուջեն։</p>
+                                        </div>
+                                    </li>
+                                    <li class="flex gap-6">
+                                        <span class="text-luxe-gold font-heading text-2xl">02</span>
+                                        <div>
+                                            <h3 class="text-sm font-medium text-luxe-black mb-2 uppercase tracking-wider">Էսքիզավորում</h3>
+                                            <p class="text-[11px] text-luxe-black/50 leading-relaxed">Մեր դիզայներները ստեղծում են զարդի նախնական էսքիզը կամ 3D մոդելը։</p>
+                                        </div>
+                                    </li>
+                                    <li class="flex gap-6">
+                                        <span class="text-luxe-gold font-heading text-2xl">03</span>
+                                        <div>
+                                            <h3 class="text-sm font-medium text-luxe-black mb-2 uppercase tracking-wider">Պատրաստում</h3>
+                                            <p class="text-[11px] text-luxe-black/50 leading-relaxed">Ձեռքի աշխատանքի միջոցով ստեղծվում է ձեր եզակի զարդը։</p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="p-10 bg-section-alt border border-border/5">
+                                <h3 class="text-[10px] uppercase tracking-[0.2em] text-luxe-black mb-4">Ունե՞ք հարցեր</h3>
+                                <p class="text-[11px] text-luxe-black/50 mb-6 italic">«Յուրաքանչյուր զարդ պատմություն է։ Թույլ տվեք մեզ օգնել ձեզ պատմել ձերը։»</p>
+                                <a href="tel:+37410123456" class="text-xs font-medium text-luxe-black border-b border-luxe-gold pb-1 hover:text-luxe-gold transition-colors">
+                                    Զանգահարել մասնագետին
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Form Column -->
+                        <div class="lg:col-span-8">
+                            <div id="msg" class="hidden mb-12 p-6 bg-luxe-black text-luxe-gold text-xs uppercase tracking-[0.2em] animate-fade-in"></div>
+
+                            <form id="bespoke-form" class="space-y-12">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                    <div class="space-y-2">
+                                        <label class="text-[9px] uppercase tracking-widest text-luxe-black/40">Անուն Ազգանուն</label>
+                                        <input type="text" name="full_name" placeholder="Մուտքագրեք ձեր անունը" required
+                                               class="w-full bg-transparent border-b border-border/20 py-3 text-xs focus:border-luxe-gold outline-none transition-colors duration-300 placeholder:text-luxe-black/20">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[9px] uppercase tracking-widest text-luxe-black/40">Էլ. փոստ</label>
+                                        <input type="email" name="email" placeholder="example@mail.com" required
+                                               class="w-full bg-transparent border-b border-border/20 py-3 text-xs focus:border-luxe-gold outline-none transition-colors duration-300 placeholder:text-luxe-black/20">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                    <div class="space-y-2">
+                                        <label class="text-[9px] uppercase tracking-widest text-luxe-black/40">Հեռախոս</label>
+                                        <input type="text" name="phone" placeholder="+374 XX XX XX XX"
+                                               class="w-full bg-transparent border-b border-border/20 py-3 text-xs focus:border-luxe-gold outline-none transition-colors duration-300 placeholder:text-luxe-black/20">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[9px] uppercase tracking-widest text-luxe-black/40">Զարդի տեսակ</label>
+                                        <div class="relative group">
+                                            <select name="jewelry_type" required
+                                                    class="w-full bg-section-alt border border-border/20 px-4 py-3 text-xs focus:border-luxe-gold outline-none appearance-none transition-all duration-300 cursor-pointer">
+                                                <option value="ring">Մատանի</option>
+                                                <option value="necklace">Վզնոց</option>
+                                                <option value="earrings">Ականջօղեր</option>
+                                                <option value="bracelet">Ապարանջան</option>
+                                                <option value="other">Այլ</option>
+                                            </select>
+                                            <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-luxe-black/20 group-hover:text-luxe-gold transition-colors">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="text-[9px] uppercase tracking-widest text-luxe-black/40">Քարերի նախընտրություն</label>
+                                    <input type="text" name="gemstone_preferences" placeholder="Նշեք ձեր նախընտրած քարերը..."
+                                           class="w-full bg-transparent border-b border-border/20 py-3 text-xs focus:border-luxe-gold outline-none transition-colors duration-300 placeholder:text-luxe-black/20">
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                    <div class="space-y-2">
+                                        <label class="text-[9px] uppercase tracking-widest text-luxe-black/40">Բյուջեի շրջանակ</label>
+                                        <input type="text" name="budget_range" placeholder="Օրինակ՝ 200,000 - 500,000 AMD"
+                                               class="w-full bg-transparent border-b border-border/20 py-3 text-xs focus:border-luxe-gold outline-none transition-colors duration-300 placeholder:text-luxe-black/20">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[9px] uppercase tracking-widest text-luxe-black/40">Վերջնաժամկետ</label>
+                                        <input type="date" name="deadline"
+                                               class="w-full bg-transparent border-b border-border/20 py-3 text-xs focus:border-luxe-gold outline-none transition-colors duration-300">
+                                    </div>
+                                </div>
+
+                                <div class="space-y-4">
+                                    <label class="text-[9px] uppercase tracking-widest text-luxe-black/40">Էսքիզ / Նկար (մինչև 3 նկար)</label>
+
+                                    <div class="relative group" id="upload-container">
+                                        <input type="file" name="sketch" id="id_sketch" class="hidden" multiple accept="image/*">
+                                        <label for="id_sketch" class="cursor-pointer block w-full border border-dashed border-border/20 hover:border-luxe-gold transition-colors bg-section-alt p-10 text-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mx-auto mb-4 text-luxe-black/20 group-hover:text-luxe-gold transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                            </svg>
+                                            <span class="text-[10px] text-luxe-black/40 uppercase tracking-widest block mb-1">Սեղմեք կամ քաշեք ֆայլերը այստեղ</span>
+                                            <span class="text-[9px] text-luxe-black/20 uppercase tracking-wider block">PNG, JPG մինչև 5MB</span>
+                                        </label>
+                                    </div>
+
+                                    <div id="image-previews" class="grid grid-cols-3 gap-4 mt-4 hidden"></div>
+                                    <p id="upload-error" class="text-red-500 text-[10px] mt-2 hidden uppercase tracking-wider"></p>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="text-[9px] uppercase tracking-widest text-luxe-black/40">Լրացուցիչ մանրամասներ</label>
+                                    <textarea name="description" rows="4" placeholder="Նկարագրեք ձեր գաղափարը մանրամասն..."
+                                              class="w-full bg-transparent border-b border-border/20 py-3 text-xs focus:border-luxe-gold outline-none resize-none transition-colors duration-300 placeholder:text-luxe-black/20"></textarea>
+                                </div>
+
+                                <button type="submit" class="w-full btn-luxe btn-luxe-primary h-16 uppercase tracking-[0.3em] text-[10px] transition-all duration-300 hover:tracking-[0.4em]">
+                                    Ուղարկել Հայտը
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <div id="footer-slot"></div>
+    <div id="toast-slot"></div>
+</body>
+</html>

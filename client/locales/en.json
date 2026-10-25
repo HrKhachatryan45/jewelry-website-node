@@ -1,0 +1,109 @@
+{
+  "nav": {
+    "home": "Home",
+    "collection": "Collection",
+    "bespoke": "Bespoke",
+    "reviews": "Reviews",
+    "about": "About",
+    "contact": "Contact",
+    "cart": "Cart"
+  },
+  "footer": {
+    "links": "Links",
+    "story": "Our Story",
+    "contact_us": "Contact Us",
+    "legal": "Legal",
+    "privacy": "Privacy",
+    "return": "Returns",
+    "terms": "Terms & Conditions",
+    "contact": "Contact",
+    "payments": "Payment Methods",
+    "rights": "All rights reserved."
+  },
+  "toast": {
+    "added": "Added to cart",
+    "item": "Item",
+    "continue": "Continue shopping"
+  },
+  "common": {
+    "add_to_cart": "Add to cart",
+    "read_more": "Read more",
+    "order_now": "Order now",
+    "send": "Send",
+    "buy_now": "Buy now",
+    "view_product": "View product"
+  },
+  "home": {
+    "view_collection": "View Collection",
+    "categories": "Categories",
+    "discover_categories": "Discover Our Categories",
+    "featured": "Featured",
+    "featured_collection": "Featured Collection"
+  },
+  "collection": {
+    "label": "Our Collection",
+    "title": "All Products"
+  },
+  "about": {
+    "label": "Our Story",
+    "title": "Luxe Jewelry",
+    "subtitle": "Exceptional craftsmanship",
+    "p1": "Luxe Jewelry is an Armenian jewelry house",
+    "p2": "We value quality, elegance and individuality"
+  },
+  "policies": {
+    "legal_label": "Legal Information",
+    "updated": "Last updated: 2025",
+    "privacy": {
+      "title": "PRIVACY POLICY"
+    },
+    "return": {
+      "title": "RETURN POLICY",
+      "guarantee": "Purchase Guarantee"
+    },
+    "terms": {
+      "title": "Terms of Use",
+      "body": "By using Luxe Jewelry website, you agree to these terms."
+    }
+  },
+  "cart": {
+    "title": "Cart",
+    "checkout": "Proceed to Checkout"
+  },
+  "errors": {
+    "404": "Page not found"
+  },
+  "ar": {
+    "title": "Virtual Try-On",
+    "target": {
+      "face": "Face",
+      "hand": "Hand"
+    },
+    "category": {
+      "necklaces": "Necklace",
+      "earrings": "Earrings",
+      "rings": "Ring",
+      "bracelets": "Bracelet"
+    },
+    "hint": {
+      "necklaces": "Show your face and neck to the live camera",
+      "earrings": "Face the live camera with both ears visible",
+      "rings": "Show your hand with the ring finger visible",
+      "bracelets": "Show your wrist and lower arm to the live camera"
+    },
+    "status": {
+      "loading": "Preparing...",
+      "ready": "",
+      "no_face": "Face not detected — show your face to the camera",
+      "no_hand": "Hand not detected — show your hand to the camera",
+      "denied": "Camera access denied — allow it in your browser",
+      "nocam": "No camera found",
+      "insecure": "This feature works only over HTTPS or on localhost",
+      "load": "Tracking failed to load — please try again",
+      "image": "A transparent try-on image is not available for this product",
+      "privacy_note": "Live tracking runs in your browser. Camera frames are not uploaded."
+    },
+    "close": "Close",
+    "live": "Live try-on"
+  }
+}
