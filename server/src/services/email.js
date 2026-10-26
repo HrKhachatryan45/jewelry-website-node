@@ -4,33 +4,33 @@ import env from '../config/env.js';
 import { DELIVERY_LABELS, PAYMENT_LABELS } from './serializers.js';
 
 const LUXE_STYLE = `
-  body { font-family: 'Inter', Arial, sans-serif; background-color:#0a0a0a; margin:0; padding:0; color:#fff; }
-  .wrapper { width:100%; background-color:#0a0a0a; padding-bottom:40px; }
-  .main { background-color:#0d0d0d; margin:0 auto; width:100%; max-width:600px; color:#fff; border:1px solid #1a1a1a; }
-  .header { padding:40px 0; text-align:center; background-color:#0d0d0d; border-bottom:1px solid #1a1a1a; }
-  .content { padding:40px 30px; line-height:1.8; font-size:15px; color:rgba(255,255,255,0.7); }
-  .title { font-family:'Playfair Display', serif; font-size:24px; color:#fff; margin-bottom:20px; text-transform:uppercase; letter-spacing:2px; text-align:center; }
-  .gold-text { color:#d4af37; font-weight:600; }
-  .divider { height:1px; background-color:rgba(212,175,55,0.2); margin:30px 0; }
-  .footer { padding:30px; text-align:center; font-size:12px; color:rgba(255,255,255,0.3); border-top:1px solid #1a1a1a; }
-  .button { display:inline-block; padding:15px 35px; background-color:#d4af37; color:#000 !important; text-decoration:none; font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:1.5px; }
+  body { font-family:Arial,sans-serif; background-color:#f3f4f6; margin:0; padding:0; color:#374151; }
+  .wrapper { width:100%; background-color:#f3f4f6; padding:32px 12px 40px; }
+  .main { background-color:#ffffff; margin:0 auto; width:100%; max-width:600px; color:#374151; border:1px solid #e5e7eb; border-collapse:collapse; }
+  .header { padding:32px 20px; text-align:center; background-color:#ffffff; border-bottom:3px solid #d4af37; }
+  .content { padding:32px 30px; line-height:1.75; font-size:15px; color:#4b5563; }
+  .title { font-family:Georgia,serif; font-size:24px; color:#202a36; margin:0 0 20px; text-transform:uppercase; letter-spacing:2px; text-align:center; }
+  .gold-text { color:#a87900; font-weight:700; }
+  .divider { height:1px; background-color:#e5e7eb; margin:26px 0; }
+  .footer { padding:24px 20px; text-align:center; font-size:12px; line-height:1.7; color:#6b7280; background-color:#f9fafb; border-top:1px solid #e5e7eb; }
+  .button { display:inline-block; padding:14px 30px; background-color:#d4af37; color:#111827 !important; text-decoration:none; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1.3px; }
   .order-table { width:100%; border-collapse:collapse; margin:20px 0; }
-  .order-table th { text-align:left; padding:12px; font-size:12px; text-transform:uppercase; color:#d4af37; border-bottom:1px solid rgba(255,255,255,0.1); }
-  .order-table td { padding:12px; border-bottom:1px solid rgba(255,255,255,0.05); font-size:14px; }
+  .order-table th { text-align:left; padding:12px; font-size:11px; text-transform:uppercase; letter-spacing:.5px; color:#202a36; background-color:#f9fafb; border-bottom:2px solid #d4af37; }
+  .order-table td { padding:12px; border-bottom:1px solid #e5e7eb; font-size:14px; color:#374151; }
 `;
 
 function compose(content, siteUrl) {
   const year = new Date().getFullYear();
-  const header = `<div class="header"><h1 style="font-family:'Playfair Display',serif;color:#fff;margin:0;font-size:28px;letter-spacing:4px;text-transform:uppercase;">LUXE <span style="color:#d4af37;">JEWELRY</span></h1></div>`;
-  const footer = `<div class="footer"><p>© ${year} LUXE JEWELRY. ԲՈԼՈՐ ԻՐԱՎՈՒՆՔՆԵՐԸ ՊԱՇՏՊԱՆՎԱԾ ԵՆ։</p><p>Երևան, Հայաստան | <a href="${siteUrl}" style="color:#d4af37;">www.luxejewelry.am</a></p></div>`;
-  return `<!DOCTYPE html><html><head><style>${LUXE_STYLE}</style></head><body><div class="wrapper"><table class="main"><tr><td>${header}<div class="content">${content}</div>${footer}</td></tr></table></div></body></html>`;
+  const header = `<div class="header"><h1 style="font-family:Georgia,serif;color:#202a36;margin:0;font-size:28px;letter-spacing:4px;text-transform:uppercase;">LUXE <span style="color:#a87900;">JEWELRY</span></h1></div>`;
+  const footer = `<div class="footer"><p style="margin:0 0 8px;">© ${year} LUXE JEWELRY. ԲՈԼՈՐ ԻՐԱՎՈՒՆՔՆԵՐԸ ՊԱՇՏՊԱՆՎԱԾ ԵՆ։</p><p style="margin:0;">Երևան, Հայաստան | <a href="${siteUrl}" style="color:#202a36;font-weight:600;">www.luxejewelry.am</a></p></div>`;
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${LUXE_STYLE}</style></head><body><div class="wrapper"><table class="main" role="presentation" cellpadding="0" cellspacing="0"><tr><td>${header}<div class="content">${content}</div>${footer}</td></tr></table></div></body></html>`;
 }
 
 function orderTable(items) {
   const rows = (items || [])
     .map(
       (i) =>
-        `<tr><td>${i.name}</td><td style="text-align:center;">${i.quantity}</td><td style="text-align:right;color:#d4af37;">${i.price} ֏</td></tr>`
+        `<tr><td>${i.name}</td><td style="text-align:center;">${i.quantity}</td><td style="text-align:right;color:#a87900;font-weight:700;">${i.price} ֏</td></tr>`
     )
     .join('');
   return `<table class="order-table"><thead><tr><th>Անուն</th><th>Քանակ</th><th>Գին</th></tr></thead><tbody>${rows}</tbody></table>`;
@@ -73,7 +73,7 @@ export const Templates = {
     return {
       subject: 'Վճարումը հաջողությամբ կատարվել է | Luxe Jewelry',
       body: compose(
-        `<h2 class="title" style="color:#4ade80;">ՎՃԱՐՈՒՄԸ ՀԱՍՏԱՏՎԱԾ Է</h2>
+        `<h2 class="title">ՎՃԱՐՈՒՄԸ ՀԱՍՏԱՏՎԱԾ Է</h2>
         <p>Հարգելի <span class="gold-text">${order.fullName}</span>,</p>
         <p>Ձեր <span class="gold-text">#${order.id}</span> պատվերի վճարումը հաջողությամբ ստացվել է:</p>`,
         env.hostUrl
@@ -84,10 +84,10 @@ export const Templates = {
     return {
       subject: 'Վճարման սխալ | Luxe Jewelry',
       body: compose(
-        `<h2 class="title" style="color:#ef4444;">ՎՃԱՐՄԱՆ ՍԽԱԼ</h2>
+        `<h2 class="title">ՎՃԱՐՄԱՆ ՍԽԱԼ</h2>
         <p>Հարգելի <span class="gold-text">${order.fullName}</span>,</p>
         <p>Ձեր <span class="gold-text">#${order.id}</span> պատվերի առցանց վճարումը չհաջողվեց:</p>
-        <div style="text-align:center;margin-top:40px;"><a href="${env.hostUrl}/checkout/?order_id=${order.id}" class="button" style="background-color:#ef4444;color:#fff !important;">Փորձել կրկին</a></div>`,
+        <div style="text-align:center;margin-top:32px;"><a href="${env.hostUrl}/checkout/?order_id=${order.id}" class="button">Փորձել կրկին</a></div>`,
         env.hostUrl
       ),
     };
@@ -118,7 +118,7 @@ export const Templates = {
     return {
       subject: '🔔 Նոր պատվեր | Luxe Jewelry',
       body: compose(
-        `<h2 class="title" style="color:#d4af37;">🔔 ՆՈՐ ՊԱՏՎԵՐ</h2>
+        `<h2 class="title">🔔 ՆՈՐ ՊԱՏՎԵՐ</h2>
         <p>Ստացվել է նոր պատվեր <span class="gold-text">#${order.id}</span>:</p>
         <table class="order-table">
           <tr><td>Հաճախորդ:</td><td class="gold-text">${order.fullName}</td></tr>
@@ -141,7 +141,7 @@ export const Templates = {
           <tr><td>Էլ. փոստ:</td><td>${msg.email}</td></tr>
           <tr><td>Հեռախոս:</td><td>${msg.phone || '-'}</td></tr>
         </table>
-        <div style="background:rgba(255,255,255,0.02);padding:25px;border-left:3px solid #d4af37;"><p style="color:#fff;">${msg.message}</p></div>`,
+        <div style="background:#f9fafb;padding:22px;border-left:3px solid #d4af37;"><p style="color:#374151;margin:0;">${msg.message}</p></div>`,
         env.hostUrl
       ),
     };

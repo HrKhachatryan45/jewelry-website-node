@@ -136,6 +136,26 @@ h1, h2, h3, h4, h5, h6 {
 ::-webkit-scrollbar-track { background: #F3F4F6; }
 ::-webkit-scrollbar-thumb { background: #D4AF37; }
 
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: rgba(17, 24, 39, 0.07);
+}
+.skeleton::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  content: "";
+  transform: translateX(-100%);
+  animation: skeleton-shimmer 1.5s infinite;
+}
+@keyframes skeleton-shimmer {
+  100% { transform: translateX(100%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after { animation: none; }
+}
+
 .scroll-fade { opacity: 0; transform: translateY(30px); transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1); }
 .scroll-fade.visible { opacity: 1; transform: translateY(0); }
 .scroll-fade-left { opacity: 0; transform: translateX(-40px); transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1); }

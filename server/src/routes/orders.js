@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { body } from 'express-validator';
 import validate from '../middleware/validate.js';
 import { ensureCartId } from '../middleware/cart.js';
+import { requireAuth } from '../middleware/auth.js';
 import * as order from '../controllers/orderController.js';
 
 const router = Router();
@@ -17,6 +18,9 @@ router.param('id', (req, res, next, id) => {
 });
 
 router.get('/checkout', order.checkoutContext);
+router.get('/account/orders', requireAuth, order.accountOrders);
+router.get('/account/orders/:id', requireAuth, order.accountOrder);
+router.post('/account/orders/:id/cancel', requireAuth, order.cancelAccountOrder);
 router.post(
   '/checkout',
   [

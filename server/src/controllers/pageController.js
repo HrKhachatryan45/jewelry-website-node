@@ -25,7 +25,7 @@ function serializeReview(r) {
 
 // GET /api/home  (views.home)
 export async function home(_req, res) {
-  const [heroSlides, heroSettings, featured, approved] = await Promise.all([
+  const [heroSlides, heroSettings, featured, homeReviews, reviewStats, categories, categoryCounts] = await Promise.all([
     prisma.heroSlide.findMany({ where: { isActive: true }, orderBy: { order: 'asc' } }),
     prisma.heroSettings.findUnique({ where: { id: 1 } }),
     prisma.menuItem.findMany({
@@ -33,25 +33,43 @@ export async function home(_req, res) {
       include: { images: true, variants: true },
       orderBy: { id: 'asc' },
     }),
-    prisma.review.findMany({ where: { isApproved: true } }),
+    prisma.review.findMany({ where: { isApproved: true, showOnMain: true }, take: 3 }),
+    prisma.review.aggregate({
+      where: { isApproved: true },
+      _count: { _all: true },
+      _avg: { rating: true },
+    }),
+    prisma.category.findMany({ orderBy: { sortOrder: 'asc' } }),
+    prisma.menuItem.groupBy({
+      by: ['category'],
+      where: { isActive: true },
+      _count: { _all: true },
+    }),
   ]);
 
-  let homeReviews = approved.filter((r) => r.showOnMain).slice(0, 3);
-  if (homeReviews.length === 0) {
-    homeReviews = [...approved].sort(() => Math.random() - 0.5).slice(0, 3);
+  let reviews = homeReviews;
+  if (reviews.length === 0) {
+    const approved = await prisma.review.findMany({ where: { isApproved: true } });
+    reviews = [...approved].sort(() => Math.random() - 0.5).slice(0, 3);
   }
 
-  const total = approved.length;
-  const avg = total > 0 ? approved.reduce((s, r) => s + r.rating, 0) / total : 0;
-  const menuItemsCount = await prisma.menuItem.count({ where: { isActive: true } });
+  const categoryCountBySlug = new Map(categoryCounts.map((row) => [row.category, row._count._all]));
+  const menuItemsCount = categoryCounts.reduce((sum, row) => sum + row._count._all, 0);
 
   res.json({
     heroSlides: heroSlides.map((s) => ({ id: s.id, title: s.title, image: mediaUrl(s.image), order: s.order })),
     heroSettings: heroSettings ? heroSettingsToJson(heroSettings) : null,
     featuredItems: featured.map((i) => serializeItem(i, { images: i.images, variants: i.variants })),
-    reviews: homeReviews.map(serializeReview),
-    totalReviews: total,
-    avgRating: Math.round(avg * 10) / 10,
+    categories: categories.map((c) => ({
+      slug: c.slug,
+      name: c.nameHy,
+      names: { hy: c.nameHy, ru: c.nameRu, en: c.nameEn },
+      image: mediaUrl(c.image),
+      count: categoryCountBySlug.get(c.slug) || 0,
+    })),
+    reviews: reviews.map(serializeReview),
+    totalReviews: reviewStats._count._all,
+    avgRating: Math.round((reviewStats._avg.rating || 0) * 10) / 10,
     menuItemsCount,
   });
 }
@@ -85,22 +103,24 @@ export async function termsConditions(_req, res) {
 
 // GET /api/categories  (MenuItem.CATEGORY_CHOICES)
 export async function categories(_req, res) {
-  const cats = await prisma.category.findMany({ orderBy: { sortOrder: 'asc' } });
-  if (cats.length) {
-    const counts = await Promise.all(
-      cats.map((c) => prisma.menuItem.count({ where: { category: c.slug, isActive: true } }))
-    );
-    return res.json({
-      categories: cats.map((c, i) => ({
-        slug: c.slug,
-        name: c.nameHy,
-        names: { hy: c.nameHy, ru: c.nameRu, en: c.nameEn },
-        image: mediaUrl(c.image),
-        count: counts[i],
-      })),
-    });
-  }
-  res.json({ categories: [] });
+  const [cats, categoryCounts] = await Promise.all([
+    prisma.category.findMany({ orderBy: { sortOrder: 'asc' } }),
+    prisma.menuItem.groupBy({
+      by: ['category'],
+      where: { isActive: true },
+      _count: { _all: true },
+    }),
+  ]);
+  const countBySlug = new Map(categoryCounts.map((row) => [row.category, row._count._all]));
+  res.json({
+    categories: cats.map((c) => ({
+      slug: c.slug,
+      name: c.nameHy,
+      names: { hy: c.nameHy, ru: c.nameRu, en: c.nameEn },
+      image: mediaUrl(c.image),
+      count: countBySlug.get(c.slug) || 0,
+    })),
+  });
 }
 
 export { MATERIAL_LABELS };

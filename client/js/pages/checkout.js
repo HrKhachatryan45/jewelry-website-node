@@ -262,7 +262,7 @@ function setupAddressAutocomplete() {
 function applyPrefill(prefill) {
   if (!prefill || !Object.keys(prefill).length) return;
   const form = document.getElementById('checkoutForm');
-  ['full_name', 'phone', 'email', 'city', 'address'].forEach((k) => {
+  ['full_name', 'phone', 'city', 'address'].forEach((k) => {
     if (prefill[k]) {
       const el = form.elements[k];
       if (el) el.value = prefill[k];
@@ -283,7 +283,14 @@ function normalise(redirect) {
   if (!redirect) return '/order-success';
   const m = redirect.match(/\?(.*)$/);
   const q = m ? '?' + m[1] : '';
-  if (redirect.includes('order-success')) return '/order-success' + q;
+  if (redirect.includes('order-success')) {
+    const params = new URLSearchParams(q);
+    const orderId = params.get('id');
+    if (params.get('pm') === 'cash' && /^\d+$/.test(orderId || '')) {
+      return `/account/orders/${orderId}`;
+    }
+    return '/order-success' + q;
+  }
   if (redirect.includes('idram_success')) return '/idram-success' + q;
   if (redirect.includes('idram_fail')) return '/idram-fail' + q;
   if (redirect.includes('card_success')) return '/card-success' + q;
@@ -345,7 +352,15 @@ async function submitOrder() {
     }
     location.href = normalise(data.redirect);
   } catch (err) {
-    msg(err.data?.error || err.data?.errors?.full_name || 'Սխալ', true);
+    const errorMessage = err.data?.error || err.data?.errors?.full_name || 'Սխալ';
+    msg(errorMessage, true);
+    if (err.data?.loginRequired) {
+      const link = document.createElement('a');
+      link.href = `/login?next=${encodeURIComponent('/checkout')}`;
+      link.textContent = ' Մուտք գործել';
+      link.className = 'ml-2 underline';
+      document.getElementById('msg').appendChild(link);
+    }
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = btn.dataset.label; }
   }

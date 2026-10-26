@@ -55,6 +55,61 @@
                         Ելք
                     </button>
                 </div>
+                <section class="mb-12 border border-border/10 bg-[#faf9f7] p-5 sm:p-7" aria-labelledby="account-portrait-title">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-5">
+                        <div class="h-28 w-28 shrink-0 overflow-hidden border border-border/10 bg-white">
+                            <img id="account-portrait-preview" class="hidden h-full w-full object-cover" alt="Ձեր վիրտուալ փորձի դիմանկարը">
+                            <div id="account-portrait-placeholder" class="flex h-full w-full items-center justify-center px-3 text-center text-[9px] uppercase tracking-widest text-foreground/35">Դիմանկար չկա</div>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <h2 id="account-portrait-title" class="text-xl font-heading text-luxe-black">Իմ դիմանկարը</h2>
+                            <p class="mt-2 text-xs text-foreground/50">Վերբեռնեք մեկ դիմանկար՝ այն ձեր բոլոր վիրտուալ փորձերի համար օգտագործելու նպատակով։ Փորձի պատուհանում կարող եք ընտրել ուղիղ տեսախցիկը կամ այս պահպանված լուսանկարը։</p>
+                            <p class="mt-2 text-[10px] leading-relaxed text-foreground/40">Լուսանկարը պահվում է ձեր հաշվի հետ կապված մասնավոր պահոցում, հասանելի է միայն ձեր մուտք գործած հաշվին և կարող եք ցանկացած պահի փոխել կամ ջնջել այն։</p>
+                        </div>
+                    </div>
+                    <form id="account-portrait-form" class="mt-5 flex flex-col sm:flex-row sm:items-center gap-3">
+                        <label class="cursor-pointer border border-border/20 bg-white px-4 py-3 text-[9px] uppercase tracking-widest text-luxe-black hover:border-luxe-gold">
+                            Ընտրել լուսանկարը
+                            <input id="account-portrait-file" name="portrait" type="file" accept="image/jpeg,image/png,image/webp" class="sr-only">
+                        </label>
+                        <span id="account-portrait-filename" class="text-xs text-foreground/45">JPEG, PNG կամ WebP, առավելագույնը՝ 10 ՄԲ</span>
+                        <button id="account-portrait-save" type="submit" class="hidden bg-luxe-black px-5 py-3 text-[9px] uppercase tracking-widest text-white hover:bg-luxe-gold">Պահպանել դիմանկարը</button>
+                        <button id="account-portrait-delete" type="button" class="hidden border border-red-700/20 px-4 py-3 text-[9px] uppercase tracking-widest text-red-700 hover:bg-red-700 hover:text-white">Ջնջել</button>
+                    </form>
+                    <p id="account-portrait-message" class="mt-3 text-xs" role="status" aria-live="polite"></p>
+                </section>
+                <section id="account-password-section" class="hidden mb-12 border border-border/10 p-5 sm:p-7" aria-labelledby="account-password-title">
+                    <h2 id="account-password-title" class="text-xl font-heading text-luxe-black">Սահմանել գաղտնաբառ</h2>
+                    <p id="account-password-help" class="mt-2 text-xs text-foreground/50"></p>
+                    <p class="mt-2 max-w-2xl text-[11px] leading-relaxed text-foreground/40">Եթե հաշիվը ստեղծվել է պատվերի ժամանակ, առաջին գաղտնաբառը սահմանելու համար հինը պետք չէ։ Ընդհանուր կամ օրինակային գաղտնաբառ չկա․ հաշվի ժամանակավոր գաղտնաբառը ստեղծվում է պատահական և չի ցուցադրվում։ Հետագայում գաղտնաբառը փոխելու համար մուտքագրեք ընթացիկ գաղտնաբառը։</p>
+                    <form id="account-password-form" class="mt-5 grid gap-4 max-w-md">
+                        <label id="account-current-password-wrap" class="hidden text-xs text-foreground/60">
+                            Ընթացիկ գաղտնաբառ
+                            <input id="account-current-password" type="password" autocomplete="current-password" class="mt-2 w-full border border-border/20 px-4 py-3 text-sm" minlength="8">
+                        </label>
+                        <label class="text-xs text-foreground/60">
+                            Նոր գաղտնաբառ
+                            <input id="account-new-password" type="password" autocomplete="new-password" required minlength="8" class="mt-2 w-full border border-border/20 px-4 py-3 text-sm">
+                        </label>
+                        <label class="text-xs text-foreground/60">
+                            Կրկնել նոր գաղտնաբառը
+                            <input id="account-confirm-password" type="password" autocomplete="new-password" required minlength="8" class="mt-2 w-full border border-border/20 px-4 py-3 text-sm">
+                        </label>
+                        <button type="submit" class="justify-self-start px-5 py-3 bg-luxe-black text-white text-[10px] uppercase tracking-widest hover:bg-luxe-gold">Պահպանել գաղտնաբառը</button>
+                        <p id="account-password-message" class="text-xs" role="status" aria-live="polite"></p>
+                    </form>
+                </section>
+                <section aria-labelledby="account-orders-title">
+                    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-8">
+                        <div>
+                            <span class="text-[10px] uppercase tracking-[0.4em] text-luxe-gold mb-3 block">Պատվերների պատմություն</span>
+                            <h2 id="account-orders-title" class="text-2xl md:text-3xl font-heading text-luxe-black">Իմ պատվերները</h2>
+                        </div>
+                        <a href="/collection" class="text-[10px] uppercase tracking-[0.18em] text-luxe-gold hover:text-luxe-black">Շարունակել գնումները</a>
+                    </div>
+                    <p id="account-orders-message" class="text-sm text-foreground/50" role="status" aria-live="polite">Պատվերները բեռնվում են…</p>
+                    <div id="account-orders-list" class="space-y-4"></div>
+                </section>
             </div>
         </section>
     </main>

@@ -1,4 +1,6 @@
 import prisma from '../config/prisma.js';
+import bcrypt from 'bcryptjs';
+import { randomBytes } from 'node:crypto';
 import env from '../config/env.js';
 import { serializeOrder } from '../services/serializers.js';
 import { buildCartView } from './cartController.js';
@@ -6,6 +8,7 @@ import { getCart, saveCart } from '../middleware/cart.js';
 import { sendOrderEmail, Templates } from '../services/email.js';
 import * as idram from '../services/idram.js';
 import * as arca from '../services/arca.js';
+import { setAuthCookie, signToken } from '../middleware/auth.js';
 
 function round2(n) {
   return Math.round(n * 100) / 100;
@@ -21,13 +24,16 @@ export async function checkoutContext(req, res) {
   }
   const enriched = await buildCartView(active);
 
-  let prefill = {};
+  let prefill = req.user
+    ? {
+      full_name: [req.user.firstName, req.user.lastName].filter(Boolean).join(' '),
+    }
+    : {};
   if (req.query.order_id) {
     const prev = await prisma.order.findUnique({ where: { id: parseInt(req.query.order_id, 10) } });
     if (prev) {
       prefill = {
         full_name: prev.fullName,
-        email: prev.email,
         phone: prev.phone,
         delivery_type: prev.deliveryType,
         city: prev.city,
@@ -56,43 +62,90 @@ export async function placeOrder(req, res) {
     Object.values(active).reduce((s, v) => s + Number(v.price) * v.quantity, 0) + deliveryPrice
   );
 
-  const order = await prisma.order.create({
-    data: {
-      fullName: b.full_name || '',
-      email: b.email || '',
-      phone: b.phone || '',
-      deliveryType: b.delivery_type || 'pickup',
-      paymentMethod: b.payment_method || 'cash',
-      city: b.city || '',
-      address: b.address || '',
-      lat: b.lat || '',
-      lng: b.lng || '',
-      deliveryPrice,
-      deliveryTime: b.delivery_time || '',
-      orderNote: b.notes || b.order_note || '',
-      total,
-      totalAmountAmd: total,
-      userId: req.user ? req.user.id : null,
-    },
-  });
+  const email = String(b.email || '').trim().toLowerCase();
+  let account = req.user || null;
+  let accountCreated = false;
 
-  for (const entry of Object.values(active)) {
-    const dbItem = await prisma.menuItem.findUnique({ where: { id: parseInt(entry.pk, 10) } });
-    if (!dbItem) continue;
-    await prisma.orderItem.create({
-      data: {
-        orderId: order.id,
-        menuItemId: dbItem.id,
-        name: dbItem.name,
-        price: Number(entry.price),
-        quantity: entry.quantity,
-        weight: entry.weight != null ? Number(entry.weight) : null,
-        material: entry.material || null,
-        customText: entry.custom_text || null,
-        size: entry.size || null,
-        note: entry.note || '',
-      },
-    });
+  if (!account) {
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      return res.status(409).json({
+        error: 'An account already uses this email. Sign in before placing your order.',
+        loginRequired: true,
+      });
+    }
+  }
+
+  const setupPasswordHash = account ? null : await bcrypt.hash(randomBytes(32).toString('hex'), 12);
+  let order;
+  try {
+    ({ order, account, accountCreated } = await prisma.$transaction(async (tx) => {
+      let customer = account;
+      if (!customer) {
+        customer = await tx.user.create({
+          data: {
+            username: `customer_${randomBytes(12).toString('hex')}`,
+            email,
+            password: setupPasswordHash,
+            firstName: String(b.full_name || '').trim().split(/\s+/)[0] || '',
+            lastName: String(b.full_name || '').trim().split(/\s+/).slice(1).join(' '),
+            role: 'customer',
+          },
+        });
+      }
+
+      const createdOrder = await tx.order.create({
+        data: {
+          fullName: b.full_name || '',
+          email,
+          phone: b.phone || '',
+          deliveryType: b.delivery_type || 'pickup',
+          paymentMethod: b.payment_method || 'cash',
+          city: b.city || '',
+          address: b.address || '',
+          lat: b.lat || '',
+          lng: b.lng || '',
+          deliveryPrice,
+          deliveryTime: b.delivery_time || '',
+          orderNote: b.notes || b.order_note || '',
+          total,
+          totalAmountAmd: total,
+          userId: customer.id,
+        },
+      });
+
+      for (const entry of Object.values(active)) {
+        const dbItem = await tx.menuItem.findUnique({ where: { id: parseInt(entry.pk, 10) } });
+        if (!dbItem) continue;
+        await tx.orderItem.create({
+          data: {
+            orderId: createdOrder.id,
+            menuItemId: dbItem.id,
+            name: dbItem.name,
+            price: Number(entry.price),
+            quantity: entry.quantity,
+            weight: entry.weight != null ? Number(entry.weight) : null,
+            material: entry.material || null,
+            customText: entry.custom_text || null,
+            size: entry.size || null,
+            note: entry.note || '',
+          },
+        });
+      }
+      return { order: createdOrder, account: customer, accountCreated: !req.user };
+    }));
+  } catch (error) {
+    if (error?.code === 'P2002' && String(error.meta?.target).includes('email')) {
+      return res.status(409).json({
+        error: 'An account already uses this email. Sign in before placing your order.',
+        loginRequired: true,
+      });
+    }
+    throw error;
+  }
+
+  if (accountCreated) {
+    setAuthCookie(res, signToken(account, { passwordSetupRequired: true }));
   }
 
   const method = order.paymentMethod;
@@ -111,11 +164,14 @@ export async function placeOrder(req, res) {
   }
 
   if (['idram', 'card'].includes(method)) {
-    return res.status(201).json({ order: { id: order.id }, payment: { method, initiate: `/api/payments/initiate/${order.id}` } });
+    return res.status(201).json({ order: { id: order.id }, accountCreated, payment: { method, initiate: `/api/payments/initiate/${order.id}` } });
   }
   return res.status(201).json({
     order: { id: order.id },
-    redirect: `/payment/order-success.html?pm=${method}&id=${order.id}`,
+    accountCreated,
+    redirect: method === 'cash'
+      ? `/account/orders/${order.id}`
+      : `/payment/order-success.html?pm=${method}&id=${order.id}`,
   });
 }
 
@@ -127,6 +183,60 @@ export async function orderStatus(req, res) {
   });
   if (!order) return res.status(404).json({ error: 'Order not found' });
   res.json({ order: serializeOrder(order, order.items) });
+}
+
+// Customer order history is always scoped to the authenticated account.
+export async function accountOrders(req, res) {
+  const orders = await prisma.order.findMany({
+    where: { userId: req.user.id },
+    orderBy: { createdAt: 'desc' },
+    take: 50,
+    include: {
+      items: {
+        include: { menuItem: { select: { category: true, image: true, tryOnAsset: true } } },
+      },
+    },
+  });
+  res.json({ orders: orders.map((order) => serializeOrder(order, order.items)) });
+}
+
+export async function accountOrder(req, res) {
+  const id = parseInt(req.params.id, 10);
+  const order = await prisma.order.findFirst({
+    where: { id, userId: req.user.id },
+    include: {
+      items: {
+        include: { menuItem: { select: { category: true, image: true, tryOnAsset: true } } },
+      },
+    },
+  });
+  if (!order) return res.status(404).json({ error: 'Order not found' });
+  res.json({ order: serializeOrder(order, order.items) });
+}
+
+export async function cancelAccountOrder(req, res) {
+  const id = parseInt(req.params.id, 10);
+  const result = await prisma.order.updateMany({
+    where: {
+      id,
+      userId: req.user.id,
+      status: 'new',
+      isPaid: false,
+      paymentMethod: { notIn: ['idram', 'card'] },
+    },
+    data: { status: 'cancelled' },
+  });
+
+  if (result.count === 0) {
+    const order = await prisma.order.findFirst({
+      where: { id, userId: req.user.id },
+      select: { id: true },
+    });
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    return res.status(409).json({ error: 'This order can no longer be cancelled online. Please contact us for help.' });
+  }
+
+  res.json({ success: true, status: 'cancelled' });
 }
 
 // GET /api/payments/initiate/:orderId  (views.initiate_payment)

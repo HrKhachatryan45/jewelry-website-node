@@ -21,7 +21,16 @@ npm run dev      # http://localhost:4000
 
 `npm run dev` starts the API server, which also serves the static client and uploaded media, so the whole site is available at **http://localhost:4000**.
 
-Virtual try-on runs live in the browser using MediaPipe. It requests camera access when the user opens the feature, tracks the selected category's body landmarks, and draws the product's transparent PNG on the live preview. Camera frames stay in the browser and are not sent to the server. The MediaPipe browser libraries load from jsDelivr, so the feature needs camera permission, HTTPS or localhost, and an internet connection.
+Virtual try-on runs live in the browser using MediaPipe. The existing renderer remains available; try the opt-in Tasks Vision + Three.js renderer by opening a product URL with `?tryon=v2`. Camera frames stay in the browser and are not uploaded. The v2 runtime assets are served locally.
+
+After installing server dependencies, the postinstall scripts copy the MediaPipe Tasks bundle/WASM and Three.js browser modules into `client/`. The face and hand task files are not distributed in the npm package; download them into `server/assets/mediapipe/`:
+
+- [Face landmarker task](https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task)
+- [Hand landmarker task](https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task)
+
+Then run `npm --prefix server run tryon:copy-mediapipe`. The app serves the files at `/mediapipe/face_landmarker.task` and `/mediapipe/hand_landmarker.task`. For local development, use `?tryon=v2&debug=1` to display tracker landmarks and FPS. Product GLB models continue to use the existing `model3d` field; PNG-only products are shown as a basic preview, and products without an asset use a procedural category preview.
+
+To use an optional local environment map, place `jewelry-studio.hdr` in `client/hdri/` and set `HDRI_URL` in `client/js/ar/v2/anchors.js` to `/hdri/jewelry-studio.hdr`. By default it uses a procedural room environment without requesting a missing HDR file. Product anchor metadata is optional; pass a product's `tryOnMetadataUrl` to load its JSON sidecar.
 
 The admin SPA is at **http://localhost:4000/admin/** (default login `admin` / `admin123`, override with `SEED_ADMIN_PASSWORD`).
 
@@ -49,6 +58,8 @@ Copy `server/.env.example` to `server/.env` and fill in the real values:
 | `npm run db:seed` | Re-import seed data |
 | `npm run db:reset` | Drop, recreate and reseed the database |
 | `npm start` | Production start (`NODE_ENV=production npm start`) |
+| `npm --prefix server run tryon:copy-mediapipe` | Copy local MediaPipe runtime files and any downloaded `.task` models |
+| `npm --prefix server run tryon:copy-vendor` | Copy local Three.js browser modules |
 
 ## Data
 

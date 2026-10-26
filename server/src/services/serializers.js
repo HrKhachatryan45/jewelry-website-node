@@ -136,6 +136,9 @@ export function serializeOrder(order, items = []) {
       size: it.size,
       note: it.note,
       subtotal: num(it.price) * it.quantity,
+      image: mediaUrl(it.menuItem?.image),
+      tryOnCategory: it.menuItem?.category || null,
+      tryOnAsset: it.menuItem?.tryOnAsset ? mediaUrl(it.menuItem.tryOnAsset) : null,
     })),
   };
 }

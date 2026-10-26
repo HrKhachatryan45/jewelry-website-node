@@ -104,7 +104,18 @@ async function init() {
     item = res.item;
     related = res.related || [];
   } catch (e) {
-    location.href = '/404';
+    if (e.status === 404) {
+      location.href = '/404';
+      return;
+    }
+    console.error('product load failed', e);
+    const loading = document.getElementById('product-loading');
+    const section = document.getElementById('product-content');
+    if (loading) {
+      loading.innerHTML = '<p role="alert" class="text-sm text-foreground/60">Ապրանքը չհաջողվեց բեռնել։ Խնդրում ենք կրկին փորձել։</p>';
+      loading.setAttribute('aria-label', 'Ապրանքը չի բեռնվել');
+    }
+    if (section) section.setAttribute('aria-busy', 'false');
     return;
   }
 
@@ -258,8 +269,8 @@ async function init() {
         const c = d.cart_count || 0;
         document.querySelectorAll('#cart-count,.mobile-cart-count').forEach((b) => {
           b.textContent = c;
-          b.classList.add('scale-125', 'bg-emerald-400');
-          setTimeout(() => b.classList.remove('scale-125', 'bg-emerald-400'), 500);
+          b.classList.add('scale-125');
+          setTimeout(() => b.classList.remove('scale-125'), 500);
         });
         if (typeof window.showToast === 'function') window.showToast(d.item_name, d.item_image);
       }
@@ -284,13 +295,31 @@ async function init() {
   const tryonBtn = document.getElementById('tryon-btn');
   if (tryonBtn && isTryOnCategory(p.category)) {
     tryonBtn.classList.remove('hidden');
-    tryonBtn.addEventListener('click', () =>
-      openTryOn({
-        productCategory: p.category,
-        productImageUrl: p.tryOnAsset,
-        productName: p.name,
-      })
-    );
+    tryonBtn.addEventListener('click', async () => {
+      tryonBtn.disabled = true;
+      try {
+        const { portraitUrl } = await get('/account/portrait');
+        openTryOn({
+          productCategory: p.category,
+          productImageUrl: p.tryOnAsset,
+          productModelUrl: p.model3d,
+          productMetadataUrl: p.tryOnMetadataUrl,
+          productName: p.name,
+          portraitUrl,
+        });
+      } catch (error) {
+        if (error.status !== 401) console.error('Could not load saved portrait for product try-on', error);
+        openTryOn({
+          productCategory: p.category,
+          productImageUrl: p.tryOnAsset,
+          productModelUrl: p.model3d,
+          productMetadataUrl: p.tryOnMetadataUrl,
+          productName: p.name,
+        });
+      } finally {
+        tryonBtn.disabled = false;
+      }
+    });
   }
 
   setupSwipe();
@@ -324,6 +353,10 @@ async function init() {
       </div>`;
     }).join('');
   }
+
+  document.getElementById('product-loading')?.setAttribute('hidden', '');
+  document.getElementById('order-form')?.removeAttribute('hidden');
+  document.getElementById('product-content')?.setAttribute('aria-busy', 'false');
 
   if (window.I18N && typeof window.I18N.setLang === 'function') window.I18N.setLang(window.I18N.current);
   if (typeof window.__observeScroll === 'function') window.__observeScroll();

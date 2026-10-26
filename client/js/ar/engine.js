@@ -9,7 +9,8 @@
 // This file only orchestrates: start/stop lifecycle, frame pumping, smoothing,
 // detection hysteresis and status reporting.
 
-import { loadArSolver, loadArCamera } from './loader.js';
+import { loadArSolver } from './loader.js';
+import { startCamera } from './camera.js';
 import { analyzeAsset } from './asset.js';
 import { computePlacements, computeRingModelPlacements } from './tracker.js';
 import { drawFrame } from './renderer.js';
@@ -68,6 +69,7 @@ export class ArTryOnEngine {
     this._running = false;
     this._status = 'loading';
     this._camera = null;
+    this._facingMode = 'user';
     this._solvers = [];
     this._solverKeys = new Set();
     this._lm = { face: null, pose: null, hands: [] };
@@ -122,28 +124,13 @@ export class ArTryOnEngine {
       }
       if (!this._running) return this._dispose();
 
-      let cameraEntry;
-      try {
-        cameraEntry = await loadArCamera();
-      } catch (err) {
-        err.code = 'load';
-        throw err;
-      }
-      if (!this._running) return this._dispose();
-
       // Only the primary tracker is loaded up front; the fallback (pose for
       // necklaces) is added later, and only if the target is not found.
       await this._ensureSolver(this.def.solvers[0]);
       if (!this._running) return this._dispose();
 
-      this._camera = new cameraEntry.Ctor(this.video, {
-        onFrame: () => this._pump(),
-        width: CANVAS_W,
-        height: 480,
-      });
-
       try {
-        await this._camera.start();
+        this._camera = await startCamera(this.video, () => this._pump(), this._facingMode);
       } catch (err) {
         const code = classifyCameraError(err);
         const e = new Error(err && err.message ? err.message : code);
@@ -181,6 +168,31 @@ export class ArTryOnEngine {
     this._dispose();
   }
 
+  async switchCamera() {
+    if (!this._running || !this._camera) return;
+    const previousFacingMode = this._facingMode;
+    const nextFacingMode = this._facingMode === 'user' ? 'environment' : 'user';
+    this._camera();
+    this._camera = null;
+    this._facingMode = nextFacingMode;
+    this._setStatus('loading');
+    try {
+      this._camera = await startCamera(this.video, () => this._pump(), this._facingMode);
+      this._syncCanvasSize();
+    } catch (err) {
+      this._facingMode = previousFacingMode;
+      try {
+        this._camera = await startCamera(this.video, () => this._pump(), previousFacingMode);
+        this._syncCanvasSize();
+      } catch (restoreError) {
+        this._setStatus(classifyCameraError(restoreError));
+        throw restoreError;
+      }
+      this._setStatus(classifyCameraError(err));
+      throw err;
+    }
+  }
+
   // Idempotent: safe to call repeatedly (also used when start() is aborted).
   _dispose() {
     if (this._raf) {
@@ -196,7 +208,7 @@ export class ArTryOnEngine {
       this._fallbackTimer = 0;
     }
     if (this._camera) {
-      try { this._camera.stop(); } catch { /* already stopped */ }
+      try { this._camera(); } catch { /* already stopped */ }
       this._camera = null;
     }
     for (const solver of this._solvers) {
@@ -366,10 +378,14 @@ export class ArTryOnEngine {
       this._lastPlacements = smoothed;
       if (this._status !== 'ready') this._setStatus('ready');
       if (this._modelRenderer) {
-        drawFrame(this.ctx, this.video, null, w, h, []);
-        this._modelRenderer.render(smoothed);
+        drawFrame(this.ctx, this.video, null, w, h, [], false);
+        this._modelRenderer.render(smoothed.map((placement) => ({
+          ...placement,
+          x: w - placement.x,
+          rot: -placement.rot,
+        })));
       } else {
-        drawFrame(this.ctx, this.video, this._image, w, h, smoothed);
+        drawFrame(this.ctx, this.video, this._image, w, h, smoothed, false);
       }
       return;
     }
@@ -381,10 +397,14 @@ export class ArTryOnEngine {
     if (elapsed < LOST_MS && this._lastPlacements) {
       // Brief dropout: freeze the last overlay instead of flickering off.
       if (this._modelRenderer) {
-        drawFrame(this.ctx, this.video, null, w, h, []);
-        this._modelRenderer.render(this._lastPlacements);
+        drawFrame(this.ctx, this.video, null, w, h, [], false);
+        this._modelRenderer.render(this._lastPlacements.map((placement) => ({
+          ...placement,
+          x: w - placement.x,
+          rot: -placement.rot,
+        })));
       } else {
-        drawFrame(this.ctx, this.video, this._image, w, h, this._lastPlacements);
+        drawFrame(this.ctx, this.video, this._image, w, h, this._lastPlacements, false);
       }
       return;
     }
@@ -392,10 +412,10 @@ export class ArTryOnEngine {
     this._lastPlacements = null;
     this._slots.clear();
     if (this._modelRenderer) {
-      drawFrame(this.ctx, this.video, null, w, h, []);
+      drawFrame(this.ctx, this.video, null, w, h, [], false);
       this._modelRenderer.render([]);
     } else {
-      drawFrame(this.ctx, this.video, this._image, w, h, []);
+      drawFrame(this.ctx, this.video, this._image, w, h, [], false);
     }
 
     if (elapsed >= LOST_MS) {

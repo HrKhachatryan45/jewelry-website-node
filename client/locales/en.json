@@ -38,7 +38,15 @@
     "categories": "Categories",
     "discover_categories": "Discover Our Categories",
     "featured": "Featured",
-    "featured_collection": "Featured Collection"
+    "featured_collection": "Featured Collection",
+    "craft_label": "Our Craft",
+    "craft_title": "Elegance in every detail",
+    "craft_text": "Every piece begins with an attention to detail. Discover our approach and the story carried by each creation.",
+    "craft_link": "Discover our story",
+    "bespoke_label": "Made personal",
+    "bespoke_title": "A piece for your story",
+    "bespoke_text": "Share your idea with us, and we can explore the possibilities of creating a piece made especially for you.",
+    "bespoke_link": "Create a bespoke piece"
   },
   "collection": {
     "label": "Our Collection",
@@ -101,9 +109,15 @@
       "insecure": "This feature works only over HTTPS or on localhost",
       "load": "Tracking failed to load — please try again",
       "image": "A transparent try-on image is not available for this product",
-      "privacy_note": "Live tracking runs in your browser. Camera frames are not uploaded."
+      "photo_size": "Choose an image smaller than 15 MB.",
+      "privacy_note": "Your saved account portrait is loaded for try-on; image processing runs in your browser."
     },
     "close": "Close",
-    "live": "Live try-on"
+    "live": "Live try-on",
+    "saved_portrait": "Use saved portrait",
+    "add_portrait": "Add my portrait",
+    "photo_hint": "Using your saved account portrait.",
+    "take_photo": "Download photo",
+    "switch_camera": "Switch camera"
   }
 }

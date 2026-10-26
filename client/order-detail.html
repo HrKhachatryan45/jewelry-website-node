@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxe Jewelry — Պատվերի մանրամասներ</title>
+    <meta name="description" content="Luxe Jewelry - պատվերի մանրամասներ">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/assets/js/tailwind-config.js"></script>
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <script src="/js/i18n.js" defer></script>
+    <script src="/js/layout.js" defer></script>
+    <script type="module" src="/js/pages/order-detail.js" defer></script>
+</head>
+<body data-page="account">
+    <div id="header-slot"></div>
+    <main>
+        <nav class="bg-luxe-black border-b border-border/10 pt-24 md:pt-32">
+            <div class="container mx-auto px-6 py-4">
+                <ol class="flex items-center gap-3 text-[10px] uppercase tracking-[0.2em] text-white/40">
+                    <li><a href="/" class="hover:text-luxe-gold transition-colors">Գլխավոր</a></li>
+                    <li>/</li>
+                    <li><a href="/account" class="hover:text-luxe-gold transition-colors">Իմ հաշիվը</a></li>
+                    <li>/</li>
+                    <li class="text-luxe-gold">Պատվերի մանրամասներ</li>
+                </ol>
+            </div>
+        </nav>
+        <section class="bg-[#faf9f7] py-10 md:py-16 min-h-[60vh]">
+            <div class="container mx-auto px-6 max-w-6xl">
+                <a href="/account" class="inline-flex items-center gap-2 mb-8 text-[10px] uppercase tracking-[0.18em] text-luxe-black/50 hover:text-luxe-gold">
+                    <span aria-hidden="true">←</span> Վերադառնալ պատվերներին
+                </a>
+                <p id="order-detail-message" class="py-16 text-center text-sm text-foreground/50" role="status" aria-live="polite">Պատվերը բեռնվում է…</p>
+                <div id="order-detail-content" class="hidden"></div>
+            </div>
+        </section>
+    </main>
+    <div id="footer-slot"></div>
+    <div id="toast-slot"></div>
+</body>
+</html>

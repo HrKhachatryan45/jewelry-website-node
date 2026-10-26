@@ -2,7 +2,7 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { body } from 'express-validator';
 import validate from '../middleware/validate.js';
-import { requireAdmin } from '../middleware/auth.js';
+import { requireAdmin, requireAuth } from '../middleware/auth.js';
 import * as auth from '../controllers/authController.js';
 
 const router = Router();
@@ -22,6 +22,17 @@ router.post(
   [body('username').trim().notEmpty().withMessage('Մուտքանունը պարտադիր է'), body('password').notEmpty().withMessage('Գաղտնաբառը պարտադիր է')],
   validate,
   auth.login
+);
+
+router.post(
+  '/password',
+  requireAuth,
+  [
+    body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
+    body('currentPassword').optional({ values: 'falsy' }).isString(),
+  ],
+  validate,
+  auth.setPassword
 );
 
 router.post('/logout', auth.logout);

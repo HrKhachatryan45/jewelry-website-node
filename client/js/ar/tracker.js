@@ -1,8 +1,8 @@
 // Pure landmark → placement math for the AR overlay.
 //
-// Everything is projected into *mirrored* canvas pixels first (the feed is drawn
-// with scaleX(-1) so user movement feels natural), then angles and distances are
-// computed from the mirrored points, so all drawing maths stays standard.
+// Everything is projected into mirrored canvas pixels first, then angles and
+// distances are computed consistently. The renderer converts those placements
+// when drawing an unmirrored camera preview.
 //
 // Anchor rules by category (see task spec):
 //  - Necklaces: the pendant hangs from the throat (below the chin / above the
@@ -20,7 +20,7 @@ const TUNE = {
     throatDrop: 0.26, // × face height below the chin
     neckRise: 0.12, // × shoulder width above the shoulder line (pose mode)
   },
-  earrings: { heightFactor: 0.17 }, // × face height, per earlobe
+  earrings: { heightFactor: 0.17, anchorRise: 0.05 }, // × face height, per earlobe
   bracelets: { widthFactor: 0.7 }, // × hand width (knuckle line)
   rings: {
     widthFactor: 0.3, // PNG ring width → fraction of hand width
@@ -136,14 +136,16 @@ function placeNecklace(lm, w, h, asset) {
 
 function placeEarrings(lm, w, h, asset) {
   const { face } = lm;
-  if (!face || !face[177] || !face[397] || !face[10] || !face[152]) return [];
+  if (!face || !face[132] || !face[361] || !face[10] || !face[152]) return [];
 
   const { faceHeight } = faceMetrics(face, w, h);
   const rot =
     face[33] && face[263] ? foldLine(ang(mir(face[33], w, h), mir(face[263], w, h))) : 0; // head tilt
 
-  const earA = mir(face[177], w, h);
-  const earB = mir(face[397], w, h);
+  const earA = mir(face[132], w, h);
+  const earB = mir(face[361], w, h);
+  earA.y -= faceHeight * TUNE.earrings.anchorRise;
+  earB.y -= faceHeight * TUNE.earrings.anchorRise;
   const th = faceHeight * TUNE.earrings.heightFactor;
 
   const pieceA = asset.pieces[0];

@@ -10,6 +10,7 @@ function publicUser(user) {
     role: user.role,
     firstName: user.firstName,
     lastName: user.lastName,
+    passwordSetupRequired: false,
   };
 }
 
@@ -54,5 +55,27 @@ export async function logout(_req, res) {
 
 export async function me(req, res) {
   if (!req.user) return res.status(401).json({ error: 'Not authenticated' });
-  res.json({ user: publicUser(req.user) });
+  res.json({
+    user: {
+      ...publicUser(req.user),
+      passwordSetupRequired: req.passwordSetupRequired === true,
+    },
+  });
+}
+
+export async function setPassword(req, res) {
+  const { password, currentPassword } = req.body;
+  if (!req.passwordSetupRequired) {
+    if (!currentPassword || !(await bcrypt.compare(currentPassword, req.user.password))) {
+      return res.status(400).json({ error: 'Enter your current password to change it.' });
+    }
+  }
+
+  const hash = await bcrypt.hash(password, 12);
+  const user = await prisma.user.update({
+    where: { id: req.user.id },
+    data: { password: hash },
+  });
+  setAuthCookie(res, signToken(user));
+  res.json({ success: true, user: publicUser(user) });
 }

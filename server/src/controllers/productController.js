@@ -12,9 +12,20 @@ export async function list(req, res) {
   const sort = q.sort || '';
   const popularOnly = q.popular === 'true';
 
-  const all = await prisma.menuItem.findMany({ where: { isActive: true }, select: { price: true, category: true } });
-  const priceMinGlobal = all.length ? Math.min(...all.map((i) => Number(i.price))) : 0;
-  const priceMaxGlobal = all.length ? Math.max(...all.map((i) => Number(i.price))) : 0;
+  const [priceRange, categoryCounts] = await Promise.all([
+    prisma.menuItem.aggregate({
+      where: { isActive: true },
+      _min: { price: true },
+      _max: { price: true },
+    }),
+    prisma.menuItem.groupBy({
+      by: ['category'],
+      where: { isActive: true },
+      _count: { _all: true },
+    }),
+  ]);
+  const priceMinGlobal = Number(priceRange._min.price || 0);
+  const priceMaxGlobal = Number(priceRange._max.price || 0);
 
   let priceMin = parseInt(q.price_min ?? priceMinGlobal, 10);
   let priceMax = parseInt(q.price_max ?? priceMaxGlobal, 10);
@@ -31,22 +42,33 @@ export async function list(req, res) {
 
   const orderBy = sort === 'price-asc' ? { price: 'asc' } : sort === 'price-desc' ? { price: 'desc' } : { id: 'asc' };
 
-  const totalResults = await prisma.menuItem.count({ where });
   const page = Math.max(1, parseInt(q.page || '1', 10));
+  const [totalResults, categoryItems] = await Promise.all([
+    prisma.menuItem.count({ where }),
+    prisma.menuItem.findMany({
+      where,
+      orderBy,
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+      include: { images: true, variants: true },
+    }),
+  ]);
   const totalPages = Math.max(1, Math.ceil(totalResults / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
+  const items = currentPage === page
+    ? categoryItems
+    : await prisma.menuItem.findMany({
+      where,
+      orderBy,
+      skip: (currentPage - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+      include: { images: true, variants: true },
+    });
 
-  const items = await prisma.menuItem.findMany({
-    where,
-    orderBy,
-    skip: (currentPage - 1) * PAGE_SIZE,
-    take: PAGE_SIZE,
-    include: { images: true, variants: true },
-  });
-
-  const categoryCounts = { all: all.length };
+  const categoryCountMap = new Map(categoryCounts.map((row) => [row.category, row._count._all]));
+  const counts = { all: categoryCounts.reduce((sum, row) => sum + row._count._all, 0) };
   for (const slug of CATEGORY_SLUGS) {
-    categoryCounts[slug] = all.filter((i) => i.category === slug).length;
+    counts[slug] = categoryCountMap.get(slug) || 0;
   }
 
   let activeFilters = 0;
@@ -75,7 +97,7 @@ export async function list(req, res) {
       sort,
       popularOnly,
       activeFilters,
-      categoryCounts,
+      categoryCounts: counts,
       categoryLabels: CATEGORY_LABELS,
     },
   });

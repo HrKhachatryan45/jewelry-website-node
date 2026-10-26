@@ -31,6 +31,11 @@ const imageFilter = (_req, file, cb) => {
 export const uploadHero = multer({ storage: storage('hero'), fileFilter: imageFilter, limits: { fileSize: 12 * 1024 * 1024 } });
 export const uploadMenu = multer({ storage: storage('menu'), fileFilter: imageFilter, limits: { fileSize: 12 * 1024 * 1024 } });
 export const uploadBespoke = multer({ storage: storage('bespoke'), fileFilter: imageFilter, limits: { fileSize: 12 * 1024 * 1024 } });
+export const uploadPortrait = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: imageFilter,
+  limits: { fileSize: 10 * 1024 * 1024, files: 1 },
+});
 
 // Relative path (stored in DB) for a multer file, e.g. "menu/1712-foo.webp".
 export function relPath(file) {

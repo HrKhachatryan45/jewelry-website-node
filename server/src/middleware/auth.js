@@ -2,9 +2,9 @@ import jwt from 'jsonwebtoken';
 import env from '../config/env.js';
 import prisma from '../config/prisma.js';
 
-export function signToken(user) {
+export function signToken(user, { passwordSetupRequired = false } = {}) {
   return jwt.sign(
-    { sub: user.id, username: user.username, role: user.role },
+    { sub: user.id, username: user.username, role: user.role, passwordSetupRequired },
     env.jwtSecret,
     { expiresIn: env.jwtExpiresIn }
   );
@@ -30,7 +30,10 @@ export async function optionalAuth(req, _res, next) {
   try {
     const payload = jwt.verify(token, env.jwtSecret);
     const user = await prisma.user.findUnique({ where: { id: payload.sub } });
-    if (user && user.isActive) req.user = user;
+    if (user && user.isActive) {
+      req.user = user;
+      req.passwordSetupRequired = payload.passwordSetupRequired === true;
+    }
   } catch {
     /* ignore invalid token */
   }

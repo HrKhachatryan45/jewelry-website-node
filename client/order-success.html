@@ -9,6 +9,13 @@
     <link rel="stylesheet" href="/assets/css/site.css">
     <script src="/js/i18n.js" defer></script>
     <script src="/js/layout.js" defer></script>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const orderId = params.get('id');
+        if (params.get('pm') === 'cash' && /^\d+$/.test(orderId || '')) {
+            window.location.replace(`/account/orders/${orderId}`);
+        }
+    </script>
 </head>
 <body>
     <div id="header-slot"></div>

@@ -188,7 +188,7 @@ function initHeroCarousel(slides) {
 
 async function init() {
   try {
-    const [home, cats] = await Promise.all([get('/home'), get('/categories')]);
+    const home = await get('/home');
 
     initHeroCarousel(home.heroSlides || []);
 
@@ -205,14 +205,18 @@ async function init() {
 
     const cg = document.getElementById('categories-grid');
     if (cg) {
-      const all = cats.categories || [];
+      const all = home.categories || [];
       const withImage = all.filter((c) => c.image);
       cg.innerHTML = (withImage.length ? withImage : all).slice(0, 5).map(categoryCard).join('');
+      cg.setAttribute('aria-busy', 'false');
     }
 
     const items = home.featuredItems || [];
     const wrap = document.getElementById('featured-wrapper');
-    if (wrap) wrap.innerHTML = items.map(featuredSlide).join('');
+    if (wrap) {
+      wrap.innerHTML = items.map(featuredSlide).join('');
+      wrap.setAttribute('aria-busy', 'false');
+    }
     initFeaturedCarousel();
 
     // stats (animated count-up handled by layout's [data-count] observer)
@@ -233,6 +237,17 @@ async function init() {
     if (window.I18N && typeof window.I18N.setLang === 'function') window.I18N.setLang(window.I18N.current);
   } catch (e) {
     console.error('home init failed', e);
+    const message = '<p class="col-span-full py-12 text-center text-sm text-foreground/60" role="alert">Տվյալները չհաջողվեց բեռնել։ Խնդրում ենք կրկին փորձել։</p>';
+    const categories = document.getElementById('categories-grid');
+    const featured = document.getElementById('featured-wrapper');
+    if (categories) {
+      categories.innerHTML = message;
+      categories.setAttribute('aria-busy', 'false');
+    }
+    if (featured) {
+      featured.innerHTML = `<div class="swiper-slide w-full">${message}</div>`;
+      featured.setAttribute('aria-busy', 'false');
+    }
   }
 }
 init();

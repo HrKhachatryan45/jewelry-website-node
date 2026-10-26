@@ -7,7 +7,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -21,6 +21,7 @@ model User {
   role      String    @default("customer")
   firstName String    @default("") @map("first_name")
   lastName  String    @default("") @map("last_name")
+  portraitPath String? @map("portrait_path")
   isActive  Boolean   @default(true) @map("is_active")
   lastLogin DateTime? @map("last_login")
   createdAt DateTime  @default(now()) @map("created_at")

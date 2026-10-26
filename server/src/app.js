@@ -46,6 +46,7 @@ export function createApp() {
 
   // Extensionless aliases for client subfolders and Django-style order paths.
   app.get('/product/:slug', (_req, res) => res.sendFile(path.join(CLIENT_DIR, 'product.html')));
+  app.get('/account/orders/:id', (_req, res) => res.sendFile(path.join(CLIENT_DIR, 'order-detail.html')));
   app.get(['/idram-payment', '/payment/idram-payment'], (_req, res) =>
     res.sendFile(path.join(CLIENT_DIR, 'idram-payment.html')),
   );

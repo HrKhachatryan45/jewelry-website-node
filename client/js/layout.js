@@ -35,6 +35,7 @@ function updateNavbar() {
   const navLogoText = document.querySelectorAll('.nav-logo-text');
   const navLinks = document.querySelectorAll('.nav-link');
   const navIconSvgs = document.querySelectorAll('.nav-cart-svg');
+  const cartBadges = document.querySelectorAll('.nav-cart-badge');
   const mobileIcon = document.getElementById('menu-icon');
   const closeIcon = document.getElementById('close-icon');
   const bodyPage = document.body.dataset.page || '';
@@ -66,11 +67,19 @@ function updateNavbar() {
     swap(navLogoText[0], 'text-foreground', 'text-primary-foreground uppercase');
     swap(navLogoText[1], 'text-foreground', 'text-primary-foreground uppercase');
     [...navIconSvgs, mobileIcon, closeIcon].forEach(icon => swap(icon, 'text-foreground', 'text-primary-foreground'));
+    cartBadges.forEach(badge => {
+      badge.classList.add('text-primary-foreground');
+      badge.classList.remove('text-foreground');
+    });
     navLinks.forEach(link => swap(link, 'text-foreground/70', 'text-primary-foreground/70'));
   } else {
     swap(navLogoText[0], 'text-primary-foreground', 'text-foreground uppercase');
     swap(navLogoText[1], 'text-primary-foreground', 'text-foreground uppercase');
     [...navIconSvgs, mobileIcon, closeIcon].forEach(icon => swap(icon, 'text-primary-foreground', 'text-foreground'));
+    cartBadges.forEach(badge => {
+      badge.classList.add('text-foreground');
+      badge.classList.remove('text-primary-foreground');
+    });
     navLinks.forEach(link => swap(link, 'text-primary-foreground/70', 'text-foreground/70'));
   }
 
@@ -152,7 +161,7 @@ window.addToCart = async function(itemId, event){
     const d=await r.json();
     if(d.success){
       const c=d.cart_count||0;
-      document.querySelectorAll('#cart-count,.mobile-cart-count').forEach(b=>{ b.textContent=c; b.classList.add('scale-125','bg-emerald-400'); setTimeout(()=>b.classList.remove('scale-125','bg-emerald-400'),500); });
+      document.querySelectorAll('#cart-count,.mobile-cart-count').forEach(b=>{ b.textContent=c; b.classList.add('scale-125'); setTimeout(()=>b.classList.remove('scale-125'),500); });
       if (typeof window.showToast==='function') window.showToast(d.item_name,d.item_image);
     }
   }finally{
@@ -173,32 +182,33 @@ async function loadConfig(){
   }catch(e){}
 }
 
-document.addEventListener('DOMContentLoaded', async ()=>{
-  await Promise.all([
+document.addEventListener('DOMContentLoaded', ()=>{
+  setupScrollAnims();
+  window.addEventListener('scroll',updateNavbar,{passive:true});
+
+  Promise.all([
     loadHTML('#header-slot','/partials/header.html'),
     loadHTML('#footer-slot','/partials/footer.html'),
     loadHTML('#toast-slot','/partials/toast.html')
-  ]);
-  // wire mobile menu after header injected
-  const btn=document.getElementById('mobile-menu-btn');
-  const menu=document.getElementById('mobile-menu');
-  const mi=document.getElementById('menu-icon');
-  const ci=document.getElementById('close-icon');
-  if (btn){
-    btn.addEventListener('click',()=>{
-      const open=menu.classList.contains('max-h-[500px]');
-      if(open){ menu.classList.replace('max-h-[500px]','max-h-0'); if(mi) mi.classList.remove('hidden'); if(ci) ci.classList.add('hidden'); }
-      else { menu.classList.replace('max-h-0','max-h-[500px]'); if(mi) mi.classList.add('hidden'); if(ci) ci.classList.remove('hidden'); }
-    });
-  }
-  updateNavbar();
-  window.addEventListener('scroll',updateNavbar,{passive:true});
-  setupScrollAnims();
-  await syncCartBadge();
-  await loadConfig();
-  // trigger i18n re-apply if present
-  if (window.I18N && typeof window.I18N.apply==='function'){
-    const lang=localStorage.getItem('luxe_lang')||'hy';
-    window.I18N.setLang(lang);
-  }
+  ]).then(()=>{
+    // Wire the mobile menu after the header has been injected.
+    const btn=document.getElementById('mobile-menu-btn');
+    const menu=document.getElementById('mobile-menu');
+    const mi=document.getElementById('menu-icon');
+    const ci=document.getElementById('close-icon');
+    if (btn){
+      btn.addEventListener('click',()=>{
+        const open=menu.classList.contains('max-h-[500px]');
+        if(open){ menu.classList.replace('max-h-[500px]','max-h-0'); if(mi) mi.classList.remove('hidden'); if(ci) ci.classList.add('hidden'); }
+        else { menu.classList.replace('max-h-0','max-h-[500px]'); if(mi) mi.classList.add('hidden'); if(ci) ci.classList.remove('hidden'); }
+      });
+    }
+    updateNavbar();
+    void Promise.all([syncCartBadge(),loadConfig()]);
+    // Trigger i18n re-apply if present.
+    if (window.I18N && typeof window.I18N.apply==='function'){
+      const lang=localStorage.getItem('luxe_lang')||'hy';
+      window.I18N.setLang(lang);
+    }
+  });
 });

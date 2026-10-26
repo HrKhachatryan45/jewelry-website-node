@@ -142,6 +142,7 @@ async function init() {
               <h3 class="text-xl font-heading uppercase tracking-widest text-luxe-black mb-2">Ոչինչ չի գտնվել</h3>
               <p class="text-white/40 text-sm">Փորձեք փոխել ֆիլտրերը կամ որոնման բառը:</p>
             </div>`;
+      grid.setAttribute('aria-busy', 'false');
     }
 
     // Setup counts
@@ -152,6 +153,7 @@ async function init() {
     });
 
     renderCatTabs(cats, cat, counts);
+    document.getElementById('cat-tabs')?.setAttribute('aria-busy', 'false');
     renderPagination(data.pagination, page, cat, q, sort);
 
     const searchInput = document.getElementById('search-input');
@@ -179,6 +181,16 @@ async function init() {
     if (typeof window.__observeScroll === 'function') window.__observeScroll();
   } catch (e) {
     console.error('collection init failed', e);
+    const grid = document.getElementById('grid');
+    const tabs = document.getElementById('cat-tabs');
+    if (grid) {
+      grid.innerHTML = `<div class="col-span-full py-12 text-center text-sm text-foreground/60" role="alert">Ապրանքները չհաջողվեց բեռնել։ Խնդրում ենք կրկին փորձել։</div>`;
+      grid.setAttribute('aria-busy', 'false');
+    }
+    if (tabs) {
+      tabs.innerHTML = '';
+      tabs.setAttribute('aria-busy', 'false');
+    }
   }
 }
 
