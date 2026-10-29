@@ -5,16 +5,17 @@ import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import { FACE_ANCHORS, HDRI_URL, PRODUCT_DEFAULTS, USE_CANONICAL_FACE_MESH, loadProductMetadata } from './anchors.js';
 import { createJewelryMaterial } from './materials.js';
 import { createFingerOccluder, createHeadOccluder, updateCylinder } from './occluders.js';
+import { mx, view } from '../view.js';
 
 function coverPoint(point, video, width, height) {
   const videoAspect = video.videoWidth / video.videoHeight;
   const viewAspect = width / height;
   if (videoAspect > viewAspect) {
     const visibleWidth = viewAspect / videoAspect;
-    return { x: (point.x - (1 - visibleWidth) / 2) / visibleWidth, y: point.y };
+    return { x: (mx(point.x) - (1 - visibleWidth) / 2) / visibleWidth, y: point.y };
   }
   const visibleHeight = videoAspect / viewAspect;
-  return { x: point.x, y: (point.y - (1 - visibleHeight) / 2) / visibleHeight };
+  return { x: mx(point.x), y: (point.y - (1 - visibleHeight) / 2) / visibleHeight };
 }
 
 function colorFromVideo(video, canvas, context, renderer, scene, light) {
@@ -88,6 +89,7 @@ export class TryOnRenderer {
     scene.add(keyLight, new THREE.AmbientLight(0xffffff, 0.75));
 
     const product = new THREE.Group();
+    const isWristWearable = category === 'bracelets' || category === 'watches';
     const categoryDefaults = PRODUCT_DEFAULTS[category];
     const metadata = await loadProductMetadata(metadataUrl);
     const productScale = Number.isFinite(metadata.scale) ? metadata.scale : categoryDefaults.scale;
@@ -99,13 +101,17 @@ export class TryOnRenderer {
     if (modelUrl) {
       try {
         const model = await new GLTFLoader().loadAsync(modelUrl);
-        product.add(model.scene);
         const bounds = new THREE.Box3().setFromObject(model.scene);
         const size = bounds.getSize(new THREE.Vector3());
+        const center = bounds.getCenter(new THREE.Vector3());
         const longestSide = Math.max(size.x, size.y, size.z);
-        if (longestSide > 0) model.scene.scale.setScalar(productScale / longestSide);
-        model.scene.position.set(anchorOffset.x, anchorOffset.y, anchorOffset.z);
-        model.scene.rotation.set(rotationOffset.x, rotationOffset.y, rotationOffset.z);
+        const modelRoot = new THREE.Group();
+        model.scene.position.sub(center);
+        modelRoot.add(model.scene);
+        modelRoot.position.set(anchorOffset.x, anchorOffset.y, anchorOffset.z);
+        modelRoot.rotation.set(rotationOffset.x, rotationOffset.y, rotationOffset.z);
+        if (longestSide > 0) modelRoot.scale.setScalar(productScale / longestSide);
+        product.add(modelRoot);
       } catch (error) {
         console.warn('Try-on GLB failed to load; using a basic preview.', error);
         quality = 'basic';
@@ -224,6 +230,10 @@ export class TryOnRenderer {
         const data = results.face?.facialTransformationMatrixes?.[0]?.data;
         if (data && data.length === 16) {
           const matrix = new THREE.Matrix4().fromArray(data);
+          if (view.mirror) {
+            const reflection = new THREE.Matrix4().makeScale(-1, 1, 1);
+            matrix.premultiply(reflection).multiply(reflection);
+          }
           headGroup.matrix.copy(matrix);
           headGroup.visible = true;
           headGroup.traverse((child) => setOpacity(child, opacity));
@@ -250,21 +260,28 @@ export class TryOnRenderer {
         const world = result?.worldLandmarks?.[0];
         const confidence = result?.handedness?.[0]?.[0]?.score ?? 0;
         if (landmarks && world && confidence >= 0.6) {
+          const worldPoint = (index) => new THREE.Vector3(
+            view.mirror ? -world[index].x : world[index].x,
+            world[index].y,
+            world[index].z,
+          );
           const palmWidth = Math.hypot(landmarks[5].x - landmarks[17].x, landmarks[5].y - landmarks[17].y);
           const depth = result.depths?.[0] || THREE.MathUtils.clamp(0.085 / Math.max(0.01, palmWidth * 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect), 0.2, 1.2);
           const point = (index) => coverPoint(landmarks[index], video, currentWidth, currentHeight);
-          const startIdx = category === 'rings' ? 13 : 0;
-          const endIdx = category === 'rings' ? 14 : 9;
+          const startIdx = category === 'rings' ? 13 : isWristWearable ? 9 : 0;
+          const endIdx = category === 'rings' ? 14 : 0;
           const screen = point(category === 'rings' ? 13 : 0);
+          const wristScreen = point(0);
+          const palmScreen = point(9);
           const midpoint = category === 'rings'
             ? { x: screen.x + (point(14).x - screen.x) * 0.45, y: screen.y + (point(14).y - screen.y) * 0.45 }
-            : screen;
+            : isWristWearable
+              ? { x: wristScreen.x + (wristScreen.x - palmScreen.x) * 0.18, y: wristScreen.y + (wristScreen.y - palmScreen.y) * 0.18 }
+              : screen;
           const anchorWorld = placeInFrontOfCamera(camera, midpoint, depth);
-          const direction = new THREE.Vector3(
-            world[endIdx].x - world[startIdx].x,
-            -(world[endIdx].y - world[startIdx].y),
-            -(world[endIdx].z - world[startIdx].z)
-          );
+          const direction = worldPoint(endIdx).sub(worldPoint(startIdx));
+          direction.y *= -1;
+          direction.z *= -1;
           const segmentLength = direction.length();
           if (segmentLength < 0.0001) {
             handGroup.visible = false;
@@ -274,21 +291,56 @@ export class TryOnRenderer {
             return;
           }
           direction.normalize();
-          const palmWidthWorld = Math.hypot(world[5].x - world[17].x, world[5].y - world[17].y, world[5].z - world[17].z);
-          if (category === 'bracelets') {
-            const palmA = new THREE.Vector3(world[5].x - world[0].x, -(world[5].y - world[0].y), -(world[5].z - world[0].z));
-            const palmB = new THREE.Vector3(world[17].x - world[0].x, -(world[17].y - world[0].y), -(world[17].z - world[0].z));
-            direction.crossVectors(palmA, palmB).normalize();
-            if (hideWhenPalmFacesAway && direction.z <= 0) {
+          const palmWidthWorld = worldPoint(5).distanceTo(worldPoint(17));
+          let braceletFacing = null;
+          let watchFacing = null;
+          if (isWristWearable) {
+            const palmA = worldPoint(5).sub(worldPoint(0));
+            const palmB = worldPoint(17).sub(worldPoint(0));
+            palmA.y *= -1; palmA.z *= -1;
+            palmB.y *= -1; palmB.z *= -1;
+            const palmNormal = new THREE.Vector3().crossVectors(palmA, palmB).normalize();
+            if (hideWhenPalmFacesAway && palmNormal.z <= 0) {
               handGroup.visible = false;
               handOccluder.visible = false;
               if (handAnchorMarker) handAnchorMarker.visible = false;
               renderer.render(scene, camera);
               return;
             }
+            if (category === 'watches') {
+              watchFacing = palmNormal;
+            } else {
+              if (palmNormal.z < 0) palmNormal.negate();
+              braceletFacing = palmNormal.negate();
+            }
           }
           handGroup.position.copy(anchorWorld);
-          handGroup.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), direction);
+          if (braceletFacing) {
+            braceletFacing.addScaledVector(direction, -braceletFacing.dot(direction)).normalize();
+            if (braceletFacing.lengthSq() < 0.0001) {
+              braceletFacing.set(0, 1, 0).addScaledVector(direction, -direction.y).normalize();
+            }
+            const side = new THREE.Vector3().crossVectors(braceletFacing, direction).normalize();
+            handGroup.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(side, braceletFacing, direction));
+          } else if (watchFacing) {
+            watchFacing.addScaledVector(direction, -watchFacing.dot(direction)).normalize();
+            if (watchFacing.lengthSq() < 0.0001) {
+              watchFacing.set(0, 0, 1).addScaledVector(direction, -direction.z).normalize();
+            }
+            const side = new THREE.Vector3().crossVectors(direction, watchFacing).normalize();
+            handGroup.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(side, direction, watchFacing));
+          } else if (isWristWearable) {
+            const wristRadius = Math.max(0.008, palmWidthWorld * 0.3);
+            const wristHalfLength = Math.max(0.01, palmWidthWorld * 0.45);
+            updateCylinder(
+              handOccluder,
+              new THREE.Vector3(0, 0, -wristHalfLength),
+              new THREE.Vector3(0, 0, wristHalfLength),
+              wristRadius
+            );
+          } else {
+            handGroup.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), direction);
+          }
           handGroup.visible = true;
           handProduct.visible = true;
           handProduct.scale.setScalar(category === 'rings'
@@ -299,7 +351,7 @@ export class TryOnRenderer {
             handAnchorMarker.position.copy(anchorWorld);
           }
           if (category === 'rings') {
-            const fingerWidth = Math.hypot(world[13].x - world[17].x, world[13].y - world[17].y, world[13].z - world[17].z) * 0.5;
+            const fingerWidth = worldPoint(13).distanceTo(worldPoint(17)) * 0.5;
             const fingerStart = placeInFrontOfCamera(camera, point(startIdx), depth);
             const fingerEnd = placeInFrontOfCamera(camera, point(endIdx), depth);
             handGroup.updateMatrixWorld(true);

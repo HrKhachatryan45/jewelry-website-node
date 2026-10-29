@@ -4,6 +4,7 @@ import { startCamera } from '../camera.js';
 import { captureComposite } from './capture.js';
 import { createTrackers, detectTrackers, closeTrackers } from './trackers.js';
 import { TryOnRenderer } from './renderer.js';
+import { mx } from '../view.js';
 
 function cameraErrorCode(error) {
   if (error?.name === 'InsecureContextError') return 'insecure';
@@ -32,12 +33,13 @@ function resetFilterGroup(points) {
 function projectedPoint(point, video, canvas) {
   const videoAspect = video.videoWidth / video.videoHeight;
   const viewAspect = canvas.clientWidth / canvas.clientHeight;
+  const mirroredX = mx(point.x);
   if (videoAspect > viewAspect) {
     const visibleWidth = viewAspect / videoAspect;
-    return { x: (point.x - (1 - visibleWidth) / 2) / visibleWidth * canvas.clientWidth, y: point.y * canvas.clientHeight };
+    return { x: (mirroredX - (1 - visibleWidth) / 2) / visibleWidth * canvas.clientWidth, y: point.y * canvas.clientHeight };
   }
   const visibleHeight = videoAspect / viewAspect;
-  return { x: point.x * canvas.clientWidth, y: (point.y - (1 - visibleHeight) / 2) / visibleHeight * canvas.clientHeight };
+  return { x: mirroredX * canvas.clientWidth, y: (point.y - (1 - visibleHeight) / 2) / visibleHeight * canvas.clientHeight };
 }
 
 export class TryOnV2Engine {
@@ -244,11 +246,7 @@ export class TryOnV2Engine {
     ctx.clearRect(0, 0, rect.width, rect.height);
     ctx.fillStyle = '#fff';
     ctx.font = '12px monospace';
-    ctx.save();
-    ctx.translate(rect.width, 0);
-    ctx.scale(-1, 1);
     ctx.fillText(`FPS ${Math.round(this.frameTimes.length / 2)} · ${performance.now() - this.lastSeen < 350 ? 'tracking' : 'searching'}`, 12, 20);
-    ctx.restore();
     const points = results.face?.faceLandmarks?.[0] || results.hand?.landmarks?.[0] || [];
     ctx.fillStyle = '#00ff9d';
     points.forEach((point) => {

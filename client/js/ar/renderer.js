@@ -1,5 +1,4 @@
-// Canvas compositor: camera frame + transparent product placements.
-// Draws at most once per display frame (engine throttles via rAF).
+// Draws transparent product placements over the separately mirrored camera video.
 
 // Draws the product so that its anchor point (ax, ay inside the source rect)
 // lands exactly on the tracked body position.
@@ -10,7 +9,7 @@ export function drawFrame(ctx, video, image, w, h, placements, mirrored = true, 
   if (backgroundImage) {
     ctx.drawImage(backgroundImage, 0, 0, w, h);
   } else if (video && video.readyState >= 2) {
-    // The preview may be mirrored for a selfie-style view.
+    // Landmark coordinates and the preview use the same facing-aware mirror state.
     ctx.save();
     if (mirrored) ctx.setTransform(-1, 0, 0, 1, w, 0);
     ctx.drawImage(video, 0, 0, w, h);
@@ -27,8 +26,8 @@ export function drawFrame(ctx, video, image, w, h, placements, mirrored = true, 
     const dy = -p.h * ay;
 
     ctx.save();
-    ctx.translate(mirrored ? p.x : w - p.x, p.y);
-    ctx.rotate(mirrored ? p.rot : -p.rot);
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot);
 
     // Soft contact shadow so the piece reads as "in front of" the body.
     ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';

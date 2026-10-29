@@ -29,6 +29,10 @@ async function copyTaskFiles(directory) {
 
 await fs.mkdir(path.join(destination, 'wasm'), { recursive: true });
 await fs.copyFile(path.join(packageDir, 'vision_bundle.mjs'), path.join(destination, 'vision_bundle.mjs'));
+await fs.copyFile(
+  path.join(packageDir, 'vision_bundle.mjs.map'),
+  path.join(destination, 'vision_bundle_mjs.js.map'),
+);
 await fs.cp(path.join(packageDir, 'wasm'), path.join(destination, 'wasm'), { recursive: true });
 const modelDirs = [
   path.join(serverDir, 'assets/mediapipe'),

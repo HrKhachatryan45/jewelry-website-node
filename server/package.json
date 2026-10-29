@@ -15,6 +15,7 @@
     "prisma:push": "prisma db push",
     "db:seed": "node prisma/seed.js",
     "db:reset": "prisma db push --force-reset && node prisma/seed.js",
+    "models:cleanup": "node scripts/cleanup-unused-models.js",
     "tryon:assets": "node scripts/generate-tryon-assets.js",
     "tryon:copy-mediapipe": "node scripts/copy-mediapipe.mjs",
     "tryon:copy-vendor": "node scripts/copy-tryon-vendor.mjs"
@@ -42,6 +43,7 @@
     "nodemailer": "^10.1.1",
     "p-limit": "^7.3.3",
     "sharp": "^0.35.5",
+    "sortablejs": "^1.15.7",
     "three": "^0.180.0"
   },
   "devDependencies": {

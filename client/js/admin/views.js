@@ -72,6 +72,7 @@ const CATEGORIES = [
   ['necklaces', 'Վզնոցներ'],
   ['earrings', 'Ականջօղեր'],
   ['bracelets', 'Ապարանջաններ'],
+  ['watches', 'Ժամացույցներ'],
   ['bespoke', 'Անհատական Պատվեր'],
   ['collections', 'Հավաքածուներ'],
 ];
@@ -493,6 +494,25 @@ export async function productsList(ctx, page = 1) {
 export async function productForm(ctx, id) {
   ctx.title(id ? 'Խմբագրել Զարդ' : 'Նոր Զարդ', 'Կատալոգ');
   const existing = id ? (await get(`/admin/products/${id}`)).item : null;
+  const imageEntries = [];
+  const seenImagePaths = new Set();
+  if (existing?.image) {
+    imageEntries.push({ key: 'main', type: 'main', image: existing.image });
+    seenImagePaths.add(existing.image);
+  }
+  (existing?.images || [])
+    .slice()
+    .sort((a, b) => a.order - b.order || a.id - b.id)
+    .forEach((image) => {
+      if (seenImagePaths.has(image.image)) return;
+      seenImagePaths.add(image.image);
+      imageEntries.push({
+        key: `existing-${image.id}`,
+        type: 'existing',
+        id: image.id,
+        image: image.image,
+      });
+    });
 
   const materialChecks = MATERIALS.map(
     ([v, l]) => `<label class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-gray-500">
@@ -520,7 +540,12 @@ export async function productForm(ctx, id) {
             <div><label class="lbl">Չափեր</label><input name="dimensions" value="${esc(existing?.dimensions || '')}" class="inp"/></div>
           </div>
           <div><label class="lbl">Try-on image (PNG)</label><input name="try_on_asset" value="${esc(existing?.tryOnAsset || '')}" class="inp" placeholder="/uploads/..."/></div>
-          <div><label class="lbl">3D model (GLB)</label><input name="model_3d" value="${esc(existing?.model3d || '')}" class="inp" placeholder="/uploads/models/...glb"/></div>
+          <div class="space-y-2">
+            <label class="lbl">3D մոդել (GLB)</label>
+            <input name="model_3d" value="${esc(existing?.model3d || '')}" class="inp" placeholder="/uploads/models/...glb"/>
+            <input name="model_3d_file" type="file" accept=".glb,model/gltf-binary" class="text-xs"/>
+            <p class="text-[10px] text-gray-400">Վերբեռնված GLB ֆայլը կփոխարինի վերևի հղմանը։ Առավելագույնը՝ 80 ՄԲ։</p>
+          </div>
           <div class="flex flex-wrap gap-6 pt-2">
             <label class="cbx"><input type="checkbox" name="is_active" ${!existing || existing.isActive ? 'checked' : ''}/> Ակտիվ</label>
             <label class="cbx"><input type="checkbox" name="is_popular" ${existing?.isPopular ? 'checked' : ''}/> Հայտնի</label>
@@ -542,26 +567,10 @@ export async function productForm(ctx, id) {
       <div class="space-y-6">
         <div class="bg-white border border-gray-100 p-6 space-y-4">
           <h3 class="font-heading text-lg uppercase tracking-tight">Նկարներ</h3>
-          <div>
-            <label class="lbl">Հիմնական նկար</label>
-            ${existing?.image ? `<img src="${existing.image}" class="w-full aspect-square object-cover bg-gray-50 mb-2"/>` : ''}
-            <input type="file" name="image" accept="image/*" class="text-xs"/>
-          </div>
-          <div>
-            <label class="lbl">Լրացուցիչ նկարներ</label>
-            <input type="file" name="additional_images" accept="image/*" multiple class="text-xs"/>
-          </div>
-          ${existing?.images?.length ? `
-            <div><label class="lbl">Գալերեա</label>
-              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2" id="gallery">
-                ${existing.images.map((g) => `
-                  <label class="relative block cursor-pointer">
-                    <img src="${g.image}" class="w-full aspect-square object-cover bg-gray-50 ${g.order === 0 ? 'opacity-60' : ''}"/>
-                    ${g.order === 0 ? '' : `<input type="checkbox" data-gallery="${g.id}" checked class="absolute top-1 right-1 accent-primary"/>`}
-                  </label>`).join('')}
-              </div>
-              <p class="text-[10px] text-gray-400 mt-1">Հանեք նշումը՝ նկարը ջնջելու համար</p>
-            </div>` : ''}
+          <label class="lbl" for="product-images">Ավելացնել նկարներ (մինչև 5)</label>
+          <input id="product-images" type="file" accept="image/*" multiple class="text-xs"/>
+          <p id="gallery-count" class="text-[10px] text-gray-400">Առաջին նկարը կլինի հիմնականը․ քաշեք նկարները՝ հերթականությունը փոխելու համար։</p>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2" id="gallery"></div>
         </div>
         <div class="bg-white border border-gray-100 p-6 space-y-3">
           <button type="submit" class="w-full py-4 bg-luxe-black text-primary text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-primary hover:text-luxe-black transition-colors">Պահպանել</button>
@@ -571,6 +580,66 @@ export async function productForm(ctx, id) {
     </form>`;
 
   const variantsHost = document.getElementById('variants');
+  const galleryHost = document.getElementById('gallery');
+  const imageInput = document.getElementById('product-images');
+  const galleryCount = document.getElementById('gallery-count');
+  const renderGallery = () => {
+    galleryHost.innerHTML = imageEntries.map((entry, index) => `
+      <div class="relative border border-gray-100 bg-white" data-gallery-item data-key="${esc(entry.key)}" data-type="${entry.type}" ${entry.id ? `data-id="${entry.id}"` : ''}>
+        <img src="${esc(entry.preview || entry.image)}" alt="" class="w-full aspect-square object-cover bg-gray-50 pointer-events-none"/>
+        <span data-image-role class="absolute left-1 top-1 bg-luxe-black/85 px-2 py-1 text-[8px] font-bold uppercase tracking-widest text-primary">${index === 0 ? 'Հիմնական' : 'Նկար'}</span>
+        <div class="absolute inset-x-0 bottom-0 flex items-center justify-between bg-white/95 px-2 py-1">
+          <button type="button" data-drag-image aria-label="Տեղափոխել նկարը" class="cursor-grab px-2 text-gray-400 active:cursor-grabbing">⠿</button>
+          <button type="button" data-remove-image aria-label="Հեռացնել նկարը" class="px-2 text-red-500">×</button>
+        </div>
+      </div>`).join('');
+    galleryCount.textContent = `${imageEntries.length}/5 նկար․ առաջին նկարը կլինի հիմնականը, քաշեք՝ հերթականությունը փոխելու համար։`;
+    imageInput.disabled = imageEntries.length >= 5;
+    galleryHost.querySelectorAll('[data-image-role]').forEach((badge, index) => {
+      badge.textContent = index === 0 ? 'Հիմնական' : 'Նկար';
+    });
+  };
+  renderGallery();
+  if (!window.Sortable) throw new Error('SortableJS failed to load; product image ordering is unavailable.');
+  new window.Sortable(galleryHost, {
+    animation: 150,
+    draggable: '[data-gallery-item]',
+    handle: '[data-drag-image]',
+    onEnd: () => {
+      const entriesByKey = new Map(imageEntries.map((entry) => [entry.key, entry]));
+      const reordered = [...galleryHost.querySelectorAll('[data-gallery-item]')]
+        .map((card) => entriesByKey.get(card.dataset.key))
+        .filter(Boolean);
+      imageEntries.splice(0, imageEntries.length, ...reordered);
+      renderGallery();
+    },
+  });
+  imageInput.addEventListener('change', () => {
+    const selected = [...imageInput.files];
+    const remaining = Math.max(0, 5 - imageEntries.length);
+    if (selected.length > remaining) {
+      toast('Կարող եք ունենալ առավելագույնը 5 նկար։', 'error');
+    }
+    selected.slice(0, remaining).forEach((file) => imageEntries.push({
+      key: `new-${crypto.randomUUID()}`,
+      type: 'new',
+      file,
+      preview: URL.createObjectURL(file),
+    }));
+    imageInput.value = '';
+    renderGallery();
+  });
+  galleryHost.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-remove-image]');
+    if (!button) return;
+    const card = button.closest('[data-gallery-item]');
+    const index = imageEntries.findIndex((entry) => entry.key === card.dataset.key);
+    if (index < 0) return;
+    if (imageEntries[index].preview) URL.revokeObjectURL(imageEntries[index].preview);
+    imageEntries.splice(index, 1);
+    renderGallery();
+  });
+
   const addVariantRow = (v = {}) => {
     const row = document.createElement('div');
     row.className = 'grid grid-cols-2 sm:grid-cols-5 gap-2 items-center variant-row';
@@ -602,6 +671,7 @@ export async function productForm(ctx, id) {
     fd.append('dimensions', form.dimensions.value);
     fd.append('try_on_asset', form.try_on_asset.value);
     fd.append('model_3d', form.model_3d.value);
+    if (form.model_3d_file.files[0]) fd.append('model_3d_file', form.model_3d_file.files[0]);
     fd.append('is_active', form.is_active.checked);
     fd.append('is_popular', form.is_popular.checked);
     fd.append('is_new', form.is_new.checked);
@@ -618,17 +688,21 @@ export async function productForm(ctx, id) {
     })).filter((v) => v.price !== '');
     fd.append('variants', JSON.stringify(variants));
 
-    const mainFile = form.image.files[0];
-    if (mainFile) fd.append('image', mainFile);
-    [...form.additional_images.files].forEach((f) => fd.append('additional_images', f));
-
-    if (existing) {
-      const imagesData = [{ type: 'main' }];
-      form.querySelectorAll('[data-gallery]').forEach((c) => {
-        if (c.checked) imagesData.push({ type: 'existing', id: c.dataset.gallery });
-      });
-      fd.append('images_data', JSON.stringify(imagesData));
-    }
+    const imagesData = [];
+    galleryHost.querySelectorAll('[data-gallery-item]').forEach((card) => {
+      const entry = imageEntries.find((image) => image.key === card.dataset.key);
+      if (!entry) return;
+      if (entry.type === 'new') {
+        const index = imagesData.filter((image) => image.type === 'new').length;
+        fd.append('additional_images', entry.file);
+        imagesData.push({ type: 'new', index });
+      } else if (entry.type === 'existing') {
+        imagesData.push({ type: 'existing', id: entry.id });
+      } else {
+        imagesData.push({ type: 'main' });
+      }
+    });
+    fd.append('images_data', JSON.stringify(imagesData));
 
     try {
       const res = await fetch(`/api/admin/products${existing ? '/' + existing.id : ''}`, {

@@ -13,6 +13,7 @@ import {
 } from '../services/serializers.js';
 import { uniqueSlug } from '../services/slug.js';
 import { scheduleTryOnAsset } from '../services/tryonAsset.js';
+import { removeUnusedModelUpload } from '../services/modelUploads.js';
 import { relPath } from '../middleware/upload.js';
 import { sendOrderEmail, STATUS_TEMPLATES } from '../services/email.js';
 
@@ -166,7 +167,13 @@ export async function productsList(req, res) {
   }
   const [total, items] = await Promise.all([
     prisma.menuItem.count({ where }),
-    prisma.menuItem.findMany({ where, orderBy: { category: 'asc' }, skip, take, include: { images: true, variants: true } }),
+    prisma.menuItem.findMany({
+      where,
+      orderBy: { category: 'asc' },
+      skip,
+      take,
+      include: { images: { orderBy: [{ order: 'asc' }, { id: 'asc' }] }, variants: true },
+    }),
   ]);
   res.json({
     items: items.map((i) => serializeItem(i, { images: i.images, variants: i.variants })),
@@ -177,7 +184,7 @@ export async function productsList(req, res) {
 export async function productGet(req, res) {
   const item = await prisma.menuItem.findUnique({
     where: { id: parseInt(req.params.id, 10) },
-    include: { images: true, variants: true },
+    include: { images: { orderBy: [{ order: 'asc' }, { id: 'asc' }] }, variants: true },
   });
   if (!item) return res.status(404).json({ error: 'Item not found' });
   res.json({ item: serializeItem(item, { images: item.images, variants: item.variants }) });
@@ -205,11 +212,103 @@ function parseVariants(raw) {
 }
 
 function parseImagesData(raw) {
-  if (!raw) return null;
+  if (raw === undefined || raw === null || raw === '') return null;
   try {
     return typeof raw === 'string' ? JSON.parse(raw) : raw;
   } catch {
-    return null;
+    const error = new Error('Invalid image order data.');
+    error.status = 400;
+    throw error;
+  }
+}
+
+async function validateProductImages(req, itemId = null) {
+  const mainFile = req.files?.image?.[0] || null;
+  const newFiles = req.files?.additional_images || [];
+  if (newFiles.length + Number(Boolean(mainFile)) > 5) {
+    const error = new Error('A product can have up to 5 images.');
+    error.status = 400;
+    throw error;
+  }
+
+  const rawImagesData = req.body.images_data;
+  const imagesData = parseImagesData(rawImagesData);
+  if (rawImagesData !== undefined && rawImagesData !== null && rawImagesData !== '' && !Array.isArray(imagesData)) {
+    const error = new Error('Image order data must be a list.');
+    error.status = 400;
+    throw error;
+  }
+
+  let current = null;
+  let existingGallery = [];
+  if (itemId !== null) {
+    [current, existingGallery] = await Promise.all([
+      prisma.menuItem.findUnique({ where: { id: itemId } }),
+      prisma.menuItemImage.findMany({ where: { menuItemId: itemId }, select: { id: true } }),
+    ]);
+  }
+
+  if (!imagesData) {
+    const currentCount = Number(Boolean(current?.image)) + existingGallery.length;
+    if (itemId !== null && currentCount + newFiles.length + Number(Boolean(mainFile && !current?.image)) > 5) {
+      const error = new Error('A product can have up to 5 images. Remove an image before adding another.');
+      error.status = 400;
+      throw error;
+    }
+    return;
+  }
+
+  if (imagesData.length > 5) {
+    const error = new Error('A product can have up to 5 images.');
+    error.status = 400;
+    throw error;
+  }
+
+  const galleryIds = new Set(existingGallery.map((image) => String(image.id)));
+  const seen = new Set();
+  const newFileIndexes = new Set();
+  for (const entry of imagesData) {
+    if (!entry || !['main', 'existing', 'new'].includes(entry.type)) {
+      const error = new Error('Image order contains an invalid entry.');
+      error.status = 400;
+      throw error;
+    }
+    const key = entry.type === 'main'
+      ? 'main'
+      : entry.type === 'existing'
+        ? `existing:${entry.id}`
+        : `new:${entry.index}`;
+    if (seen.has(key)) {
+      const error = new Error('Image order contains a duplicate image.');
+      error.status = 400;
+      throw error;
+    }
+    seen.add(key);
+
+    if (entry.type === 'existing' && (!Number.isInteger(Number(entry.id)) || !galleryIds.has(String(entry.id)))) {
+      const error = new Error('Image order references an unknown product image.');
+      error.status = 400;
+      throw error;
+    }
+    if (entry.type === 'new') {
+      if (!Number.isInteger(entry.index) || entry.index < 0 || entry.index >= newFiles.length) {
+        const error = new Error('Image order references an unknown uploaded image.');
+        error.status = 400;
+        throw error;
+      }
+      newFileIndexes.add(entry.index);
+    }
+    if (entry.type === 'main' && !current?.image && !mainFile) {
+      const error = new Error('Image order references a missing main image.');
+      error.status = 400;
+      throw error;
+    }
+  }
+
+  if (newFileIndexes.size !== newFiles.length) {
+    const error = new Error('Every uploaded image must appear in the product image order.');
+    error.status = 400;
+    throw error;
   }
 }
 
@@ -250,26 +349,45 @@ async function applyGallery(itemId, req, { creating }) {
 
   const existingGallery = await prisma.menuItemImage.findMany({ where: { menuItemId: itemId } });
   const galleryByFile = new Map(existingGallery.map((g) => [String(g.id), g.image]));
-  const keptIds = new Set(imagesData.filter((e) => e.type === 'existing').map((e) => String(e.id)));
-  await prisma.menuItemImage.deleteMany({ where: { menuItemId: itemId, NOT: { id: { in: [...keptIds].map((x) => parseInt(x, 10)) } } } });
-
-  let newMain = null;
   const gallery = [];
+  const retainedGalleryOrders = [];
+  let newMain = null;
+
   imagesData.forEach((entry, i) => {
-    let img = null;
-    if (entry.type === 'main') img = current.image;
-    else if (entry.type === 'existing') img = galleryByFile.get(String(entry.id));
-    else if (entry.type === 'new' && entry.index != null && entry.index < newFiles.length) img = relPath(newFiles[entry.index]);
-    if (!img) return;
-    if (i === 0) newMain = img;
-    else gallery.push({ menuItemId: itemId, image: img, order: i });
+    let image = null;
+    if (entry.type === 'main') image = current.image;
+    else if (entry.type === 'existing') image = galleryByFile.get(String(entry.id));
+    else if (entry.type === 'new' && entry.index != null && entry.index < newFiles.length) {
+      image = relPath(newFiles[entry.index]);
+    }
+    if (!image) return;
+
+    if (i === 0) {
+      newMain = image;
+    } else if (entry.type === 'existing') {
+      retainedGalleryOrders.push({ id: Number(entry.id), order: i });
+    } else {
+      gallery.push({ menuItemId: itemId, image, order: i });
+    }
   });
   if (mainFile) newMain = relPath(mainFile);
+
+  const retainedIds = retainedGalleryOrders.map(({ id }) => id);
+  await prisma.menuItemImage.deleteMany({
+    where: retainedIds.length
+      ? { menuItemId: itemId, NOT: { id: { in: retainedIds } } }
+      : { menuItemId: itemId },
+  });
+  for (const { id, order } of retainedGalleryOrders) {
+    // eslint-disable-next-line no-await-in-loop
+    await prisma.menuItemImage.update({ where: { id }, data: { order } });
+  }
   await prisma.menuItem.update({ where: { id: itemId }, data: { image: newMain } });
-  await prisma.menuItemImage.createMany({ data: gallery });
+  if (gallery.length) await prisma.menuItemImage.createMany({ data: gallery });
 }
 
 function productData(b) {
+  const modelPath = b.model_3d || null;
   return {
     name: b.name || '',
     description: b.description || '',
@@ -289,8 +407,15 @@ function productData(b) {
     allowsCustomText: !(b.allows_custom_text === 'false' || b.allows_custom_text === false),
     preparationDays: parseInt(b.preparation_days || '7', 10) || 7,
     priceType: b.price_type || 'fixed',
-    model3d: b.model_3d || null,
+    model3d: modelPath?.startsWith('/uploads/')
+      ? modelPath.slice('/uploads/'.length)
+      : modelPath,
   };
+}
+
+function productModelData(req) {
+  const file = req.files?.model_3d_file?.[0];
+  return file ? { model3d: relPath(file) } : null;
 }
 
 // Try-on overlay asset: an uploaded transparent PNG wins; a posted
@@ -298,12 +423,19 @@ function productData(b) {
 function tryOnAssetData(req) {
   const file = req.files && req.files.try_on_asset ? req.files.try_on_asset[0] : null;
   if (file) return { tryOnAsset: relPath(file) };
-  if (req.body.try_on_asset !== undefined) return { tryOnAsset: req.body.try_on_asset || null };
+  if (req.body.try_on_asset !== undefined) {
+    const assetPath = req.body.try_on_asset
+      ? req.body.try_on_asset.replace(/^(?:\/uploads\/)+/i, '').replace(/^\/+/, '')
+      : null;
+    return { tryOnAsset: assetPath };
+  }
   return null;
 }
 
 export async function productCreate(req, res) {
+  await validateProductImages(req);
   const data = productData(req.body);
+  Object.assign(data, productModelData(req) || {});
   Object.assign(data, tryOnAssetData(req) || {});
   data.slug = await uniqueSlug(data.name);
   const item = await prisma.menuItem.create({ data });
@@ -324,8 +456,10 @@ export async function productUpdate(req, res) {
   const id = parseInt(req.params.id, 10);
   const existing = await prisma.menuItem.findUnique({ where: { id } });
   if (!existing) return res.status(404).json({ error: 'Item not found' });
+  await validateProductImages(req, id);
 
   const data = productData(req.body);
+  Object.assign(data, productModelData(req) || {});
   Object.assign(data, tryOnAssetData(req) || {});
   if (data.name && data.name !== existing.name) data.slug = await uniqueSlug(data.name, id);
   await prisma.menuItem.update({ where: { id }, data });
@@ -348,7 +482,14 @@ export async function productUpdate(req, res) {
   const mainImageChanged = (req.files && req.files.image && req.files.image.length) || (req.files && req.files.additional_images && req.files.additional_images.length);
   if (mainImageChanged) scheduleTryOnAsset(id);
 
-  res.json({ success: true, message: `Ապրանքը "${data.name}" հաջողությամբ թարմացվեց` });
+  const modelCleanupWarnings = existing.model3d !== data.model3d
+    ? await removeUnusedModelUpload(prisma, existing.model3d)
+    : [];
+  res.json({
+    success: true,
+    message: `Ապրանքը "${data.name}" հաջողությամբ թարմացվեց`,
+    ...(modelCleanupWarnings.length ? { warnings: ['The previous 3D model upload could not be fully removed'] } : {}),
+  });
 }
 
 export async function productDelete(req, res) {
@@ -356,7 +497,12 @@ export async function productDelete(req, res) {
   const item = await prisma.menuItem.findUnique({ where: { id } });
   if (!item) return res.status(404).json({ error: 'Item not found' });
   await prisma.menuItem.delete({ where: { id } });
-  res.json({ success: true, message: `Ապրանքը "${item.name}" հաջողությամբ ջնջվեց` });
+  const modelCleanupWarnings = await removeUnusedModelUpload(prisma, item.model3d);
+  res.json({
+    success: true,
+    message: `Ապրանքը "${item.name}" հաջողությամբ ջնջվեց`,
+    ...(modelCleanupWarnings.length ? { warnings: ['The unused 3D model upload could not be fully removed'] } : {}),
+  });
 }
 
 // ── Reviews ───────────────────────────────────────────────────────────
@@ -607,7 +753,10 @@ export async function userDelete(req, res) {
 export async function wishlistList(req, res) {
   const where = req.user ? { userId: req.user.id } : { cartId: req.cartId };
   const items = await prisma.wishlistItem.findMany({ where });
-  const products = await prisma.menuItem.findMany({ where: { id: { in: items.map((w) => w.menuItemId) } }, include: { images: true, variants: true } });
+  const products = await prisma.menuItem.findMany({
+    where: { id: { in: items.map((w) => w.menuItemId) } },
+    include: { images: { orderBy: [{ order: 'asc' }, { id: 'asc' }] }, variants: true },
+  });
   res.json({ items: products.map((i) => serializeItem(i, { images: i.images, variants: i.variants })) });
 }
 

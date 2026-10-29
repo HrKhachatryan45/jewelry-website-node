@@ -30,6 +30,8 @@ After installing server dependencies, the postinstall scripts copy the MediaPipe
 
 Then run `npm --prefix server run tryon:copy-mediapipe`. The app serves the files at `/mediapipe/face_landmarker.task` and `/mediapipe/hand_landmarker.task`. For local development, use `?tryon=v2&debug=1` to display tracker landmarks and FPS. Product GLB models continue to use the existing `model3d` field; PNG-only products are shown as a basic preview, and products without an asset use a procedural category preview.
 
+The Diamond Earrings 7512 product uses a single-earring GLB stored at `server/uploads/models/huggie_earring_single.glb`; its adjacent JSON calibration file is stored alongside it. The product database record points to `models/huggie_earring_single.glb`, and the API serves the model and calibration at `/uploads/models/...`. `scale` retains the raw-scale convention used by v2, while `normalizedScale` is a multiplier for the normalized model in the regular try-on.
+
 To use an optional local environment map, place `jewelry-studio.hdr` in `client/hdri/` and set `HDRI_URL` in `client/js/ar/v2/anchors.js` to `/hdri/jewelry-studio.hdr`. By default it uses a procedural room environment without requesting a missing HDR file. Product anchor metadata is optional; pass a product's `tryOnMetadataUrl` to load its JSON sidecar.
 
 The admin SPA is at **http://localhost:4000/admin/** (default login `admin` / `admin123`, override with `SEED_ADMIN_PASSWORD`).
@@ -64,6 +66,8 @@ Copy `server/.env.example` to `server/.env` and fill in the real values:
 ## Data
 
 Seed data is exported from the original Django database to `server/prisma/seed-data.json` (see `server/scripts/export_django.py`). Uploaded images are copied from `../media` into `server/uploads` by `server/scripts/sync-uploads.js` — `server/uploads` itself is gitignored.
+
+The admin product editor supports up to five product images per item; drag the image cards to reorder them, with the first image used as the cover. It also accepts `.glb` model uploads up to 80 MB, while product images remain limited to 12 MB each. SortableJS is served directly from the server dependency at `/vendor/sortablejs/Sortable.min.js`.
 
 ## API
 

@@ -1,9 +1,16 @@
 import { get, post } from '/js/api.js';
 import { openTryOn } from '/js/tryon.js';
 import { isTryOnCategory } from '/js/ar/categories.js';
+import { tryOnBadge } from '/js/components/tryon-badge.js';
 
 function esc(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function uiText(key, fallback) {
+  const i18n = window.I18N;
+  const dictionary = i18n?.cache?.[i18n.current] || {};
+  return i18n?.t ? i18n.t(dictionary, `ar.${key}`, fallback) : fallback;
 }
 
 function slugFromUrl() {
@@ -123,6 +130,57 @@ async function init() {
   document.title = `Luxe Jewelry — ${p.name}`;
 
   document.getElementById('crumb-name').textContent = p.name;
+  const categoryCrumb = document.getElementById('crumb-category');
+  const categoryCrumbItem = document.getElementById('crumb-category-item');
+  const categoryCrumbSeparator = document.getElementById('crumb-category-separator');
+  if (categoryCrumb && categoryCrumbItem && categoryCrumbSeparator && p.category) {
+    categoryCrumb.href = `/collection?category=${encodeURIComponent(p.category)}`;
+    categoryCrumb.textContent = p.categoryDisplay || p.category;
+    categoryCrumbItem.classList.remove('hidden');
+    categoryCrumbSeparator.classList.remove('hidden');
+  }
+  const categoryUrl = p.category
+    ? `/collection?category=${encodeURIComponent(p.category)}`
+    : '/collection';
+  document.getElementById('product-back')?.addEventListener('click', () => {
+    const referrer = document.referrer;
+    if (referrer && new URL(referrer).origin === location.origin && referrer !== location.href) {
+      history.back();
+    } else {
+      location.assign(categoryUrl);
+    }
+  });
+  document.getElementById('product-share')?.addEventListener('click', async () => {
+    const shareStatus = document.getElementById('product-share-status');
+    const shareData = { title: p.name, text: p.name, url: location.href };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareData.url);
+        if (shareStatus) shareStatus.textContent = window.I18N?.t(
+          window.I18N.cache?.[window.I18N.current] || {},
+          'common.link_copied',
+          'Link copied',
+        );
+      } else {
+        if (shareStatus) shareStatus.textContent = window.I18N?.t(
+          window.I18N.cache?.[window.I18N.current] || {},
+          'common.share_unavailable',
+          'Sharing is not available in this browser.',
+        );
+      }
+    } catch (error) {
+      if (error.name !== 'AbortError') {
+        console.error('Could not share product link', error);
+        if (shareStatus) shareStatus.textContent = window.I18N?.t(
+          window.I18N.cache?.[window.I18N.current] || {},
+          'common.share_unavailable',
+          'Sharing is not available in this browser.',
+        );
+      }
+    }
+  });
   document.getElementById('cat-label').textContent = p.categoryDisplay || '';
   document.getElementById('item-name').textContent = p.name;
 
@@ -150,6 +208,56 @@ async function init() {
     });
   }
   gallery.innerHTML = slidesHtml;
+  gallery.insertAdjacentHTML('beforebegin', tryOnBadge(p.model3d));
+
+  const modelViewerButton = document.getElementById('view-model-btn');
+  const modelDialog = document.getElementById('product-model-dialog');
+  const modelContainer = document.getElementById('product-model-container');
+  const modelError = document.getElementById('product-model-error');
+  const modelTitle = document.getElementById('product-model-title');
+  if (p.model3d && modelViewerButton && modelDialog && modelContainer && modelError && modelTitle) {
+    modelViewerButton.classList.remove('hidden');
+    modelViewerButton.addEventListener('click', async () => {
+      modelViewerButton.disabled = true;
+      modelError.classList.add('hidden');
+      modelError.textContent = '';
+      modelTitle.textContent = p.name;
+      try {
+        modelDialog.showModal();
+        if (!customElements.get('model-viewer')) {
+          await import('https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js');
+        }
+        if (!customElements.get('model-viewer')) {
+          throw new Error('The 3D model viewer did not register.');
+        }
+
+        const viewer = document.createElement('model-viewer');
+        viewer.id = 'product-model-viewer';
+        viewer.setAttribute('src', p.model3d);
+        viewer.setAttribute('alt', `${p.name} 3D model`);
+        viewer.setAttribute('camera-controls', '');
+        viewer.setAttribute('touch-action', 'pan-y');
+        viewer.setAttribute('shadow-intensity', '1');
+        viewer.setAttribute('environment-image', 'neutral');
+        viewer.addEventListener('error', () => {
+          modelError.textContent = uiText('model_load_error', 'Could not load the 3D model.');
+          modelError.classList.remove('hidden');
+        });
+        modelContainer.replaceChildren(viewer);
+      } catch (error) {
+        console.error('Could not open product 3D model viewer', error);
+        modelError.textContent = uiText('model_viewer_error', 'Could not load the 3D viewer. Please try again.');
+        modelError.classList.remove('hidden');
+      } finally {
+        modelViewerButton.disabled = false;
+      }
+    });
+    document.getElementById('close-model-dialog')?.addEventListener('click', () => modelDialog.close());
+    modelDialog.addEventListener('click', (event) => {
+      if (event.target === modelDialog) modelDialog.close();
+    });
+    modelDialog.addEventListener('close', () => modelContainer.replaceChildren());
+  }
 
   if ((p.images || []).length) {
     document.getElementById('gal-prev').classList.remove('hidden');
@@ -293,7 +401,7 @@ async function init() {
 
   // Image-upload virtual try-on for wearable categories.
   const tryonBtn = document.getElementById('tryon-btn');
-  if (tryonBtn && isTryOnCategory(p.category)) {
+  if (tryonBtn && p.model3d && isTryOnCategory(p.category)) {
     tryonBtn.classList.remove('hidden');
     tryonBtn.addEventListener('click', async () => {
       tryonBtn.disabled = true;
@@ -333,6 +441,7 @@ async function init() {
       <div class="group bg-white border border-border/10 hover:shadow-2xl transition-all duration-700 flex flex-col relative">
         <a href="/product/${esc(rel.slug)}" class="block overflow-hidden relative aspect-square">
           ${rel.image ? `<img src="${esc(rel.image)}" alt="${esc(rel.name)}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000">` : ''}
+          ${tryOnBadge(rel.model3d)}
           <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-500 hidden md:flex items-center justify-center translate-y-4 group-hover:translate-y-0">
             <div class="w-full px-8">
               <button onclick="addToCart(${rel.id}, event)" class="w-full bg-white text-luxe-black hover:bg-luxe-gold hover:text-white py-4 text-[10px] uppercase tracking-[0.2em] font-bold transition-colors">

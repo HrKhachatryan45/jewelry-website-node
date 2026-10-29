@@ -1,0 +1,14 @@
+{
+  "scale": 0.02,
+  "normalizedScale": 1,
+  "anchorOffset": {
+    "x": 0,
+    "y": 0,
+    "z": 0.01
+  },
+  "rotationOffset": {
+    "x": 0,
+    "y": 0,
+    "z": 0
+  }
+}

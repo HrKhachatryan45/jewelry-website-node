@@ -31,8 +31,9 @@ router.get('/products', admin.productsList);
 
 const PRODUCT_UPLOAD_FIELDS = [
   { name: 'image', maxCount: 1 },
-  { name: 'additional_images', maxCount: 10 },
+  { name: 'additional_images', maxCount: 5 },
   { name: 'try_on_asset', maxCount: 1 },
+  { name: 'model_3d_file', maxCount: 1 },
 ];
 
 router.post('/products', uploadMenu.fields(PRODUCT_UPLOAD_FIELDS), admin.productCreate);

@@ -12,10 +12,15 @@
 import { loadArSolver } from './loader.js';
 import { startCamera } from './camera.js';
 import { analyzeAsset } from './asset.js';
-import { computePlacements, computeRingModelPlacements } from './tracker.js';
+import {
+  computeEarringModelPlacements,
+  computePlacements,
+} from './tracker.js';
 import { drawFrame } from './renderer.js';
 import { AR_CATEGORIES, normalizeCategory } from './categories.js';
 import { HandModelRenderer } from './model3d.js';
+import { EarringModelRenderer } from './earringModel3d.js';
+import { OneEuroFilter } from './v2/filters/OneEuroFilter.js';
 
 const CANVAS_W = 640;
 const LOST_MS = 400; // grace time before hiding the overlay / showing a warning
@@ -55,7 +60,7 @@ function shortestAngle(delta) {
 }
 
 export class ArTryOnEngine {
-  constructor({ video, canvas, modelCanvas, productCategory, productImageUrl, productModelUrl, onStatus = () => {} }) {
+  constructor({ video, canvas, modelCanvas, productCategory, productImageUrl, productModelUrl, productMetadataUrl, onStatus = () => {} }) {
     this.video = video;
     this.canvas = canvas;
     this.ctx = canvas ? canvas.getContext('2d') : null;
@@ -63,6 +68,7 @@ export class ArTryOnEngine {
     this.def = this.category ? AR_CATEGORIES[this.category] : null;
     this.imageUrl = productImageUrl;
     this.modelUrl = productModelUrl;
+    this.metadataUrl = productMetadataUrl;
     this.modelCanvas = modelCanvas;
     this.onStatus = onStatus;
 
@@ -76,9 +82,13 @@ export class ArTryOnEngine {
     this._image = null;
     this._asset = null;
     this._modelRenderer = null;
+    this._earringModelRenderer = null;
     this._raf = 0;
     this._lostAt = 0;
     this._slots = new Map();
+    this._earringFilters = new Map();
+    this._braceletFilters = new Map();
+    this._necklaceFilters = new Map();
     this._lastPlacements = null;
     this._sendErrors = 0;
     this._gotResults = false;
@@ -117,8 +127,30 @@ export class ArTryOnEngine {
       }
 
       if (this.modelUrl) {
-        this._modelRenderer = await HandModelRenderer.create(this.modelCanvas, this.modelUrl, this._w, this._h);
-      } else {
+        try {
+          if (this.category === 'earrings') {
+            this._earringModelRenderer = await EarringModelRenderer.create(
+              this.modelUrl,
+              this._w,
+              this._h,
+              this.metadataUrl,
+            );
+          } else {
+            this._modelRenderer = await HandModelRenderer.create(
+              this.modelCanvas,
+              this.modelUrl,
+              this._w,
+              this._h,
+              this.category,
+              this.metadataUrl,
+            );
+          }
+        } catch (error) {
+          console.error('Uploaded 3D try-on model failed to load', error);
+          throw error;
+        }
+      }
+      if (!this._modelRenderer && !this._earringModelRenderer) {
         this._image = await loadImage(this.imageUrl);
         this._asset = analyzeAsset(this._image, this.category);
       }
@@ -218,6 +250,9 @@ export class ArTryOnEngine {
     this._solverKeys.clear();
     this._lm = { face: null, pose: null, hands: [] };
     this._slots.clear();
+    this._earringFilters.clear();
+    this._braceletFilters.clear();
+    this._necklaceFilters.clear();
     this._lastPlacements = null;
     this._lostAt = 0;
     this._image = null;
@@ -225,6 +260,10 @@ export class ArTryOnEngine {
     if (this._modelRenderer) {
       this._modelRenderer.dispose();
       this._modelRenderer = null;
+    }
+    if (this._earringModelRenderer) {
+      this._earringModelRenderer.dispose();
+      this._earringModelRenderer = null;
     }
     this._sendErrors = 0;
     this._gotResults = false;
@@ -299,6 +338,7 @@ export class ArTryOnEngine {
     this._w = CANVAS_W;
     this._h = height;
     if (this._modelRenderer) this._modelRenderer.resize(CANVAS_W, height);
+    if (this._earringModelRenderer) this._earringModelRenderer.resize(CANVAS_W, height);
   }
 
   // One camera frame → every active solution. Per-solver busy guards skip a
@@ -362,8 +402,10 @@ export class ArTryOnEngine {
     const h = this._h;
 
     let placements = [];
-    if (this._modelRenderer) {
-      placements = computeRingModelPlacements(this._lm, w, h);
+    if (this._earringModelRenderer) {
+      placements = computeEarringModelPlacements(this._lm, w, h);
+    } else if (this._modelRenderer) {
+      placements = computePlacements(this.category, this._lm, w, h, { type: 'model3d' });
     } else if (this._image && this._asset) {
       try {
         placements = computePlacements(this.category, this._lm, w, h, this._asset);
@@ -372,20 +414,29 @@ export class ArTryOnEngine {
       }
     }
 
-    if (placements.length) {
+    if (placements.some(Boolean)) {
       this._lostAt = 0;
-      const smoothed = placements.map((p) => this._smooth(p));
+      const smoothed = placements.map((p, index) => {
+        if (p) return this._smooth(p);
+        const key = `ear-model:${index}`;
+        this._slots.delete(key);
+        this._earringFilters.delete(key);
+        return null;
+      });
       this._lastPlacements = smoothed;
       if (this._status !== 'ready') this._setStatus('ready');
-      if (this._modelRenderer) {
-        drawFrame(this.ctx, this.video, null, w, h, [], false);
-        this._modelRenderer.render(smoothed.map((placement) => ({
-          ...placement,
-          x: w - placement.x,
-          rot: -placement.rot,
-        })));
+      if (this._modelRenderer || this._earringModelRenderer) {
+        drawFrame(this.ctx, null, null, w, h, []);
+        const modelPlacements = smoothed;
+        if (this._earringModelRenderer) {
+          this._earringModelRenderer.render(modelPlacements);
+          this.ctx.drawImage(this._earringModelRenderer.canvas, 0, 0, w, h);
+        } else {
+          this._modelRenderer.render(modelPlacements);
+          this.ctx.drawImage(this._modelRenderer.canvas, 0, 0, w, h);
+        }
       } else {
-        drawFrame(this.ctx, this.video, this._image, w, h, smoothed, false);
+        drawFrame(this.ctx, null, this._image, w, h, smoothed);
       }
       return;
     }
@@ -396,26 +447,37 @@ export class ArTryOnEngine {
 
     if (elapsed < LOST_MS && this._lastPlacements) {
       // Brief dropout: freeze the last overlay instead of flickering off.
-      if (this._modelRenderer) {
-        drawFrame(this.ctx, this.video, null, w, h, [], false);
-        this._modelRenderer.render(this._lastPlacements.map((placement) => ({
-          ...placement,
-          x: w - placement.x,
-          rot: -placement.rot,
-        })));
+      if (this._modelRenderer || this._earringModelRenderer) {
+        drawFrame(this.ctx, null, null, w, h, []);
+        const modelPlacements = this._lastPlacements;
+        if (this._earringModelRenderer) {
+          this._earringModelRenderer.render(modelPlacements);
+          this.ctx.drawImage(this._earringModelRenderer.canvas, 0, 0, w, h);
+        } else {
+          this._modelRenderer.render(modelPlacements);
+          this.ctx.drawImage(this._modelRenderer.canvas, 0, 0, w, h);
+        }
       } else {
-        drawFrame(this.ctx, this.video, this._image, w, h, this._lastPlacements, false);
+        drawFrame(this.ctx, null, this._image, w, h, this._lastPlacements);
       }
       return;
     }
 
     this._lastPlacements = null;
     this._slots.clear();
-    if (this._modelRenderer) {
-      drawFrame(this.ctx, this.video, null, w, h, [], false);
-      this._modelRenderer.render([]);
+    this._earringFilters.clear();
+    this._braceletFilters.clear();
+    this._necklaceFilters.clear();
+    if (this._modelRenderer || this._earringModelRenderer) {
+      drawFrame(this.ctx, null, null, w, h, []);
+      if (this._earringModelRenderer) {
+        this._earringModelRenderer.render([]);
+        this.ctx.drawImage(this._earringModelRenderer.canvas, 0, 0, w, h);
+      } else {
+        this._modelRenderer.render([]);
+      }
     } else {
-      drawFrame(this.ctx, this.video, this._image, w, h, [], false);
+      drawFrame(this.ctx, null, this._image, w, h, []);
     }
 
     if (elapsed >= LOST_MS) {
@@ -426,6 +488,15 @@ export class ArTryOnEngine {
 
   // Exponential smoothing per overlay slot so the product glides instead of jittering.
   _smooth(p) {
+    if (this._earringModelRenderer) return this._smoothEarringPlacement(p);
+    if (this._modelRenderer) {
+      if (this.category === 'bracelets' || this.category === 'watches') {
+        return this._smoothBraceletPlacement(p);
+      }
+      if (this.category === 'necklaces') return this._smoothNecklacePlacement(p);
+      return this._smoothRingPlacement(p);
+    }
+
     const prev = this._slots.get(p.key);
     if (!prev) {
       const fresh = { ...p };
@@ -446,6 +517,112 @@ export class ArTryOnEngine {
       h: prev.h + (p.h - prev.h) * SMOOTH_SIZE,
       rot: prev.rot + shortestAngle(p.rot - prev.rot) * SMOOTH_ROT,
     };
+    this._slots.set(p.key, next);
+    return next;
+  }
+
+  _smoothRingPlacement(p) {
+    const prev = this._slots.get(p.key);
+    if (!prev) {
+      const fresh = { ...p };
+      this._slots.set(p.key, fresh);
+      return fresh;
+    }
+    const mixPoint = (a, b, amount) => ({
+      x: a.x + (b.x - a.x) * amount,
+      y: a.y + (b.y - a.y) * amount,
+      z: a.z + (b.z - a.z) * amount,
+    });
+    const next = {
+      ...p,
+      pos: mixPoint(prev.pos, p.pos, SMOOTH_POS),
+      dir: mixPoint(prev.dir, p.dir, SMOOTH_POS),
+      up: mixPoint(prev.up, p.up, SMOOTH_POS),
+      d: prev.d + (p.d - prev.d) * SMOOTH_SIZE,
+      fingerLen: prev.fingerLen + (p.fingerLen - prev.fingerLen) * SMOOTH_SIZE,
+    };
+    this._slots.set(p.key, next);
+    return next;
+  }
+
+  _smoothBraceletPlacement(p) {
+    let filters = this._braceletFilters.get(p.key);
+    if (!filters) {
+      const createPointFilters = () => ({
+        x: new OneEuroFilter({ minCutoff: 1.0, beta: 0.03 }),
+        y: new OneEuroFilter({ minCutoff: 1.0, beta: 0.03 }),
+        z: new OneEuroFilter({ minCutoff: 1.0, beta: 0.03 }),
+      });
+      filters = {
+        pos: createPointFilters(),
+        d: new OneEuroFilter({ minCutoff: 1.0, beta: 0.03 }),
+      };
+      this._braceletFilters.set(p.key, filters);
+    }
+    const time = performance.now() / 1000;
+    const filterPoint = (value, pointFilters) => ({
+      x: pointFilters.x.filter(value.x, time),
+      y: pointFilters.y.filter(value.y, time),
+      z: pointFilters.z.filter(value.z, time),
+    });
+    const next = {
+      ...p,
+      pos: filterPoint(p.pos, filters.pos),
+      d: filters.d.filter(p.d, time),
+    };
+    this._slots.set(p.key, next);
+    return next;
+  }
+
+  _smoothNecklacePlacement(p) {
+    const previous = this._slots.get(p.key);
+    if (!previous) {
+      this._necklaceFilters.set(p.key, { rot: p.rot, yaw: p.yaw });
+      this._slots.set(p.key, p);
+      return p;
+    }
+
+    const prior = this._necklaceFilters.get(p.key) || { rot: previous.rot, yaw: previous.yaw };
+    const next = {
+      ...p,
+      pos: {
+        x: previous.pos.x + (p.pos.x - previous.pos.x) * SMOOTH_POS,
+        y: previous.pos.y + (p.pos.y - previous.pos.y) * SMOOTH_POS,
+        z: previous.pos.z + (p.pos.z - previous.pos.z) * SMOOTH_POS,
+      },
+      d: previous.d + (p.d - previous.d) * SMOOTH_SIZE,
+      rot: prior.rot + shortestAngle(p.rot - prior.rot) * SMOOTH_ROT,
+      yaw: prior.yaw + shortestAngle(p.yaw - prior.yaw) * SMOOTH_ROT,
+    };
+    this._necklaceFilters.set(p.key, { rot: next.rot, yaw: next.yaw });
+    this._slots.set(p.key, next);
+    return next;
+  }
+
+  _smoothEarringPlacement(p) {
+    let filters = this._earringFilters.get(p.key);
+    if (!filters) {
+      filters = {
+        x: new OneEuroFilter({ minCutoff: 1.5, beta: 0.05 }),
+        y: new OneEuroFilter({ minCutoff: 1.5, beta: 0.05 }),
+        z: new OneEuroFilter({ minCutoff: 1.5, beta: 0.05 }),
+        h: new OneEuroFilter({ minCutoff: 0.8, beta: 0.01 }),
+        rot: new OneEuroFilter({ minCutoff: 0.8, beta: 0.01 }),
+        yaw: new OneEuroFilter({ minCutoff: 0.8, beta: 0.01 }),
+      };
+      this._earringFilters.set(p.key, filters);
+    }
+
+    const time = performance.now() / 1000;
+    const next = { ...p };
+    for (const key of ['x', 'y', 'z', 'h', 'rot', 'yaw']) {
+      let value = p[key];
+      if ((key === 'rot' || key === 'yaw') && filters[key].lastValue !== null) {
+        value = filters[key].lastValue + shortestAngle(value - filters[key].lastValue);
+      }
+      next[key] = filters[key].filter(value, time);
+    }
+    next.w = next.h;
     this._slots.set(p.key, next);
     return next;
   }

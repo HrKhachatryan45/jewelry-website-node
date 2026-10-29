@@ -12,24 +12,66 @@ function ensureDir(dir) {
 }
 
 function storage(subdir) {
-  const dest = ensureDir(path.join(UPLOAD_ROOT, subdir));
-  return multer.diskStorage({
-    destination: (_req, _file, cb) => cb(null, dest),
+  const diskStorage = multer.diskStorage({
+    destination: (_req, file, cb) => {
+      const directory = file.fieldname === 'model_3d_file' ? 'models' : subdir;
+      cb(null, ensureDir(path.join(UPLOAD_ROOT, directory)));
+    },
     filename: (_req, file, cb) => {
       const ext = path.extname(file.originalname).toLowerCase();
       const base = path.basename(file.originalname, ext).replace(/[^a-zA-Z0-9-_]/g, '_').slice(0, 60);
       cb(null, `${Date.now()}-${base}${ext}`);
     },
   });
+  return {
+    _handleFile(req, file, cb) {
+      const maxSize = file.fieldname === 'model_3d_file'
+        ? 80 * 1024 * 1024
+        : 12 * 1024 * 1024;
+      let size = 0;
+      file.stream.on('data', (chunk) => {
+        size += chunk.length;
+        if (size > maxSize) {
+          const error = new multer.MulterError('LIMIT_FILE_SIZE', file.fieldname);
+          file.stream.destroy(error);
+        }
+      });
+      diskStorage._handleFile(req, file, cb);
+    },
+    _removeFile: diskStorage._removeFile.bind(diskStorage),
+  };
 }
 
 const imageFilter = (_req, file, cb) => {
   if (/^image\//.test(file.mimetype)) cb(null, true);
-  else cb(new Error('Only image uploads are allowed'));
+  else {
+    const error = new Error('Only image uploads are allowed');
+    error.status = 400;
+    cb(error);
+  }
+};
+
+const productFileFilter = (_req, file, cb) => {
+  if (file.fieldname === 'model_3d_file') {
+    const isGlb = path.extname(file.originalname).toLowerCase() === '.glb';
+    const acceptedMimeTypes = new Set(['application/octet-stream', 'model/gltf-binary', 'application/gltf-buffer']);
+    if (isGlb && acceptedMimeTypes.has(file.mimetype)) cb(null, true);
+    else {
+      const error = new Error('Only binary .glb 3D models are allowed');
+      error.status = 400;
+      cb(error);
+    }
+    return;
+  }
+  imageFilter(_req, file, cb);
 };
 
 export const uploadHero = multer({ storage: storage('hero'), fileFilter: imageFilter, limits: { fileSize: 12 * 1024 * 1024 } });
-export const uploadMenu = multer({ storage: storage('menu'), fileFilter: imageFilter, limits: { fileSize: 12 * 1024 * 1024 } });
+export const uploadMenu = multer({
+  storage: storage('menu'),
+  fileFilter: productFileFilter,
+  limits: { fileSize: 80 * 1024 * 1024, files: 8 },
+});
 export const uploadBespoke = multer({ storage: storage('bespoke'), fileFilter: imageFilter, limits: { fileSize: 12 * 1024 * 1024 } });
 export const uploadPortrait = multer({
   storage: multer.memoryStorage(),

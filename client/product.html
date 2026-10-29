@@ -21,6 +21,26 @@
         .gallery-thumb.active {
             border-color: #D4AF37;
         }
+        #product-model-dialog {
+            width: min(94vw, 960px);
+            max-width: none;
+            max-height: 92dvh;
+            padding: 0;
+            border: 0;
+            background: #fff;
+            color: #111827;
+        }
+        #product-model-dialog::backdrop {
+            background: rgba(17, 24, 39, 0.78);
+            backdrop-filter: blur(4px);
+        }
+        #product-model-viewer {
+            display: block;
+            width: 100%;
+            height: min(72dvh, 720px);
+            min-height: 320px;
+            background: #f7f6f2;
+        }
 
         .spec-item {
             display: flex;
@@ -108,15 +128,28 @@
     <main>
         <!-- Breadcrumb -->
         <nav class="bg-luxe-black border-b border-border/10 pt-24 md:pt-32">
-            <div class="container mx-auto px-6 py-4">
-                <ol class="flex items-center gap-3 text-[10px] uppercase tracking-[0.2em] text-white/40">
+            <div class="container mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+                <ol class="flex flex-wrap items-center gap-3 text-[10px] uppercase tracking-[0.2em] text-white/40">
                     <li><a href="/" class="hover:text-luxe-gold transition-colors">Գլխավոր</a></li>
                     <li>/</li>
                     <li><a href="/collection" class="hover:text-luxe-gold transition-colors">Հավաքածու</a></li>
+                    <li id="crumb-category-separator" class="hidden">/</li>
+                    <li id="crumb-category-item" class="hidden"><a id="crumb-category" class="hover:text-luxe-gold transition-colors"></a></li>
                     <li>/</li>
                     <li class="text-luxe-gold" id="crumb-name"></li>
                 </ol>
+                <div class="flex w-full items-center justify-between gap-2 md:w-auto md:justify-start">
+                    <button type="button" id="product-back" class="inline-flex h-9 items-center gap-2 border border-white/20 px-3 text-[9px] uppercase tracking-[0.16em] text-white/70 transition-colors hover:border-luxe-gold hover:text-luxe-gold">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/><path d="M20 12H9"/></svg>
+                        <span data-i18n="common.back">Հետ</span>
+                    </button>
+                    <button type="button" id="product-share" class="inline-flex h-9 items-center gap-2 border border-white/20 px-3 text-[9px] uppercase tracking-[0.16em] text-white/70 transition-colors hover:border-luxe-gold hover:text-luxe-gold">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.4M8.7 13.3l6.6 4.4"/></svg>
+                        <span data-i18n="common.share">Կիսվել</span>
+                    </button>
+                </div>
             </div>
+            <span id="product-share-status" class="sr-only" aria-live="polite"></span>
         </nav>
 
         <!-- Main Product Section -->
@@ -141,6 +174,9 @@
 
                         <!-- Thumbnail Gallery -->
                         <div id="thumbs-row" class="hidden grid grid-cols-4 gap-4"></div>
+                        <button type="button" id="view-model-btn" data-i18n="ar.view_3d" class="hidden w-full h-14 border border-luxe-black/15 text-luxe-black hover:border-luxe-gold hover:text-luxe-gold uppercase tracking-[0.2em] text-[10px] transition-colors">
+                            Դիտել 3D-ով
+                        </button>
                     </div>
 
                     <!-- Info Column -->
@@ -219,5 +255,15 @@
     </main>
     <div id="footer-slot"></div>
     <div id="toast-slot"></div>
+    <dialog id="product-model-dialog" aria-labelledby="product-model-title">
+        <div class="p-4 sm:p-6">
+            <header class="flex items-center justify-between gap-4 pb-4">
+                <h2 id="product-model-title" class="text-xl font-heading uppercase tracking-wide"></h2>
+                <button type="button" id="close-model-dialog" data-i18n-aria-label="ar.close" aria-label="Close" class="w-10 h-10 shrink-0 border border-border/20 hover:border-luxe-gold hover:text-luxe-gold text-2xl leading-none transition-colors">&times;</button>
+            </header>
+            <p id="product-model-error" role="alert" class="hidden py-3 text-sm text-red-700"></p>
+            <div id="product-model-container"></div>
+        </div>
+    </dialog>
 </body>
 </html>

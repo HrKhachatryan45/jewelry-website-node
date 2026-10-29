@@ -3,7 +3,8 @@
 export function mediaUrl(path) {
   if (!path) return null;
   if (/^https?:\/\//.test(path)) return path;
-  return `/uploads/${String(path).replace(/^\/+/, '')}`;
+  const relativePath = String(path).replace(/^\/+/, '').replace(/^(?:uploads\/)+/i, '');
+  return `/uploads/${relativePath}`;
 }
 
 // Decimal.js instances stringify with toJSON -> string; convert to Number for prices.
@@ -33,6 +34,7 @@ export const CATEGORY_LABELS = {
   necklaces: 'Վզնոցներ',
   earrings: 'Ականջօղեր',
   bracelets: 'Ապարանջաններ',
+  watches: 'Ժամացույցներ',
   bespoke: 'Անհատական Պատվեր',
   collections: 'Հավաքածուներ',
 };
@@ -70,6 +72,7 @@ export function serializeImage(img) {
 }
 
 export function serializeItem(item, { variants = [], images = [] } = {}) {
+  const model3d = mediaUrl(item.model3d);
   return {
     id: item.id,
     name: item.name,
@@ -92,7 +95,10 @@ export function serializeItem(item, { variants = [], images = [] } = {}) {
     preparationDays: item.preparationDays,
     priceType: item.priceType,
     tryOnAsset: mediaUrl(item.tryOnAsset),
-    model3d: mediaUrl(item.model3d),
+    model3d,
+    tryOnMetadataUrl: model3d?.endsWith('.glb')
+      ? model3d.replace(/\.glb$/i, '.json')
+      : null,
     createdAt: item.createdAt,
     updatedAt: item.updatedAt,
     variants: variants.map(serializeVariant),

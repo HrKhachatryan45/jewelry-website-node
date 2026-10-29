@@ -30,7 +30,7 @@ export async function home(_req, res) {
     prisma.heroSettings.findUnique({ where: { id: 1 } }),
     prisma.menuItem.findMany({
       where: { isPopular: true, isActive: true },
-      include: { images: true, variants: true },
+      include: { images: { orderBy: [{ order: 'asc' }, { id: 'asc' }] }, variants: true },
       orderBy: { id: 'asc' },
     }),
     prisma.review.findMany({ where: { isApproved: true, showOnMain: true }, take: 3 }),

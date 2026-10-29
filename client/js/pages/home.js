@@ -1,4 +1,5 @@
 import { get } from '/js/api.js';
+import { tryOnBadge } from '/js/components/tryon-badge.js';
 
 function categoryCard(c) {
   const n = (c.names && c.names.hy) || c.name;
@@ -24,6 +25,7 @@ function featuredSlide(p) {
       <div class="group bg-white border border-border/10 hover:shadow-2xl transition-all duration-700 flex flex-col relative w-full">
         <a href="/product/${p.slug}" class="block overflow-hidden relative aspect-[16/13]">
           ${img ? `<img src="${img}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000">` : ''}
+          ${tryOnBadge(p.model3d, 'top-3 left-3')}
           <div class="absolute top-6 right-6 z-10">
             <span class="bg-luxe-black text-luxe-gold text-[8px] uppercase tracking-[0.3em] px-3 py-1.5">Limited</span>
           </div>

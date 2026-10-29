@@ -1,7 +1,7 @@
 import prisma from '../config/prisma.js';
 import { serializeItem, CATEGORY_LABELS } from '../services/serializers.js';
 
-const CATEGORY_SLUGS = ['rings', 'necklaces', 'earrings', 'bracelets', 'bespoke', 'collections'];
+const CATEGORY_SLUGS = ['rings', 'necklaces', 'earrings', 'bracelets', 'watches', 'bespoke', 'collections'];
 const PAGE_SIZE = 12;
 
 // GET /api/products  (views.menu)
@@ -11,6 +11,7 @@ export async function list(req, res) {
   const search = (q.search || '').trim();
   const sort = q.sort || '';
   const popularOnly = q.popular === 'true';
+  const virtualOnly = q.virtual === 'true';
 
   const [priceRange, categoryCounts] = await Promise.all([
     prisma.menuItem.aggregate({
@@ -34,6 +35,7 @@ export async function list(req, res) {
 
   const where = { isActive: true };
   if (category && category !== 'all') where.category = category;
+  if (virtualOnly) where.model3d = { not: null };
   if (search) {
     where.OR = [{ name: { contains: search, mode: 'insensitive' } }, { description: { contains: search, mode: 'insensitive' } }];
   }
@@ -50,7 +52,7 @@ export async function list(req, res) {
       orderBy,
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
-      include: { images: true, variants: true },
+      include: { images: { orderBy: [{ order: 'asc' }, { id: 'asc' }] }, variants: true },
     }),
   ]);
   const totalPages = Math.max(1, Math.ceil(totalResults / PAGE_SIZE));
@@ -62,7 +64,7 @@ export async function list(req, res) {
       orderBy,
       skip: (currentPage - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
-      include: { images: true, variants: true },
+      include: { images: { orderBy: [{ order: 'asc' }, { id: 'asc' }] }, variants: true },
     });
 
   const categoryCountMap = new Map(categoryCounts.map((row) => [row.category, row._count._all]));
@@ -70,12 +72,16 @@ export async function list(req, res) {
   for (const slug of CATEGORY_SLUGS) {
     counts[slug] = categoryCountMap.get(slug) || 0;
   }
+  counts.virtual = await prisma.menuItem.count({
+    where: { isActive: true, model3d: { not: null } },
+  });
 
   let activeFilters = 0;
   if (priceMin > priceMinGlobal) activeFilters += 1;
   if (priceMax < priceMaxGlobal) activeFilters += 1;
   if (search) activeFilters += 1;
   if (popularOnly) activeFilters += 1;
+  if (virtualOnly) activeFilters += 1;
   if (sort) activeFilters += 1;
 
   res.json({
@@ -96,6 +102,7 @@ export async function list(req, res) {
       search,
       sort,
       popularOnly,
+      virtualOnly,
       activeFilters,
       categoryCounts: counts,
       categoryLabels: CATEGORY_LABELS,
@@ -107,14 +114,14 @@ export async function list(req, res) {
 export async function detail(req, res) {
   const item = await prisma.menuItem.findFirst({
     where: { slug: req.params.slug, isActive: true },
-    include: { images: true, variants: true },
+    include: { images: { orderBy: [{ order: 'asc' }, { id: 'asc' }] }, variants: true },
   });
   if (!item) return res.status(404).json({ error: 'Item not found' });
 
   const related = await prisma.menuItem.findMany({
     where: { category: item.category, isActive: true, NOT: { id: item.id } },
     take: 4,
-    include: { images: true, variants: true },
+    include: { images: { orderBy: [{ order: 'asc' }, { id: 'asc' }] }, variants: true },
   });
 
   res.json({

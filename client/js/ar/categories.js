@@ -36,6 +36,13 @@ export const AR_CATEGORIES = {
     labelKey: 'ar.category.bracelets',
     hintKey: 'ar.hint.bracelets',
   },
+  watches: {
+    id: 'watches',
+    target: 'hand',
+    solvers: ['hands'],
+    labelKey: 'ar.category.watches',
+    hintKey: 'ar.hint.watches',
+  },
 };
 
 // Categories the try-on supports (order = display order).
@@ -73,6 +80,8 @@ const ALIASES = {
   cuffs: 'bracelets',
   anklet: 'bracelets',
   anklets: 'bracelets',
+  watch: 'watches',
+  watches: 'watches',
   // Armenian labels used by the category picker.
   'վզնոցներ': 'necklaces',
   'վզնոց': 'necklaces',

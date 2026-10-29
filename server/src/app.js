@@ -14,6 +14,7 @@ import { UPLOAD_ROOT } from './middleware/upload.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CLIENT_DIR = path.resolve(__dirname, '../../client');
+const SORTABLEJS_DIR = path.resolve(__dirname, '../../node_modules/sortablejs');
 
 export function createApp() {
   const app = express();
@@ -36,6 +37,7 @@ export function createApp() {
 
   // Uploaded media (menu/, hero/, bespoke/) — replaces Django MEDIA_ROOT
   app.use('/uploads', express.static(UPLOAD_ROOT, { maxAge: '7d' }));
+  app.use('/vendor/sortablejs', express.static(SORTABLEJS_DIR, { maxAge: '1d' }));
 
   // REST API
   app.use('/api', apiRoutes);

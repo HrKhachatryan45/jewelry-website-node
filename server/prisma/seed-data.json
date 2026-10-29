@@ -262,7 +262,8 @@
       "price_type": "fixed",
       "dimensions": null,
       "gemstone": "Diamond",
-      "material_karat": "Gold 585"
+      "material_karat": "Gold 585",
+      "model_3d": "models/huggie_earring_single.glb"
     },
     {
       "id": 23,
@@ -358,6 +359,28 @@
       "material_karat": "Gold 585",
       "try_on_asset": "tryon/26.png",
       "model_3d": "models/ADRG001.glb"
+    },
+    {
+      "id": 28,
+      "name": "Atlantic Watch",
+      "description": "Atlantic wristwatch with a 3D virtual try-on model.",
+      "price": "102000",
+      "category": "watches",
+      "is_popular": false,
+      "image": null,
+      "created_at": "2026-10-28T11:25:00.000Z",
+      "updated_at": "2026-10-28T11:25:00.000Z",
+      "is_new": true,
+      "slug": "atlantic-watch",
+      "is_active": true,
+      "allows_custom_text": false,
+      "available_materials": [],
+      "preparation_days": 7,
+      "price_type": "fixed",
+      "dimensions": null,
+      "gemstone": null,
+      "material_karat": null,
+      "model_3d": "models/watch_atlantic.glb"
     }
   ],
   "bakery_app_menuitemimage": [

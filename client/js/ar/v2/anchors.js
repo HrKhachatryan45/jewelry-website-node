@@ -12,6 +12,7 @@ export const PRODUCT_DEFAULTS = Object.freeze({
   necklaces: Object.freeze({ scale: 0.18, anchorOffset: Object.freeze({ x: 0, y: 0, z: 0 }), rotationOffset: Object.freeze({ x: 0, y: 0, z: 0 }) }),
   rings: Object.freeze({ scale: 0.018, anchorOffset: Object.freeze({ x: 0, y: 0, z: 0 }), rotationOffset: Object.freeze({ x: 0, y: 0, z: 0 }), hideWhenPalmFacesAway: false }),
   bracelets: Object.freeze({ scale: 0.055, anchorOffset: Object.freeze({ x: 0, y: 0, z: 0 }), rotationOffset: Object.freeze({ x: 0, y: 0, z: 0 }), hideWhenPalmFacesAway: false }),
+  watches: Object.freeze({ scale: 0.055, anchorOffset: Object.freeze({ x: 0, y: 0, z: 0 }), rotationOffset: Object.freeze({ x: 0, y: 0, z: 0 }), hideWhenPalmFacesAway: false }),
 });
 
 export function loadProductMetadata(metadataUrl) {

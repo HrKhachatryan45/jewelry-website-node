@@ -6,10 +6,6 @@ client/vendor/three/
 # Env (secrets) — root .gitignore also covers these
 .env
 
-# Uploads are synced from ../media at setup time (see server/scripts/sync-uploads.js)
-# so the binary assets are not duplicated in git.
-server/uploads/
-server/private/portraits/
 
 # Logs
 *.log

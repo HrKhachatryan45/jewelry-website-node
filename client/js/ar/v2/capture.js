@@ -1,3 +1,5 @@
+import { view } from '../view.js';
+
 export function captureComposite(video, overlayCanvas, onCapture) {
   if (!video.videoWidth || !video.videoHeight) throw new Error('Camera frame is not ready.');
   const output = document.createElement('canvas');
@@ -17,7 +19,13 @@ export function captureComposite(video, overlayCanvas, onCapture) {
     sourceY = (video.videoHeight - sourceHeight) / 2;
   }
 
+  context.save();
+  if (view.mirror) {
+    context.translate(output.width, 0);
+    context.scale(-1, 1);
+  }
   context.drawImage(video, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, output.width, output.height);
+  context.restore();
   context.drawImage(overlayCanvas, 0, 0, overlayCanvas.width, overlayCanvas.height, 0, 0, output.width, output.height);
 
   return new Promise((resolve, reject) => {

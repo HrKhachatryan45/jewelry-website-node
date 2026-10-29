@@ -1,3 +1,5 @@
+import { setFacing } from './view.js';
+
 export async function startCamera(video, onFrame, facingMode = 'user') {
   if (!navigator.mediaDevices?.getUserMedia) {
     const error = new Error('Camera access requires HTTPS or localhost.');
@@ -15,6 +17,9 @@ export async function startCamera(video, onFrame, facingMode = 'user') {
     },
   });
   try {
+    setFacing(video, stream, facingMode);
+    video.classList.remove('hidden');
+    video.style.display = 'block';
     video.srcObject = stream;
     await video.play();
   } catch (error) {

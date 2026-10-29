@@ -4,6 +4,16 @@ export function notFound(req, res) {
 
 // Maps common Prisma errors to friendly HTTP responses.
 function normalize(err) {
+  if (err && err.name === 'MulterError') {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      const maxSize = err.field === 'model_3d_file' ? '80 MB' : '12 MB';
+      return { status: 413, message: `Uploaded file exceeds the ${maxSize} limit` };
+    }
+    if (err.code === 'LIMIT_FILE_COUNT' || err.code === 'LIMIT_UNEXPECTED_FILE') {
+      return { status: 400, message: 'Too many files were uploaded' };
+    }
+    return { status: 400, message: 'Invalid file upload' };
+  }
   if (err && typeof err.code === 'string' && err.code.startsWith('P')) {
     switch (err.code) {
       case 'P2025': // record required but not found

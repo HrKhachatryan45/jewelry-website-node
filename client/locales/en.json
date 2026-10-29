@@ -26,6 +26,10 @@
     "continue": "Continue shopping"
   },
   "common": {
+    "back": "Back",
+    "share": "Share",
+    "link_copied": "Link copied",
+    "share_unavailable": "Sharing is unavailable in this browser.",
     "add_to_cart": "Add to cart",
     "read_more": "Read more",
     "order_now": "Order now",
@@ -83,6 +87,9 @@
   },
   "ar": {
     "title": "Virtual Try-On",
+    "view_3d": "View in 3D",
+    "model_viewer_error": "Could not load the 3D viewer. Please try again.",
+    "model_load_error": "Could not load the 3D model.",
     "target": {
       "face": "Face",
       "hand": "Hand"
@@ -91,13 +98,15 @@
       "necklaces": "Necklace",
       "earrings": "Earrings",
       "rings": "Ring",
-      "bracelets": "Bracelet"
+      "bracelets": "Bracelet",
+      "watches": "Watch"
     },
     "hint": {
       "necklaces": "Show your face and neck to the live camera",
       "earrings": "Face the live camera with both ears visible",
       "rings": "Show your hand with the ring finger visible",
-      "bracelets": "Show your wrist and lower arm to the live camera"
+      "bracelets": "Show your wrist and lower arm to the live camera",
+      "watches": "Show the back of your wrist and lower arm to the live camera"
     },
     "status": {
       "loading": "Preparing...",

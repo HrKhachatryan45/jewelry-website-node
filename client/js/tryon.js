@@ -3,9 +3,15 @@
 import { ArTryOnEngine } from '/js/ar/engine.js';
 import { normalizeCategory, AR_CATEGORIES } from '/js/ar/categories.js';
 import { analyzeAsset } from '/js/ar/asset.js';
-import { computePlacements } from '/js/ar/tracker.js';
+import {
+  computeEarringModelPlacements,
+  computePlacements,
+} from '/js/ar/tracker.js';
 import { drawFrame } from '/js/ar/renderer.js';
 import { loadArSolver } from '/js/ar/loader.js';
+import { EarringModelRenderer } from '/js/ar/earringModel3d.js';
+import { HandModelRenderer } from '/js/ar/model3d.js';
+import { view } from '/js/ar/view.js';
 
 const ERR_STATES = new Set(['denied', 'nocam', 'insecure', 'load', 'image']);
 const FALLBACK_TEXT = {
@@ -30,6 +36,7 @@ const FALLBACK_HINT = {
   earrings: 'Կանգնեք տեսախցիկի դիմաց՝ երկու ականջները տեսանելի պահելով։',
   rings: 'Ցույց տվեք ձեռքը՝ մատնեմատը տեսանելի պահելով։',
   bracelets: 'Ցույց տվեք ձեռքն ու դաստակը տեսախցիկին։',
+  watches: 'Ցույց տվեք դաստակի արտաքին կողմն ու նախաբազուկը տեսախցիկին։',
 };
 
 const FALLBACK_CATEGORY = {
@@ -37,6 +44,7 @@ const FALLBACK_CATEGORY = {
   earrings: 'Ականջօղեր',
   rings: 'Մատանի',
   bracelets: 'Ապարանջան',
+  watches: 'Ժամացույց',
 };
 
 const FALLBACK_TARGET = { face: 'Դեմք', hand: 'Ձեռք/դաստակ' };
@@ -98,13 +106,31 @@ function ensureStyle() {
   style.id = STYLE_ID;
   style.textContent = `
     #tryon-root { height: 100vh; height: 100dvh; }
-    #tryon-root video { display: none !important; }
-    #tryon-root #ar-canvas { background: #111827; }
-    #tryon-root .ar-canvas-stack { line-height: 0; }
+    #tryon-root video { display: block !important; position: absolute; z-index: 0; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    #tryon-root #ar-canvas { background: transparent; }
+    #tryon-root .ar-canvas-stack { line-height: 0; position: relative; z-index: 1; background: transparent; }
     #tryon-root.tryon-v2 .ar-canvas-stack { display: block; max-width: 100%; max-height: 60vh; }
-    #tryon-root.tryon-v2 video { display: block !important; position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     #tryon-root.tryon-photo video { display: none !important; }
-    #tryon-root.tryon-v2 #ar-canvas { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; background: transparent; }
+    #tryon-root.tryon-v2 #ar-canvas { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; background: transparent !important; }
+    @media (min-width: 640px) {
+      #tryon-root .tryon-modal { height: 78vh; }
+      #tryon-root .tryon-stage { flex: 1 1 auto; min-height: 0; }
+      #tryon-root .tryon-stage .ar-canvas-stack {
+        display: block;
+        width: 100%;
+        height: 100%;
+        max-width: none;
+        max-height: none;
+        margin: 0;
+      }
+      #tryon-root .tryon-stage #ar-canvas {
+        width: 100%;
+        height: 100%;
+        max-width: none;
+        max-height: none;
+        object-fit: cover;
+      }
+    }
     @media (max-width: 639px) {
       #tryon-root { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
       #tryon-root .tryon-modal { width: 100%; height: 100%; max-height: none; }
@@ -183,6 +209,7 @@ export function openTryOn(product = {}) {
   root = document.createElement('div');
   root.innerHTML = TEMPLATE;
   document.body.appendChild(root);
+  const modalRoot = root.querySelector('#tryon-root');
   document.body.style.overflow = 'hidden';
   document.addEventListener('keydown', onEsc);
 
@@ -214,6 +241,8 @@ export function openTryOn(product = {}) {
   let photoImage = null;
   let photoAssetImage = null;
   let photoAsset = null;
+  let photoEarringModelRenderer = null;
+  let photoHandModelRenderer = null;
   let modeRequest = 0;
   let currentPhotoLandmarks = null;
   let canvas = root.querySelector('#ar-canvas');
@@ -231,6 +260,14 @@ export function openTryOn(product = {}) {
     photoAsset = null;
     photoAssetImage = null;
     currentPhotoLandmarks = null;
+    if (photoEarringModelRenderer) {
+      photoEarringModelRenderer.dispose();
+      photoEarringModelRenderer = null;
+    }
+    if (photoHandModelRenderer) {
+      photoHandModelRenderer.dispose();
+      photoHandModelRenderer = null;
+    }
   };
   const replaceCanvas = () => {
     const freshCanvas = canvas.cloneNode(false);
@@ -242,10 +279,7 @@ export function openTryOn(product = {}) {
     if (!video.videoWidth || !video.videoHeight) return;
     const bounds = stack.parentElement.getBoundingClientRect();
     const aspect = video.videoWidth / video.videoHeight;
-    const mobile = window.matchMedia('(max-width: 639px)').matches;
-    const width = mobile
-      ? Math.max(bounds.width, bounds.height * aspect)
-      : Math.min(bounds.width, bounds.height * aspect);
+    const width = Math.max(bounds.width, bounds.height * aspect);
     stack.style.width = `${width}px`;
     stack.style.height = `${width / aspect}px`;
     stack.style.aspectRatio = `${video.videoWidth} / ${video.videoHeight}`;
@@ -308,16 +342,34 @@ export function openTryOn(product = {}) {
     stack.style.aspectRatio = `${photoImage.naturalWidth} / ${photoImage.naturalHeight}`;
     canvas.style.width = '100%';
     canvas.style.height = '100%';
-    const points = computePlacements(category, {
+    const landmarkData = {
       face: landmarks.face || null,
       pose: null,
       hands: landmarks.hands || [],
-    }, width, height, photoAsset);
+    };
+    const points = photoEarringModelRenderer
+      ? computeEarringModelPlacements(landmarkData, width, height)
+      : photoHandModelRenderer
+        ? computePlacements(category, landmarkData, width, height, { type: 'model3d' })
+        : computePlacements(category, landmarkData, width, height, photoAsset);
     currentPhotoLandmarks = landmarks;
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Photo try-on canvas is unavailable.');
-    drawFrame(ctx, null, photoAssetImage, width, height, points, false, photoImage);
-    applyStatus(points.length ? 'ready' : (definition.target === 'face' ? 'no-face' : 'no-hand'));
+    if (photoEarringModelRenderer || photoHandModelRenderer) {
+      drawFrame(ctx, null, null, width, height, [], false, photoImage);
+      const modelRenderer = photoEarringModelRenderer || photoHandModelRenderer;
+      if (modelRenderer.width !== width || modelRenderer.height !== height) {
+        modelRenderer.resize(width, height);
+      }
+      const modelPlacements = points.map((placement) => placement && ({
+        ...placement,
+      }));
+      modelRenderer.render(modelPlacements);
+      ctx.drawImage(modelRenderer.canvas, 0, 0, width, height);
+    } else {
+      drawFrame(ctx, null, photoAssetImage, width, height, points, false, photoImage);
+    }
+    applyStatus(points.some(Boolean) ? 'ready' : (definition.target === 'face' ? 'no-face' : 'no-hand'));
   };
   const startPhotoMode = async (file) => {
     if (!file) return;
@@ -335,7 +387,8 @@ export function openTryOn(product = {}) {
     engine = null;
     clearPhoto();
     setMode('photo');
-    root.classList.add('tryon-photo');
+    modalRoot.classList.add('tryon-photo');
+    view.mirror = false;
     replaceCanvas();
     video.classList.add('hidden');
     video.style.display = 'none';
@@ -346,12 +399,51 @@ export function openTryOn(product = {}) {
       photoImage.src = photoUrl;
       await photoImage.decode();
       if (requestId !== modeRequest || mode !== 'photo') return;
-      if (!product.productImageUrl) throw new Error('A transparent try-on PNG is required.');
-      photoAssetImage = new Image();
-      photoAssetImage.crossOrigin = 'anonymous';
-      photoAssetImage.src = product.productImageUrl;
-      await photoAssetImage.decode();
-      photoAsset = analyzeAsset(photoAssetImage, category);
+      const hasPhotoModel = product.productModelUrl && (category === 'earrings' || category === 'rings' || category === 'bracelets' || category === 'watches');
+      if (product.productImageUrl && !hasPhotoModel) {
+        photoAssetImage = new Image();
+        photoAssetImage.crossOrigin = 'anonymous';
+        photoAssetImage.src = product.productImageUrl;
+        await photoAssetImage.decode();
+        if (requestId !== modeRequest || mode !== 'photo') return;
+        photoAsset = analyzeAsset(photoAssetImage, category);
+      } else if (!hasPhotoModel) {
+        throw new Error('A transparent try-on PNG is required.');
+      }
+      if (hasPhotoModel) {
+        const width = 640;
+        const height = Math.max(1, Math.round(width * photoImage.naturalHeight / photoImage.naturalWidth));
+        try {
+          const renderer = category === 'earrings'
+            ? await EarringModelRenderer.create(
+              product.productModelUrl,
+              width,
+              height,
+              product.productMetadataUrl,
+            )
+            : await HandModelRenderer.create(
+              document.createElement('canvas'),
+              product.productModelUrl,
+              width,
+              height,
+              category,
+              product.productMetadataUrl,
+            );
+          if (requestId !== modeRequest || mode !== 'photo') {
+            renderer.dispose();
+            return;
+          }
+          if (category === 'earrings') photoEarringModelRenderer = renderer;
+          else photoHandModelRenderer = renderer;
+        } catch (error) {
+          if (requestId !== modeRequest || mode !== 'photo') return;
+          console.error('Uploaded 3D try-on model failed to load', error);
+          throw error;
+        }
+      }
+      if (!photoAssetImage && !photoEarringModelRenderer && !photoHandModelRenderer) {
+        throw new Error('A transparent try-on PNG is required.');
+      }
       const solverEntry = await loadArSolver(definition.solvers[0]);
       if (requestId !== modeRequest || mode !== 'photo') return;
       photoSolver = new solverEntry.Ctor({ locateFile: solverEntry.locateFile });
@@ -402,12 +494,14 @@ export function openTryOn(product = {}) {
     const requestId = ++modeRequest;
     clearPhoto();
     setMode('live');
-    root.classList.remove('tryon-photo');
+    modalRoot.classList.remove('tryon-photo');
+    video.classList.remove('hidden');
+    video.style.display = 'block';
     replaceCanvas();
     canvas.style.removeProperty('width');
     canvas.style.removeProperty('height');
     if (useV2) {
-      root.classList.add('tryon-v2');
+      modalRoot.classList.add('tryon-v2');
       try {
         const { TryOnV2Engine } = await import('/js/ar/v2/engine.js');
         if (requestId !== modeRequest || mode !== 'live' || !currentRoot.isConnected) return;
@@ -434,12 +528,14 @@ export function openTryOn(product = {}) {
       }
       return;
     }
-    root.classList.remove('tryon-v2');
+    modalRoot.classList.remove('tryon-v2');
     engine = new ArTryOnEngine({
       video,
       canvas,
       productCategory: category,
       productImageUrl: product.productImageUrl,
+      productModelUrl: product.productModelUrl,
+      productMetadataUrl: product.productMetadataUrl,
       onStatus: applyStatus,
     });
     void engine.start();
@@ -497,11 +593,7 @@ export function openTryOn(product = {}) {
     if (engine?._status) applyStatus(engine._status);
   });
 
-  if (product.portraitUrl) {
-    void startSavedPortraitMode();
-  } else {
-    void startLiveMode();
-  }
+  void startLiveMode();
 }
 
 export function closeTryOn() {

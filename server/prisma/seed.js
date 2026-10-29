@@ -16,8 +16,9 @@ const CATEGORIES = [
   { slug: 'necklaces', nameHy: 'Վզնոցներ', nameRu: 'Колье', nameEn: 'Necklaces', sortOrder: 1, image: 'categories/unnamed-2.webp' },
   { slug: 'earrings', nameHy: 'Ականջօղեր', nameRu: 'Серьги', nameEn: 'Earrings', sortOrder: 2, image: 'categories/unnamed-3.webp' },
   { slug: 'bracelets', nameHy: 'Ապարանջաններ', nameRu: 'Браслеты', nameEn: 'Bracelets', sortOrder: 3, image: 'categories/unnamed-4.webp' },
-  { slug: 'bespoke', nameHy: 'Անհատական Պատվեր', nameRu: 'Индивидуальный заказ', nameEn: 'Bespoke', sortOrder: 4, image: null },
-  { slug: 'collections', nameHy: 'Հավաքածուներ', nameRu: 'Коллекции', nameEn: 'Collections', sortOrder: 5, image: null },
+  { slug: 'watches', nameHy: 'Ժամացույցներ', nameRu: 'Часы', nameEn: 'Watches', sortOrder: 4, image: null },
+  { slug: 'bespoke', nameHy: 'Անհատական Պատվեր', nameRu: 'Индивидуальный заказ', nameEn: 'Bespoke', sortOrder: 5, image: null },
+  { slug: 'collections', nameHy: 'Հավաքածուներ', nameRu: 'Коллекции', nameEn: 'Collections', sortOrder: 6, image: null },
 ];
 
 const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD || 'admin123';
@@ -50,6 +51,9 @@ async function seedItems() {
     ['assets/ar-demo-halo-ring.jpg', '../uploads/menu/ar-demo-halo-ring.jpg'],
     ['assets/ar-demo-halo-ring.png', '../uploads/tryon/26.png'],
     ['assets/ADRG001.glb', '../uploads/models/ADRG001.glb'],
+    ['assets/models/huggie_earring_single.glb', '../uploads/models/huggie_earring_single.glb'],
+    ['assets/models/huggie_earring_single.json', '../uploads/models/huggie_earring_single.json'],
+    ['assets/models/watch_atlantic.glb', '../uploads/models/watch_atlantic.glb'],
   ];
   for (const [source, destination] of demoAssets) {
     const sourcePath = path.join(__dirname, source);
@@ -269,15 +273,15 @@ async function resetSequences() {
 
 async function main() {
   console.log('Seeding from Django export...');
-  await seedCategories();
+  // await seedCategories();
   await seedUsers();
-  await seedItems();
-  await seedReviews();
-  await seedHero();
-  await seedOrders();
-  await seedMessages();
-  await seedBespoke();
-  await resetSequences();
+  // await seedItems();
+  // await seedReviews();
+  // await seedHero();
+  // await seedOrders();
+  // await seedMessages();
+  // await seedBespoke();
+  // await resetSequences();
   console.log('Seed complete.');
   console.log(`Admin login: ${data.auth_user?.[0]?.username || 'admin'} / ${ADMIN_PASSWORD}`);
 }
