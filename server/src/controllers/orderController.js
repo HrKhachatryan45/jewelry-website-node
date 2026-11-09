@@ -66,32 +66,15 @@ export async function placeOrder(req, res) {
   let account = req.user || null;
   let accountCreated = false;
 
-  if (!account) {
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
-      return res.status(409).json({
-        error: 'An account already uses this email. Sign in before placing your order.',
-        loginRequired: true,
-      });
-    }
-  }
-
-  const setupPasswordHash = account ? null : await bcrypt.hash(randomBytes(32).toString('hex'), 12);
+  const setupPasswordHash = account
+    ? null
+    : await bcrypt.hash(randomBytes(32).toString('hex'), 12);
   let order;
   try {
     ({ order, account, accountCreated } = await prisma.$transaction(async (tx) => {
       let customer = account;
       if (!customer) {
-        customer = await tx.user.create({
-          data: {
-            username: `customer_${randomBytes(12).toString('hex')}`,
-            email,
-            password: setupPasswordHash,
-            firstName: String(b.full_name || '').trim().split(/\s+/)[0] || '',
-            lastName: String(b.full_name || '').trim().split(/\s+/).slice(1).join(' '),
-            role: 'customer',
-          },
-        });
+        customer = null;
       }
 
       const createdOrder = await tx.order.create({
@@ -110,7 +93,7 @@ export async function placeOrder(req, res) {
           orderNote: b.notes || b.order_note || '',
           total,
           totalAmountAmd: total,
-          userId: customer.id,
+          userId: customer?.id ?? null,
         },
       });
 
@@ -132,15 +115,9 @@ export async function placeOrder(req, res) {
           },
         });
       }
-      return { order: createdOrder, account: customer, accountCreated: !req.user };
+      return { order: createdOrder, account: customer, accountCreated: false };
     }));
   } catch (error) {
-    if (error?.code === 'P2002' && String(error.meta?.target).includes('email')) {
-      return res.status(409).json({
-        error: 'An account already uses this email. Sign in before placing your order.',
-        loginRequired: true,
-      });
-    }
     throw error;
   }
 
@@ -170,7 +147,9 @@ export async function placeOrder(req, res) {
     order: { id: order.id },
     accountCreated,
     redirect: method === 'cash'
-      ? `/account/orders/${order.id}`
+      ? req.user
+        ? `/account/orders/${order.id}`
+        : `/payment/order-success.html?pm=cash&id=${order.id}&guest=1`
       : `/payment/order-success.html?pm=${method}&id=${order.id}`,
   });
 }
@@ -188,7 +167,15 @@ export async function orderStatus(req, res) {
 // Customer order history is always scoped to the authenticated account.
 export async function accountOrders(req, res) {
   const orders = await prisma.order.findMany({
-    where: { userId: req.user.id },
+    // Imported/legacy orders may not have a userId even though checkout
+    // recorded the customer's email. Keep those orders visible in the
+    // account after an admin changes their status.
+    where: {
+      OR: [
+        { userId: req.user.id },
+        { userId: null, email: req.user.email },
+      ],
+    },
     orderBy: { createdAt: 'desc' },
     take: 50,
     include: {
@@ -203,7 +190,13 @@ export async function accountOrders(req, res) {
 export async function accountOrder(req, res) {
   const id = parseInt(req.params.id, 10);
   const order = await prisma.order.findFirst({
-    where: { id, userId: req.user.id },
+    where: {
+      id,
+      OR: [
+        { userId: req.user.id },
+        { userId: null, email: req.user.email },
+      ],
+    },
     include: {
       items: {
         include: { menuItem: { select: { category: true, image: true, tryOnAsset: true } } },

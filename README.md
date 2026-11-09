@@ -3,14 +3,14 @@
 Decoupled rewrite of the Django project in this repository (`bakery` / `bakery_app`).
 
 - **`/client`** — vanilla HTML/CSS/JS front end. No build step, no framework.
-- **`/server`** — Node.js + Express REST API, Prisma ORM on PostgreSQL, JWT + bcrypt auth, multer uploads.
+- **`/server`** — Node.js + Express REST API, Prisma ORM on MySQL, JWT + bcrypt auth, multer uploads.
 
 See [`../MIGRATION.md`](../MIGRATION.md) for the full mapping from the Django project and the API surface.
 
 ## Requirements
 
 - Node.js 20+
-- PostgreSQL running on `localhost:5432`
+- MySQL running on `localhost:3306`
 
 ## Quick start
 
@@ -18,6 +18,32 @@ See [`../MIGRATION.md`](../MIGRATION.md) for the full mapping from the Django pr
 npm install      # runs `setup`: prisma db push, seed, copy media -> server/uploads
 npm run dev      # http://localhost:4000
 ```
+
+## Docker
+
+Docker Compose runs the Node app, PHP admin, and MySQL:
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+The public app is available at `http://localhost:8080`, the PHP admin at
+`http://localhost:8000`, and MySQL at `localhost:3306`. On first startup, MySQL
+creates the database and application user from the `MYSQL_*` variables, then the
+Node container runs `prisma db push` to create all tables. Set
+`SEED_DATABASE=true` to import the initial data. Use strong values for
+`JWT_SECRET`, `MYSQL_ROOT_PASSWORD`, and `MYSQL_PASSWORD`.
+
+To initialize from a clean database:
+
+```bash
+docker compose down -v
+docker compose up --build
+```
+
+The `-v` flag removes the existing MySQL volume; do not use it when existing
+data must be preserved.
 
 `npm run dev` starts the API server, which also serves the static client and uploaded media, so the whole site is available at **http://localhost:4000**.
 
@@ -42,7 +68,7 @@ Copy `server/.env.example` to `server/.env` and fill in the real values:
 
 | Variable | Purpose |
 | --- | --- |
-| `DATABASE_URL` | PostgreSQL connection string (Prisma) |
+| `DATABASE_URL` | MySQL connection string (Prisma) |
 | `JWT_SECRET` | Signs the httpOnly auth cookie `luxe_token` |
 | `SEED_ADMIN_PASSWORD` | Initial admin password on seed |
 | `CONTACT_PHONE`, `CONTACT_EMAIL`, … | Public contact block in the footer |
@@ -68,6 +94,16 @@ Copy `server/.env.example` to `server/.env` and fill in the real values:
 Seed data is exported from the original Django database to `server/prisma/seed-data.json` (see `server/scripts/export_django.py`). Uploaded images are copied from `../media` into `server/uploads` by `server/scripts/sync-uploads.js` — `server/uploads` itself is gitignored.
 
 The admin product editor supports up to five product images per item; drag the image cards to reorder them, with the first image used as the cover. It also accepts `.glb` model uploads up to 80 MB, while product images remain limited to 12 MB each. SortableJS is served directly from the server dependency at `/vendor/sortablejs/Sortable.min.js`.
+
+### Renaming legacy Django tables
+
+The application uses conventional table names (`products`, `orders`, `reviews`, and related tables). To migrate one MySQL or PostgreSQL database at a time, point `server/.env` at that database and run:
+
+```bash
+php server/scripts/rename-tables.php
+```
+
+Use either `mysql://...` or `postgresql://...` in `DATABASE_URL`. The command is idempotent, refuses to overwrite an existing target table, and can be repeated after changing `DATABASE_URL` for each database. PostgreSQL requires the PHP `pdo_pgsql` extension.
 
 ## API
 

@@ -1,13 +1,14 @@
 // Luxe Jewelry — Prisma schema.
-// Table names keep parity with the Django `bakery_app_*` tables so data can be
-// imported from `prisma/seed-data.json` (exported from Django's cake_db).
+// Tables use application-level names; the seed exporter maps Django source
+// tables to these names.
 
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-arm64-openssl-3.0.x"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -25,7 +26,7 @@ model User {
   isActive  Boolean   @default(true) @map("is_active")
   lastLogin DateTime? @map("last_login")
   createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
+ updatedAt DateTime @updatedAt @map("updated_at")
 
   orders        Order[]
   wishlist      WishlistItem[]
@@ -76,7 +77,7 @@ model MenuItem {
 
   @@index([slug])
   @@index([category])
-  @@map("bakery_app_menuitem")
+  @@map("products")
 }
 
 model MenuItemVariant {
@@ -90,7 +91,7 @@ model MenuItemVariant {
 
   menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
 
-  @@map("bakery_app_menuitemvariant")
+  @@map("product_variants")
 }
 
 model MenuItemImage {
@@ -101,7 +102,7 @@ model MenuItemImage {
 
   menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
 
-  @@map("bakery_app_menuitemimage")
+  @@map("product_images")
 }
 
 // ── Reviews ───────────────────────────────────────────────────────────
@@ -117,7 +118,7 @@ model Review {
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
 
-  @@map("bakery_app_review")
+  @@map("reviews")
 }
 
 // ── Contact messages ──────────────────────────────────────────────────
@@ -129,7 +130,7 @@ model ContactMessage {
   message   String
   createdAt DateTime @default(now()) @map("created_at")
 
-  @@map("bakery_app_contactmessage")
+  @@map("contact_messages")
 }
 
 // ── Orders ────────────────────────────────────────────────────────────
@@ -162,7 +163,7 @@ model Order {
   items OrderItem[]
   user  User?     @relation(fields: [userId], references: [id])
 
-  @@map("bakery_app_order")
+  @@map("orders")
 }
 
 model OrderItem {
@@ -181,7 +182,7 @@ model OrderItem {
   order    Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
   menuItem MenuItem? @relation(fields: [menuItemId], references: [id], onDelete: SetNull)
 
-  @@map("bakery_app_orderitem")
+  @@map("order_items")
 }
 
 // ── Hero ──────────────────────────────────────────────────────────────
@@ -192,7 +193,7 @@ model HeroSlide {
   order     Int     @default(0)
   isActive  Boolean @default(true) @map("is_active")
 
-  @@map("bakery_app_heroslide")
+  @@map("hero_slides")
 }
 
 model HeroSettings {
@@ -201,7 +202,7 @@ model HeroSettings {
   titleHighlight String @default("Սիրով պատրաստված") @map("title_highlight")
   description   String @default("Յուրահատուկ ձեռագործ զարդեր՝ պատրաստված բարձրորակ մետաղներից և քարերից Երևանի սրտում։")
 
-  @@map("bakery_app_herosettings")
+  @@map("hero_settings")
 }
 
 // ── Bespoke commissions ───────────────────────────────────────────────
@@ -221,7 +222,7 @@ model BespokeOrder {
   status        String   @default("new")
   createdAt     DateTime @default(now()) @map("created_at")
 
-  @@map("bakery_app_bespokeorder")
+  @@map("bespoke_orders")
 }
 
 // ── Session replacement: guest carts (Django: request.session['cart']) ─

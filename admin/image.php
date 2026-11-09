@@ -3,13 +3,24 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/db.php';
 
-$relativePath = (string) ($_GET['file'] ?? '');
-if (preg_match('#^menu/[a-zA-Z0-9_.-]+\.(jpg|png|webp|gif|avif)$#', $relativePath) !== 1) {
+$relativePath = trim(str_replace('\\', '/', (string) ($_GET['file'] ?? '')));
+$relativePath = preg_replace('#^(?:/+|uploads/)+#i', '', $relativePath) ?? '';
+$directory = 'menu';
+if (preg_match('#^(menu|hero)/(.+)$#i', $relativePath, $matches) === 1) {
+    $directory = strtolower($matches[1]);
+    $relativePath = $matches[2];
+}
+$filename = basename($relativePath);
+if ($relativePath !== $filename || preg_match('#^[a-zA-Z0-9_.-]+\.(jpe?g|png|webp|gif|avif)$#i', $filename) !== 1) {
     http_response_code(404);
     exit;
 }
 
-$imagePath = MENU_UPLOAD_DIR . '/' . basename($relativePath);
+$uploadDirectories = [
+    'menu' => MENU_UPLOAD_DIR,
+    'hero' => __DIR__ . '/../server/uploads/hero',
+];
+$imagePath = $uploadDirectories[$directory] . '/' . $filename;
 if (!is_file($imagePath) || !is_readable($imagePath)) {
     http_response_code(404);
     exit;

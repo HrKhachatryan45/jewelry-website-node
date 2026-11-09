@@ -104,5 +104,5 @@ try {
     exit('Could not read the jewelry website MySQL settings. Check its server/.env configuration.');
 }
 
-const MENU_UPLOAD_DIR =  '../server/uploads/menu';
+const MENU_UPLOAD_DIR = __DIR__ . '/../server/uploads/menu';
 const MENU_UPLOAD_PATH = 'menu';

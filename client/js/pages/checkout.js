@@ -286,7 +286,7 @@ function normalise(redirect) {
   if (redirect.includes('order-success')) {
     const params = new URLSearchParams(q);
     const orderId = params.get('id');
-    if (params.get('pm') === 'cash' && /^\d+$/.test(orderId || '')) {
+    if (params.get('pm') === 'cash' && params.get('guest') !== '1' && /^\d+$/.test(orderId || '')) {
       return `/account/orders/${orderId}`;
     }
     return '/order-success' + q;

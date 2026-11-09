@@ -92,7 +92,7 @@ try {
         $mysqli->begin_transaction();
         try {
             $statement = $mysqli->prepare(
-                'INSERT INTO bakery_app_menuitem '
+                'INSERT INTO products '
                 . '(name, slug, description, price, category, is_popular, is_new, is_active, image, '
                 . 'available_materials, created_at, updated_at) '
                 . 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())'
@@ -118,7 +118,7 @@ try {
             $variantWeight = (string) $weight;
             $available = 1;
             $variant = $mysqli->prepare(
-                'INSERT INTO bakery_app_menuitemvariant '
+                'INSERT INTO product_variants '
                 . '(menu_item_id, size, weight, stock, price, is_available) VALUES (?, ?, ?, ?, ?, ?)'
             );
             $variant->bind_param(
@@ -150,13 +150,204 @@ try {
             throw new RuntimeException('Ընտրեք ջնջելու ենթակա զարդը։');
         }
 
-        $statement = $mysqli->prepare('DELETE FROM bakery_app_menuitem WHERE id = ?');
+        $statement = $mysqli->prepare('DELETE FROM products WHERE id = ?');
         $statement->bind_param('i', $productId);
         $statement->execute();
         setFlash($statement->affected_rows > 0 ? 'success' : 'error', $statement->affected_rows > 0
             ? 'Զարդը հեռացվել է տեսականուց։'
             : 'Զարդը չի գտնվել։');
         redirectHome();
+    }
+
+    if ($action === 'hero_settings') {
+        $titleLine1 = trim((string) ($_POST['title_line1'] ?? ''));
+        $titleHighlight = trim((string) ($_POST['title_highlight'] ?? ''));
+        $description = trim((string) ($_POST['description'] ?? ''));
+        $statement = $mysqli->prepare(
+            'INSERT INTO hero_settings (id, title_line1, title_highlight, description) VALUES (1, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE title_line1 = VALUES(title_line1), title_highlight = VALUES(title_highlight), description = VALUES(description)'
+        );
+        $statement->bind_param('sss', $titleLine1, $titleHighlight, $description);
+        $statement->execute();
+        setFlash('success', 'Գլխավոր էջի տեքստը թարմացվեց։');
+        header('Location: content.php?view=hero');
+        exit;
+    }
+
+    if ($action === 'hero_slide') {
+        $title = trim((string) ($_POST['title'] ?? ''));
+        $order = filter_var($_POST['order'] ?? 0, FILTER_VALIDATE_INT);
+        $image = saveAdminImage($_FILES['image'] ?? [], __DIR__ . '/../server/uploads/hero', 'hero');
+        $statement = $mysqli->prepare('INSERT INTO hero_slides (image, title, `order`, is_active) VALUES (?, ?, ?, 1)');
+        $order = $order === false ? 0 : $order;
+        $statement->bind_param('ssi', $image, $title, $order);
+        $statement->execute();
+        setFlash('success', 'Սլայդը ավելացվեց։');
+        header('Location: content.php?view=hero');
+        exit;
+    }
+
+    if ($action === 'hero_delete') {
+        $id = (int) ($_POST['id'] ?? 0);
+        $statement = $mysqli->prepare('DELETE FROM hero_slides WHERE id = ?');
+        $statement->bind_param('i', $id);
+        $statement->execute();
+        setFlash('success', 'Սլայդը հեռացվեց։');
+        header('Location: content.php?view=hero');
+        exit;
+    }
+
+    if ($action === 'hero_update') {
+        $id = (int) ($_POST['id'] ?? 0);
+        $title = trim((string) ($_POST['title'] ?? ''));
+        $order = (int) ($_POST['order'] ?? 0);
+        $active = isset($_POST['is_active']) ? 1 : 0;
+        if (isset($_FILES['image']) && ($_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+            $image = saveAdminImage($_FILES['image'], __DIR__ . '/../server/uploads/hero', 'hero');
+            $statement = $mysqli->prepare('UPDATE hero_slides SET title = ?, `order` = ?, is_active = ?, image = ? WHERE id = ?');
+            $statement->bind_param('siisi', $title, $order, $active, $image, $id);
+        } else {
+            $statement = $mysqli->prepare('UPDATE hero_slides SET title = ?, `order` = ?, is_active = ? WHERE id = ?');
+            $statement->bind_param('siii', $title, $order, $active, $id);
+        }
+        $statement->execute();
+        setFlash('success', 'Սլայդը թարմացվեց։');
+        header('Location: content.php?view=hero');
+        exit;
+    }
+
+    if ($action === 'order_paid') {
+        $id = (int) ($_POST['id'] ?? 0);
+        $value = (int) ($_POST['value'] ?? 0) === 1 ? 1 : 0;
+        $statement = $mysqli->prepare('UPDATE orders SET is_paid = ? WHERE id = ?');
+        $statement->bind_param('ii', $value, $id);
+        $statement->execute();
+        setFlash('success', 'Վճարման կարգավիճակը թարմացվեց։');
+        header('Location: ' . (!empty($_POST['order']) ? 'order-detail.php?id=' . (int) $_POST['order'] : 'content.php?view=orders'));
+        exit;
+    }
+
+    if ($action === 'order_update') {
+        $id = (int) ($_POST['id'] ?? 0);
+        $status = (string) ($_POST['status'] ?? '');
+        if (!in_array($status, ['new', 'confirmed', 'ready', 'delivered', 'cancelled'], true)) {
+            throw new RuntimeException('Պատվերի կարգավիճակը սխալ է։');
+        }
+        $statement = $mysqli->prepare('UPDATE orders SET status = ? WHERE id = ?');
+        $statement->bind_param('si', $status, $id);
+        $statement->execute();
+        setFlash('success', 'Պատվերի կարգավիճակը թարմացվեց։');
+        header('Location: ' . (!empty($_POST['order']) ? 'order-detail.php?id=' . (int) $_POST['order'] : 'content.php?view=orders'));
+        exit;
+    }
+
+    if ($action === 'order_delete') {
+        $id = (int) ($_POST['id'] ?? 0);
+        $statement = $mysqli->prepare('DELETE FROM orders WHERE id = ?');
+        $statement->bind_param('i', $id);
+        $statement->execute();
+        setFlash('success', 'Պատվերը հեռացվեց։');
+        header('Location: content.php?view=orders');
+        exit;
+    }
+
+    if ($action === 'bespoke_update') {
+        $id = (int) ($_POST['id'] ?? 0);
+        $status = (string) ($_POST['status'] ?? '');
+        if (!in_array($status, ['new', 'contacted', 'in_progress', 'completed', 'cancelled'], true)) {
+            throw new RuntimeException('Հայտի կարգավիճակը սխալ է։');
+        }
+        $statement = $mysqli->prepare('UPDATE bespoke_orders SET status = ? WHERE id = ?');
+        $statement->bind_param('si', $status, $id);
+        $statement->execute();
+        setFlash('success', 'Հայտի կարգավիճակը թարմացվեց։');
+        header('Location: ' . (!empty($_POST['bespoke_detail']) ? 'bespoke-detail.php?id=' . $id : 'content.php?view=bespoke'));
+        exit;
+    }
+
+    if ($action === 'review_delete') {
+        $id = (int) ($_POST['id'] ?? 0);
+        $statement = $mysqli->prepare('DELETE FROM reviews WHERE id = ?');
+        $statement->bind_param('i', $id);
+        $statement->execute();
+        setFlash('success', 'Կարծիքը հեռացվեց։');
+        header('Location: content.php?view=reviews');
+        exit;
+    }
+
+    if ($action === 'review_toggle') {
+        $id = (int) ($_POST['id'] ?? 0);
+        $value = (int) ($_POST['value'] ?? 0) === 1 ? 1 : 0;
+        $statement = $mysqli->prepare('UPDATE reviews SET is_approved = ? WHERE id = ?');
+        $statement->bind_param('ii', $value, $id);
+        $statement->execute();
+        setFlash('success', 'Կարծիքի կարգավիճակը թարմացվեց։');
+        header('Location: content.php?view=reviews');
+        exit;
+    }
+
+    if ($action === 'message_delete') {
+        $id = (int) ($_POST['id'] ?? 0);
+        $statement = $mysqli->prepare('DELETE FROM contact_messages WHERE id = ?');
+        $statement->bind_param('i', $id);
+        $statement->execute();
+        setFlash('success', 'Հաղորդագրությունը հեռացվեց։');
+        header('Location: content.php?view=messages');
+        exit;
+    }
+
+    if ($action === 'user_create') {
+        $username = trim((string) ($_POST['username'] ?? ''));
+        $email = trim((string) ($_POST['email'] ?? ''));
+        $password = (string) ($_POST['password'] ?? '');
+        if ($username === '' || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($password) < 6) {
+            throw new RuntimeException('Մուտքագրեք ճիշտ օգտատիրոջ տվյալներ։');
+        }
+        $hash = password_hash($password, PASSWORD_DEFAULT);
+        $role = 'admin';
+        $active = 1;
+        $statement = $mysqli->prepare('INSERT INTO users (username, email, password, role, is_active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NOW(), NOW())');
+        $statement->bind_param('ssssi', $username, $email, $hash, $role, $active);
+        $statement->execute();
+        setFlash('success', 'Ադմինի հաշիվը ստեղծվեց։');
+        header('Location: content.php?view=users');
+        exit;
+    }
+
+    if ($action === 'user_delete') {
+        $id = (int) ($_POST['id'] ?? 0);
+        if ($id === (int) ($_SESSION['admin_id'] ?? 0)) {
+            throw new RuntimeException('Չեք կարող ջնջել ակտիվ ադմինի հաշիվը։');
+        }
+        $statement = $mysqli->prepare('DELETE FROM users WHERE id = ?');
+        $statement->bind_param('i', $id);
+        $statement->execute();
+        setFlash('success', 'Օգտատերը հեռացվեց։');
+        header('Location: content.php?view=users');
+        exit;
+    }
+
+    if ($action === 'user_role' || $action === 'user_active') {
+        $id = (int) ($_POST['id'] ?? 0);
+        if ($action === 'user_role') {
+            $role = (string) ($_POST['role'] ?? '');
+            if (!in_array($role, ['admin', 'customer'], true)) {
+                throw new RuntimeException('Օգտատիրոջ դերը սխալ է։');
+            }
+            $statement = $mysqli->prepare('UPDATE users SET role = ? WHERE id = ?');
+            $statement->bind_param('si', $role, $id);
+        } else {
+            $value = (int) ($_POST['value'] ?? 0) === 1 ? 1 : 0;
+            if ($id === (int) ($_SESSION['admin_id'] ?? 0) && $value === 0) {
+                throw new RuntimeException('Չեք կարող անջատել ակտիվ ադմինին։');
+            }
+            $statement = $mysqli->prepare('UPDATE users SET is_active = ? WHERE id = ?');
+            $statement->bind_param('ii', $value, $id);
+        }
+        $statement->execute();
+        setFlash('success', 'Օգտատիրոջ տվյալները թարմացվեցին։');
+        header('Location: content.php?view=users');
+        exit;
     }
 } catch (RuntimeException $exception) {
     setFlash('error', $exception->getMessage());

@@ -1,0 +1,55 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - path: server/.env
+        format: raw
+    environment:
+      NODE_ENV: production
+      PORT: 8080
+      DATABASE_URL: mysql://${MYSQL_USER:-jewelry}:${MYSQL_PASSWORD:-jewelry_password}@mysql:3306/${MYSQL_DATABASE:-jewelry_db}
+    ports:
+      - "8080:8080"
+    volumes:
+      - uploads:/app/server/uploads
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+
+  admin:
+    build:
+      context: .
+      dockerfile: admin/Dockerfile
+    environment:
+      DATABASE_URL: mysql://${MYSQL_USER:-jewelry}:${MYSQL_PASSWORD:-jewelry_password}@mysql:3306/${MYSQL_DATABASE:-jewelry_db}
+    ports:
+      - "8000:80"
+    volumes:
+      - uploads:/var/www/server/uploads
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-jewelry_db}
+      MYSQL_USER: ${MYSQL_USER:-jewelry}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-jewelry_password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  uploads:

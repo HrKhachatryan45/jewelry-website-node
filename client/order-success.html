@@ -22,9 +22,18 @@
     <main class="section-padding text-center">
         <h1 class="font-heading text-3xl mb-4">Պատվերը հաջողությամբ ընդունված է</h1>
         <p class="mb-8">Շնորհակալություն։ Մենք շուտով կկապվենք ձեզ հետ։</p>
+        <p id="guest-login" class="hidden mb-8 text-sm text-foreground/60">
+            Մուտք գործեք ձեր հաշիվ՝ պատվերը հետագայում դիտելու համար։
+            <a href="/login?next=%2Faccount" class="text-luxe-gold underline">Մուտք գործել</a>
+        </p>
         <a href="/" class="btn-luxe btn-luxe-primary">Գլխավոր էջ</a>
     </main>
     <div id="footer-slot"></div>
     <div id="toast-slot"></div>
+    <script>
+        if (new URLSearchParams(window.location.search).get('guest') === '1') {
+            document.getElementById('guest-login').classList.remove('hidden');
+        }
+    </script>
 </body>
 </html>

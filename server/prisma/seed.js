@@ -62,7 +62,7 @@ async function seedItems() {
     await fs.promises.copyFile(sourcePath, destinationPath);
   }
 
-  for (const it of data.bakery_app_menuitem) {
+  for (const it of data.products) {
     const product = await prisma.menuItem.upsert({
       where: { id: it.id },
       create: {
@@ -99,7 +99,7 @@ async function seedItems() {
     void product;
   }
 
-  for (const v of data.bakery_app_menuitemvariant) {
+  for (const v of data.product_variants) {
     await prisma.menuItemVariant.upsert({
       where: { id: v.id },
       create: {
@@ -115,7 +115,7 @@ async function seedItems() {
     });
   }
 
-  for (const img of data.bakery_app_menuitemimage) {
+  for (const img of data.product_images) {
     await prisma.menuItemImage.upsert({
       where: { id: img.id },
       create: { id: img.id, menuItemId: img.menu_item_id, image: img.image, order: img.order ?? 0 },
@@ -125,7 +125,7 @@ async function seedItems() {
 }
 
 async function seedReviews() {
-  for (const r of data.bakery_app_review) {
+  for (const r of data.reviews) {
     await prisma.review.upsert({
       where: { id: r.id },
       create: {
@@ -145,14 +145,14 @@ async function seedReviews() {
 }
 
 async function seedHero() {
-  for (const s of data.bakery_app_heroslide) {
+  for (const s of data.hero_slides) {
     await prisma.heroSlide.upsert({
       where: { id: s.id },
       create: { id: s.id, image: s.image, title: s.title || '', order: s.order ?? 0, isActive: s.is_active },
       update: { image: s.image, title: s.title || '', order: s.order ?? 0, isActive: s.is_active },
     });
   }
-  const hs = data.bakery_app_herosettings?.[0];
+  const hs = data.hero_settings?.[0];
   if (hs) {
     await prisma.heroSettings.upsert({
       where: { id: 1 },
@@ -163,7 +163,7 @@ async function seedHero() {
 }
 
 async function seedOrders() {
-  for (const o of data.bakery_app_order || []) {
+  for (const o of data.orders || []) {
     await prisma.order.upsert({
       where: { id: o.id },
       create: {
@@ -194,7 +194,7 @@ async function seedOrders() {
       update: { status: o.status || 'new', isPaid: o.is_paid ?? false },
     });
   }
-  for (const it of data.bakery_app_orderitem || []) {
+  for (const it of data.order_items || []) {
     await prisma.orderItem.upsert({
       where: { id: it.id },
       create: {
@@ -216,7 +216,7 @@ async function seedOrders() {
 }
 
 async function seedMessages() {
-  for (const m of data.bakery_app_contactmessage || []) {
+  for (const m of data.contact_messages || []) {
     await prisma.contactMessage.upsert({
       where: { id: m.id },
       create: { id: m.id, name: m.name, email: m.email, phone: m.phone || '', message: m.message, createdAt: m.created_at ? new Date(m.created_at) : undefined },
@@ -226,7 +226,7 @@ async function seedMessages() {
 }
 
 async function seedBespoke() {
-  for (const b of data.bakery_app_bespokeorder || []) {
+  for (const b of data.bespoke_orders || []) {
     await prisma.bespokeOrder.upsert({
       where: { id: b.id },
       create: {
@@ -253,15 +253,15 @@ async function seedBespoke() {
 // Keep Postgres sequences in sync after inserting explicit IDs.
 async function resetSequences() {
   const tables = [
-    'bakery_app_menuitem',
-    'bakery_app_menuitemvariant',
-    'bakery_app_menuitemimage',
-    'bakery_app_review',
-    'bakery_app_order',
-    'bakery_app_orderitem',
-    'bakery_app_heroslide',
-    'bakery_app_bespokeorder',
-    'bakery_app_contactmessage',
+    'products',
+    'product_variants',
+    'product_images',
+    'reviews',
+    'orders',
+    'order_items',
+    'hero_slides',
+    'bespoke_orders',
+    'contact_messages',
   ];
   for (const t of tables) {
     await prisma.$executeRawUnsafe(

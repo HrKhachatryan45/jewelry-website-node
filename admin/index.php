@@ -47,7 +47,7 @@ if ($isAuthenticated) {
             }
 
             $whereSql = $where === [] ? '' : ' WHERE ' . implode(' AND ', $where);
-            $countQuery = $mysqli->prepare('SELECT COUNT(*) AS total FROM bakery_app_menuitem p' . $whereSql);
+            $countQuery = $mysqli->prepare('SELECT COUNT(*) AS total FROM products p' . $whereSql);
             if ($parameters !== []) {
                 $countQuery->bind_param($types, ...$parameters);
             }
@@ -60,8 +60,8 @@ if ($isAuthenticated) {
             $productQuery = $mysqli->prepare(
                 'SELECT p.id, p.name, p.description, p.price, p.category, p.is_popular, p.is_new, '
                 . 'p.is_active, p.image, p.material_karat, p.gemstone, '
-                . 'COALESCE((SELECT SUM(v.stock) FROM bakery_app_menuitemvariant v WHERE v.menu_item_id = p.id), 0) AS stock_total '
-                . 'FROM bakery_app_menuitem p' . $whereSql . ' ORDER BY p.created_at DESC, p.id DESC LIMIT ? OFFSET ?'
+                . 'COALESCE((SELECT SUM(v.stock) FROM product_variants v WHERE v.menu_item_id = p.id), 0) AS stock_total '
+                . 'FROM products p' . $whereSql . ' ORDER BY p.created_at DESC, p.id DESC LIMIT ? OFFSET ?'
             );
             $listParameters = $parameters;
             $listTypes = $types . 'ii';
@@ -150,7 +150,14 @@ function pageUrl(int $targetPage, string $search, string $category): string
         </a>
         <div class="store-label">ԿԱՌԱՎԱՐՈՒՄ</div>
         <nav class="navigation" aria-label="Main navigation">
-            <a class="nav-link active" href="index.php"><span class="nav-icon">◇</span>Զարդեր<span class="nav-count"><?= number_format($totalProducts) ?></span></a>
+            <a class="nav-link" href="dashboard.php"><span class="nav-icon"><?= adminIcon('dashboard') ?></span>Վահանակ</a>
+            <a class="nav-link active" href="index.php"><span class="nav-icon"><?= adminIcon('products') ?></span>Զարդեր<span class="nav-count"><?= number_format($totalProducts) ?></span></a>
+            <a class="nav-link" href="content.php?view=hero"><span class="nav-icon"><?= adminIcon('hero') ?></span>Գլխ. նկարներ</a>
+            <a class="nav-link" href="content.php?view=orders"><span class="nav-icon"><?= adminIcon('orders') ?></span>Պատվերներ</a>
+            <a class="nav-link" href="content.php?view=bespoke"><span class="nav-icon"><?= adminIcon('bespoke') ?></span>Անհատական</a>
+            <a class="nav-link" href="content.php?view=reviews"><span class="nav-icon"><?= adminIcon('reviews') ?></span>Կարծիքներ</a>
+            <a class="nav-link" href="content.php?view=messages"><span class="nav-icon"><?= adminIcon('messages') ?></span>Կապ</a>
+            <a class="nav-link" href="content.php?view=users"><span class="nav-icon"><?= adminIcon('users') ?></span>Օգտատերեր</a>
         </nav>
         <div class="sidebar-bottom">
             
@@ -194,7 +201,7 @@ function pageUrl(int $targetPage, string $search, string $category): string
                     </select>
                     <button class="filter-button" type="submit">Ֆիլտրել</button>
                 </form>
-                <a class="primary-button" href="#add-product"><span>＋</span> Ավելացնել զարդ</a>
+                <a class="primary-button" href="edit.php?new=1"><span>＋</span> Ավելացնել զարդ</a>
             </section>
 
             <section class="collection-section">
@@ -203,7 +210,7 @@ function pageUrl(int $targetPage, string $search, string $category): string
                         <span>◇</span>
                         <h3><?= $search !== '' || $category !== '' ? 'Արդյունքներ չեն գտնվել' : 'Տեսականին դատարկ է' ?></h3>
                         <p><?= $search !== '' || $category !== '' ? 'Փորձեք փոխել ֆիլտրները կամ ավելացնել նոր ապրանքը։' : 'Ավելացրեք առաջին զարդը։' ?></p>
-                        <?php if ($search === '' && $category === ''): ?><a class="primary-button" href="#add-product">＋ Ավելացնել առաջին զարդը</a><?php endif; ?>
+                        <?php if ($search === '' && $category === ''): ?><a class="primary-button" href="edit.php?new=1">＋ Ավելացնել առաջին զարդը</a><?php endif; ?>
                     </div>
                 <?php else: ?>
                     <div class="product-grid">

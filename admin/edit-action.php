@@ -10,6 +10,87 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 verifyCsrf();
 
+function saveAdditionalImages(array $files): array
+{
+    $paths = [];
+    foreach (($files['name'] ?? []) as $index => $_name) {
+        $paths[] = saveProductImage([
+            'name' => $files['name'][$index] ?? '',
+            'type' => $files['type'][$index] ?? '',
+            'tmp_name' => $files['tmp_name'][$index] ?? '',
+            'error' => $files['error'][$index] ?? UPLOAD_ERR_NO_FILE,
+            'size' => $files['size'][$index] ?? 0,
+        ]);
+    }
+    return array_values(array_filter($paths));
+}
+
+$isCreate = !isset($_POST['product_id']);
+$categories = productCategories();
+if ($isCreate) {
+    try {
+        $name = trim((string) ($_POST['name'] ?? ''));
+        $category = (string) ($_POST['category'] ?? '');
+        $price = filter_var($_POST['price'] ?? null, FILTER_VALIDATE_FLOAT);
+        if ($name === '' || !isset($categories[$category]) || $price === false || $price < 0) {
+            throw new RuntimeException('Լրացրեք ապրանքի պարտադիր դաշտերը։');
+        }
+        $imagePath = saveProductImage($_FILES['image'] ?? []);
+        if ($imagePath === null) {
+            throw new RuntimeException('Ավելացրեք առնվազն մեկ նկար։');
+        }
+        $imagePath = saveProductImage($_FILES['image'] ?? []);
+        $additionalPaths = saveAdditionalImages($_FILES['additional_images'] ?? []);
+        $slug = uniqueProductSlug($mysqli, $name);
+        $description = trim((string) ($_POST['description'] ?? ''));
+        $material = trim((string) ($_POST['material_karat'] ?? ''));
+        $gemstone = trim((string) ($_POST['gemstone'] ?? ''));
+        $dimensions = trim((string) ($_POST['dimensions'] ?? ''));
+        $materials = array_values(array_filter(array_map('trim', explode(',', (string) ($_POST['available_materials'] ?? '')))));
+        $materialsJson = json_encode($materials, JSON_THROW_ON_ERROR);
+        $priceValue = (string) (int) round((float) $price);
+        $popular = isset($_POST['is_popular']) ? 1 : 0;
+        $new = isset($_POST['is_new']) ? 1 : 0;
+        $active = isset($_POST['is_active']) ? 1 : 0;
+        $custom = isset($_POST['allows_custom_text']) ? 1 : 0;
+        $prep = max(0, (int) ($_POST['preparation_days'] ?? 7));
+        $priceType = ($_POST['price_type'] ?? 'fixed') === 'per_gram' ? 'per_gram' : 'fixed';
+        $model = trim((string) ($_POST['model_3d'] ?? ''));
+        $statement = $mysqli->prepare(
+            'INSERT INTO products (name, slug, description, price, category, is_popular, is_new, is_active, image, material_karat, gemstone, dimensions, available_materials, allows_custom_text, preparation_days, price_type, model_3d, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())'
+        );
+        $statement->bind_param('sssssiiisssssiisss', $name, $slug, $description, $priceValue, $category, $popular, $new, $active, $imagePath, $material, $gemstone, $dimensions, $materialsJson, $custom, $prep, $priceType, $model);
+        $statement->execute();
+        $productId = (int) $mysqli->insert_id;
+        foreach ($additionalPaths as $order => $additionalPath) {
+            $imageStatement = $mysqli->prepare('INSERT INTO product_images (menu_item_id, image, `order`) VALUES (?, ?, ?)');
+            $imageStatement->bind_param('isi', $productId, $additionalPath, $order);
+            $imageStatement->execute();
+        }
+        $variants = $_POST['variants'] ?? [];
+        if (is_array($variants)) {
+            foreach ($variants as $variant) {
+                if (!is_array($variant)) continue;
+                $size = trim((string) ($variant['size'] ?? ''));
+                $weight = (string) max(0, (float) ($variant['weight'] ?? 0));
+                $stock = max(0, (int) ($variant['stock'] ?? 0));
+                $variantPrice = (string) (int) round((float) ($variant['price'] ?? $price));
+                $available = isset($variant['is_available']) ? 1 : 0;
+                $variantStatement = $mysqli->prepare('INSERT INTO product_variants (menu_item_id, size, weight, stock, price, is_available) VALUES (?, ?, ?, ?, ?, ?)');
+                $variantStatement->bind_param('issisi', $productId, $size, $weight, $stock, $variantPrice, $available);
+                $variantStatement->execute();
+            }
+        }
+        setFlash('success', 'Զարդը ավելացվել է տեսականուն։');
+        header('Location: edit.php?id=' . $productId);
+        exit;
+    } catch (Throwable $exception) {
+        setFlash('error', $exception->getMessage());
+        header('Location: edit.php?new=1');
+        exit;
+    }
+}
+
 $productId = filter_var($_POST['product_id'] ?? null, FILTER_VALIDATE_INT);
 if ($productId === false || $productId < 1) {
     http_response_code(400);
@@ -39,12 +120,61 @@ try {
         throw new RuntimeException('Մուտքագրեք պատրաստման օրերի ճիշտ քանակը։');
     }
 
-    $productStatement = $mysqli->prepare('SELECT id, name FROM bakery_app_menuitem WHERE id = ? LIMIT 1');
+    $productStatement = $mysqli->prepare('SELECT id, name, image FROM products WHERE id = ? LIMIT 1');
     $productStatement->bind_param('i', $productId);
     $productStatement->execute();
     $current = $productStatement->get_result()->fetch_assoc();
     if (!$current) {
         throw new RuntimeException('Զարդն այլևս գոյություն չունի։');
+    }
+
+    $additionalPaths = saveAdditionalImages($_FILES['additional_images'] ?? []);
+    $imagesData = json_decode((string) ($_POST['images_data'] ?? '[]'), true);
+    if (!is_array($imagesData) || $imagesData === []) {
+        throw new RuntimeException('Ապրանքի պատկերասրահը սխալ է։');
+    }
+    $galleryChanged = true;
+    $newImageIndex = 0;
+    $coverPath = null;
+    $orderedGalleryPaths = [];
+    foreach ($imagesData as $index => $imageData) {
+        if (!is_array($imageData)) {
+            throw new RuntimeException('Ապրանքի պատկերը սխալ է։');
+        }
+        $type = (string) ($imageData['type'] ?? '');
+        if ($type === 'new') {
+            $path = $index === 0
+                ? $imagePath
+                : ($additionalPaths[$newImageIndex++] ?? null);
+            if ($path === null) {
+                throw new RuntimeException('Նոր պատկերը չի վերբեռնվել։');
+            }
+        } elseif ($type === 'main') {
+            $path = (string) ($current['image'] ?? '');
+        } elseif ($type === 'existing') {
+            $imageId = filter_var($imageData['id'] ?? null, FILTER_VALIDATE_INT);
+            if ($imageId === false || $imageId < 1) {
+                throw new RuntimeException('Պատկերասրահի պատկերը սխալ է։');
+            }
+            $imageStatement = $mysqli->prepare('SELECT image FROM product_images WHERE id = ? AND menu_item_id = ? LIMIT 1');
+            $imageStatement->bind_param('ii', $imageId, $productId);
+            $imageStatement->execute();
+            $imageRow = $imageStatement->get_result()->fetch_assoc();
+            if (!$imageRow) {
+                throw new RuntimeException('Պատկերասրահի պատկերը չի գտնվել։');
+            }
+            $path = (string) $imageRow['image'];
+        } else {
+            throw new RuntimeException('Պատկերի տեսակը սխալ է։');
+        }
+        if ($index === 0) {
+            $coverPath = $path;
+        } else {
+            $orderedGalleryPaths[] = $path;
+        }
+    }
+    if ($coverPath === null || $coverPath === '') {
+        throw new RuntimeException('Ավելացրեք առնվազն մեկ նկար։');
     }
 
     $variants = $_POST['variants'] ?? [];
@@ -53,7 +183,7 @@ try {
     }
 
     $existingStatement = $mysqli->prepare(
-        'SELECT id FROM bakery_app_menuitemvariant WHERE menu_item_id = ?'
+        'SELECT id FROM product_variants WHERE menu_item_id = ?'
     );
     $existingStatement->bind_param('i', $productId);
     $existingStatement->execute();
@@ -94,7 +224,6 @@ try {
         ];
     }
 
-    $imagePath = saveProductImage($_FILES['image'] ?? []);
     $tryOnPath = saveProductImage($_FILES['try_on_asset'] ?? []);
     if ($tryOnPath !== null && pathinfo($tryOnPath, PATHINFO_EXTENSION) !== 'png') {
         unlink(MENU_UPLOAD_DIR . '/' . basename($tryOnPath));
@@ -121,9 +250,9 @@ try {
 
     $mysqli->begin_transaction();
     try {
-        if ($imagePath === null && $tryOnPath === null && $slug === null) {
+        if (!$galleryChanged && $imagePath === null && $tryOnPath === null && $slug === null) {
             $statement = $mysqli->prepare(
-                'UPDATE bakery_app_menuitem SET name=?, description=?, price=?, category=?, '
+                'UPDATE products SET name=?, description=?, price=?, category=?, '
                 . 'is_popular=?, is_new=?, is_active=?, material_karat=?, gemstone=?, dimensions=?, '
                 . 'available_materials=?, allows_custom_text=?, preparation_days=?, price_type=?, '
                 . 'model_3d=?, updated_at=NOW() WHERE id=?'
@@ -149,7 +278,7 @@ try {
             );
         } else {
             $slugValue = $slug ?? (string) $current['name'];
-            $sql = 'UPDATE bakery_app_menuitem SET name=?, description=?, price=?, category=?, '
+            $sql = 'UPDATE products SET name=?, description=?, price=?, category=?, '
                 . 'is_popular=?, is_new=?, is_active=?, material_karat=?, gemstone=?, dimensions=?, '
                 . 'available_materials=?, allows_custom_text=?, preparation_days=?, price_type=?, '
                 . 'model_3d=?, updated_at=NOW()';
@@ -164,7 +293,11 @@ try {
                 $types .= 's';
                 $values[] = &$slugValue;
             }
-            if ($imagePath !== null) {
+            if ($galleryChanged) {
+                $sql .= ', image=?';
+                $types .= 's';
+                $values[] = &$coverPath;
+            } elseif ($imagePath !== null) {
                 $sql .= ', image=?';
                 $types .= 's';
                 $values[] = &$imagePath;
@@ -182,10 +315,19 @@ try {
         }
         $statement->execute();
 
+        $deleteImages = $mysqli->prepare('DELETE FROM product_images WHERE menu_item_id = ?');
+        $deleteImages->bind_param('i', $productId);
+        $deleteImages->execute();
+        foreach ($orderedGalleryPaths as $order => $galleryPath) {
+            $insertImage = $mysqli->prepare('INSERT INTO product_images (menu_item_id, image, `order`) VALUES (?, ?, ?)');
+            $insertImage->bind_param('isi', $productId, $galleryPath, $order);
+            $insertImage->execute();
+        }
+
         foreach ($existingIds as $existingId) {
             if (!in_array($existingId, $keptIds, true)) {
                 $deleteVariant = $mysqli->prepare(
-                    'DELETE FROM bakery_app_menuitemvariant WHERE id = ? AND menu_item_id = ?'
+                    'DELETE FROM product_variants WHERE id = ? AND menu_item_id = ?'
                 );
                 $deleteVariant->bind_param('ii', $existingId, $productId);
                 $deleteVariant->execute();
@@ -195,7 +337,7 @@ try {
         foreach ($cleanVariants as $variant) {
             if ($variant['id'] === null) {
                 $insertVariant = $mysqli->prepare(
-                    'INSERT INTO bakery_app_menuitemvariant '
+                    'INSERT INTO product_variants '
                     . '(menu_item_id, size, weight, stock, price, is_available) VALUES (?, ?, ?, ?, ?, ?)'
                 );
                 $insertVariant->bind_param(
@@ -210,7 +352,7 @@ try {
                 $insertVariant->execute();
             } else {
                 $updateVariant = $mysqli->prepare(
-                    'UPDATE bakery_app_menuitemvariant SET size=?, weight=?, stock=?, price=?, is_available=? '
+                    'UPDATE product_variants SET size=?, weight=?, stock=?, price=?, is_available=? '
                     . 'WHERE id=? AND menu_item_id=?'
                 );
                 $updateVariant->bind_param(
